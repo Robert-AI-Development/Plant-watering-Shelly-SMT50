@@ -90,6 +90,14 @@ Stückliste mit Bezugsquellen, Verdrahtung mit Bild, Kalibrieranleitung, Install
 | 10 | pctHi-Regel | Sicherheitsfaktor `lrn.sf` (Start 1.0); neue cfg2-Felder `sfMin` 0.5, `sfStep` 0.1; Dosis wird mit `sf` multipliziert |
 | 11 | job schreiben | bei Änderung von `ok/sec/why/pct` **oder** wenn das nächste Gießfenster im nächsten Takt liegt; `bw_main` liest `winA/winB` aus cfg3, der Installer baut den Zeitplan aus denselben Feldern |
 | 12 | Switch-Konfiguration | Installer setzt `Switch.SetConfig {initial_state:"off", auto_off:true, auto_off_delay: tMax + 10}` |
+| 13 | Schrittliste `steps[]` am Dateiende | mJS hoistet Funktionsdeklarationen nicht; `var steps = [stepRead, …]` oben in der Datei bricht am Gerät mit `ReferenceError` ab (erster Gerätetest 12.09.2026). Die Liste steht deshalb in allen drei Scripts direkt vor dem abschließenden `next()`. `syntax.test.js` prüft „Verwendung vor Deklaration auf Modulebene“, weil der Node-Mock hoistet und den Fehler nicht zeigt. Details in `LEARNING.md` |
+| 14 | Flache Schrittkette | mJS bricht bei etwa 10 verschachtelten Aufrufen ab (`bw_pump` am Gerät: „Too much recursion“). `next()` ist eine Schleife; synchron fertige Schritte geben `true` zurück, asynchrone rufen `next()` aus dem Callback, Warteschlangen-Treiber geben `true` bei leerer Warteschlange. Aufruftiefe im Mock gemessen und auf 10 begrenzt (Gerät: 12 ok, 14 Absturz; Scripts vorher 9–11, jetzt 5). Details in `LEARNING.md` |
+| 15 | KVS-Werte als JSON-Strings | Das Gerät speichert Objekte korrekt (Probe am 12.09.2026), aber die Web-UI zeigt sie als `[object Object]` und kann sie nicht bearbeiten – `cfg2` wird aber von Hand gepflegt. Deshalb `JSON.stringify` beim Schreiben, `fromKvs()` (JSON.parse) beim Lesen; der Mock hält Rohwerte wie das Gerät und meldet Nicht-String-Werte. Gleiches Muster wie im Referenz-Script des Projektleiters (Spotelly) |
+| 16 | Installer ersetzt unlesbare Einträge | Ein KVS-Eintrag, der kein JSON-Objekt ergibt (z. B. `[object Object]` aus v0.1.0 oder ein Tippfehler beim Bearbeiten), wird durch die Startwerte ersetzt und in der Konsole gemeldet. Gültige Einträge werden weiterhin nie überschrieben |
+| 17 | Upload aus `dist/` | Script-Speicher am Gerät ist begrenzt (~15.000 Byte seit FW 1.0.3); `bw_main.js` mit Kommentaren überschreitet das. `npm run build` schreibt die Kompakt-Ausgabe (Kommentare, Einrückung, Leerzeilen entfernt, Versionszeile bleibt), `size.test.js` prüft Grenze und `node --check`. `scripts/` bleibt die einzige Quelle. Nachtrag: Firmware 2.0.0 speichert auch 19 KB – die 15-KB-Grenze bleibt als Vorsichtsmaß im Test |
+| 18 | Debug-Schalter | `var DEBUG = 0;` in jedem Script; `dbg()` loggt nur bei 1. `rpc()` kapselt `Shelly.call` und loggt Methode + Parameter, `next()` loggt jeden Schritt, `onKvsPage` jeden Eintrag mit Typ, dazu Messwerte (Proben, Wasserstand, Pumpen-Überwachung, Auftrag). Kostet eine Stack-Ebene (Tiefe 5 statt 4) und ~0,6 KB |
+| 19 | Upload per RPC mit Größenkontrolle | Der Editor der Web-UI hat beim Einfügen das Dateiende verloren (166/210 Byte). `tools/put-script.js` lädt per `Script.PutCode` in Stücken hoch und vergleicht `Script.GetCode → left` mit der Dateigröße; auch nach Einfügen im Editor ist diese Kontrolle Pflicht (README) |
+| 20 | Schedule.Create-Retry | Der erste `Schedule.Create` je Installer-Lauf scheitert am Gerät mit einem irreführenden „timespec validation"-Fehler (Inhalt egal; per curl/Probe ist derselbe Aufruf gültig). `onCreate` wiederholt bis 3× nach 400 ms; der zweite Versuch gelingt. Mock bildet den Quirk nach (`schedCreateFailFirst`), zwei Tests sichern den Retry. Root Cause vermutlich espruino-Heap des großen Scripts, nicht abschließend geklärt |
 
 ## Abweichungen vom Onboarding-Prompt (alle aus Entscheidungen oder aus Widersprüchen der Docs)
 
@@ -111,9 +119,17 @@ Stückliste mit Bezugsquellen, Verdrahtung mit Bild, Kalibrieranleitung, Install
 - **Erfahrungswerte:** 8–9 KVS-Schreibvorgänge an Tagen ohne Gabe, 13–16 an Tagen mit Gabe; `bw_main` läuft im Mock 2,6 s, `bw_pump` `sec` + 5–7 s.
 - **Stand der Prüfung:** 53 Tests in `tools/test/` grün (Installer, Messen, Freigabekette, Dosis, Pause, Pumpe, Lernen, Szenario über sieben Tage inklusive Hitzetage und „keine Wirkung").
 
+## Nachträge aus dem ersten Gerätetest (12.09.2026)
+
+- **Abweichung zu Etappe 1/2/4:** Die Scripts v0.1.0 starteten am Gerät gar nicht (`ReferenceError: "stepRead" is not defined`), obwohl alle 53 Mock-Tests grün waren. Ursache und Fix: Entscheidung 13; Lern-Log in `LEARNING.md`. Version der drei Scripts jetzt 0.1.1.
+- **Zweiter Fehler am Gerät:** `bw_pump` starb mit „Too much recursion“ – die verschachtelte Schrittkette (jeder Schritt ruft `next()`, das den nächsten Schritt ruft) war 9–11 Ebenen tief. Fix: Entscheidung 14. Der Mock misst die Aufruftiefe jetzt selbst (`max. Aufruftiefe` in `tools/run-script.js`).
+- **Probe am Gerät (`tools/probe/engine_probe.js`):** `KVS.Set` funktioniert mit RPC-Objekten, Literalen, JSON-Kopien und Strings gleichermaßen (ec=0); `KVS.GetMany` liefert `items` als Array; der frühere Fehler `KVS.Set lrn: Missing required argument 'key'` ließ sich nicht reproduzieren – er trat nur in der tiefen Aufrufkette auf und wird nach dem Umbau beobachtet. Stackgrenze: siehe `LEARNING.md`.
+- **Dritter Fehler am Gerät:** `bw_main` v0.1.1 brach mit `ReferenceError: "evalSamples" is not defined` ab – eine Funktion aus der Dateimitte fehlte, obwohl derselbe Pfad mit v0.1.0 lief. Ursache per `Script.GetCode` bestätigt: am Gerät fehlten 166 (`bw_install`) bzw. 210 Byte (`bw_main`) am Dateiende – Verlust beim Einfügen im Editor, nicht das Speicherlimit (Firmware 2.0.0 hält 19 KB). Abhilfe: Entscheidung 19.
+- **Grenze des Mocks:** Der Mock führt die Scripts in V8 aus (`vm.runInNewContext`). Was V8 großzügiger auslegt als mJS (Hoisting, Stacktiefe, evtl. weitere Sprachdetails), fällt nur am Gerät oder über Regeln in `syntax.test.js` bzw. Messungen im Mock auf. Jede weitere Engine-Überraschung wird dort nachgetragen.
+
 ## Offen, bevor Etappe 3 am Gerät abgeschlossen werden kann
 
 - `pctSoll`, `pctLo`, `pctHi`, `pctDry` aus den zwei Messungen an der Pflanze
 - `dropSlow` für die 48-h-Regel
 - Bestätigung: Eingang 1 (`input:1`, Klemme IN2) = 1 bedeutet leer
-- Bestätigung: Analogeingang heißt `voltmeter:100`, DS18B20 heißt `temperature:100` (erste Konsolenzeile von `bw_main`)
+- ~~Bestätigung: Analogeingang heißt `voltmeter:100`, DS18B20 heißt `temperature:100`~~ – bestätigt 12.09.2026 (`bw_main`: `V=0.28 … tC=24.4` mit den Standard-IDs 100)

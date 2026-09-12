@@ -1,12 +1,13 @@
 {
   "name": "pflanzenbewaesserung-shelly-smt50",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "Lernende Pflanzenbewässerung auf dem Shelly Plus Uni (SMT50, DS18B20). Scripts laufen am Gerät; tools/ enthält einen Node-Mock zum Testen ohne Gerät.",
   "license": "MIT",
   "engines": { "node": ">=20" },
   "scripts": {
     "test": "node --test \"tools/test/*.test.js\"",
-    "check": "node --check scripts/bw_install.js && node --check scripts/bw_main.js && node --check scripts/bw_pump.js"
+    "check": "node --check scripts/bw_install.js && node --check scripts/bw_main.js && node --check scripts/bw_pump.js",
+    "build": "node tools/build.js"
   }
 }

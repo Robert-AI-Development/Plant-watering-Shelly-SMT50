@@ -1,4 +1,4 @@
-// bw_main.js v0.1.0 – Arbeitstakt alle 15 min: messen, bewerten, lernen, Pause bestimmen, Gießauftrag schreiben
+// bw_main.js v0.1.1 – Arbeitstakt alle 15 min: messen, bewerten, lernen, Pause bestimmen, Gießauftrag schreiben
 //
 // Einmal-Läufer: startet über den Zeitplan, arbeitet eine Schrittkette ab und beendet sich per Script.Stop.
 // Rührt die Pumpe nie an. Alles Wissen liegt im KVS (cfg1..3, lrn, st, job, day, err), nichts im RAM.
@@ -7,7 +7,8 @@
 // Regeln: docs/konzept-v2.md, docs/umsetzungsplan-v1.md/-v2.md, Entscheidungen in docs/PLAN.md.
 // Immer nur ein offener RPC-Aufruf, ein Timer, alle Callbacks benannt (Gerätegrenzen laut Doku).
 
-var VER = "0.1.0";
+var VER = "0.1.1";
+var DEBUG = 0;                 // 1 = Debug-Zeilen in der Konsole: Schritte, RPC-Aufrufe, KVS-Inhalt, Messwerte
 var TICK_MIN = 15;   // Takt des Zeitplans in Minuten (bw_install: "0 */15 * * * *"); nur für die job-Schreibregel
 
 // Pflichtfelder je Konfigurationseintrag; OPEN2 darf null sein (Kalibrierung noch offen → nur messen)
@@ -30,21 +31,38 @@ var m = { V: null, pct: null, tC: null, lvl: null, empty: null, sensorOk: false,
 var out = { why: "-", sec: "-", pauseH: "-" };
 var wq = [], wi = 0;
 var t0 = 0;
-var steps = [stepRead, stepCfg, stepClock, stepSample, stepDay, stepEval, stepWrite, stepDone];
 var si = 0;
 
 // ---- Hilfen ------------------------------------------------------------
 function log(s) { print("[bw_main " + VER + "] " + s); }
-function stop() { Shelly.call("Script.Stop", { id: Shelly.getCurrentScriptId() }); }
+function dbg(s) { if (DEBUG) print("[bw_main dbg] " + s); }
+function rpc(m, p, cb, ud) { dbg("rpc " + m + " " + JSON.stringify(p)); Shelly.call(m, p, cb, ud); }
+function stop() { rpc("Script.Stop", { id: Shelly.getCurrentScriptId() }); }
 function fail(e) { log("ABBRUCH: " + (e && e.message ? e.message : e)); stop(); }
 function next() {
-  if (si >= steps.length) { stop(); return; }
-  var f = steps[si];
-  si = si + 1;
-  try { f(); } catch (e) { fail(e); }
+  // Flache Schleife statt verschachtelter Aufrufe: mJS verträgt nur etwa 10 Stack-Ebenen (LEARNING.md).
+  // Ein Schritt gibt true zurück, wenn er sofort fertig ist; sonst wartet er auf seinen Callback, der next() ruft.
+  while (si < steps.length) {
+    var f = steps[si];
+    si = si + 1;
+    dbg("schritt " + si + "/" + steps.length);
+    var more = false;
+    try { more = f(); } catch (e) { fail(e); return; }
+    if (more !== true) return;
+  }
+  stop();
 }
-function jumpTo(f) { for (var i = 0; i < steps.length; i++) { if (steps[i] === f) { si = i; break; } } next(); }
+// Sprungziel setzen; der aufrufende Schritt gibt danach true zurück, damit next() dort weitermacht
+function jumpTo(f) { for (var i = 0; i < steps.length; i++) { if (steps[i] === f) { si = i; break; } } }
 function isNum(x) { return typeof x === "number" && x === x; }
+// KVS-Werte sind JSON-Strings (Entscheidung 15: die Web-UI zeigt Objektwerte nur als [object Object]);
+// unlesbare Werte gelten als fehlend (null)
+function fromKvs(v) {
+  if (typeof v !== "string") return v;
+  var o = null;
+  try { o = JSON.parse(v); } catch (e) { o = null; }
+  return o === undefined ? null : o;
+}
 function r3(x) { return Math.round(x * 1000) / 1000; }
 function clamp(x, lo, hi) { return x < lo ? lo : (x > hi ? hi : x); }
 function missing(o, req) {
@@ -116,25 +134,27 @@ function abortErr(code, msg) {
   if (K.job && K.job.ok) K.job = { ok: false, sec: null, pct: K.job.pct, why: code, ts: now };
   out.why = code;
   jumpTo(stepWrite);
+  return true;
 }
 
 // ---- Schritt 1: KVS lesen (paginiert) -------------------------------------
 function stepRead() { t0 = Shelly.getUptimeMs(); kvsPage(0); }
-function kvsPage(off) { Shelly.call("KVS.GetMany", { match: "*", offset: off }, onKvsPage, off); }
+function kvsPage(off) { rpc("KVS.GetMany", { match: "*", offset: off }, onKvsPage, off); }
 function onKvsPage(res, ec, em, off) {
   if (ec !== 0) { fail("KVS.GetMany: " + em); return; }
   var items = res && res.items ? res.items : {};
   var n = 0;
   if (typeof items.length === "number") {
-    for (var i = 0; i < items.length; i++) { K[items[i].key] = items[i].value; n = n + 1; }
+    for (var i = 0; i < items.length; i++) { K[items[i].key] = fromKvs(items[i].value); n = n + 1; }
   } else {
     var ks = Object.keys(items);
-    for (var j = 0; j < ks.length; j++) { K[ks[j]] = items[ks[j]].value; n = n + 1; }
+    for (var j = 0; j < ks.length; j++) { K[ks[j]] = fromKvs(items[ks[j]].value); n = n + 1; }
   }
   var total = res && isNum(res.total) ? res.total : 0;
   if (n > 0 && off + n < total) { kvsPage(off + n); return; }
   var keys = Object.keys(K);
   for (var q = 0; q < keys.length; q++) orig[keys[q]] = JSON.stringify(K[keys[q]]);
+  if (DEBUG) { for (var d = 0; d < keys.length; d++) dbg("kvs " + keys[d] + " " + typeof K[keys[d]] + " " + orig[keys[d]]); }
   next();
 }
 
@@ -152,30 +172,30 @@ function stepCfg() {
   ram = sys && isNum(sys.ram_free) ? sys.ram_free : null;
   now = sys && isNum(sys.unixtime) ? sys.unixtime : null;
   var miss = missing(c1, REQ1);
-  if (miss !== null) { abortErr("cfg", "cfg1." + miss + " fehlt"); return; }
+  if (miss !== null) { return abortErr("cfg", "cfg1." + miss + " fehlt"); }
   miss = missing(c2, REQ2);
-  if (miss !== null) { abortErr("cfg", "cfg2." + miss + " fehlt"); return; }
+  if (miss !== null) { return abortErr("cfg", "cfg2." + miss + " fehlt"); }
   miss = missing(c3, REQ3);
-  if (miss !== null) { abortErr("cfg", "cfg3." + miss + " fehlt"); return; }
-  if (!(c1.nSample >= 1) || !(c1.nLvl >= 1) || !(c1.msSample >= 1)) { abortErr("cfg", "cfg1.nSample/nLvl/msSample müssen ≥ 1 sein"); return; }
-  if (!(c1.vWet > c1.vDry)) { abortErr("cfg", "cfg1.vWet muss größer als vDry sein"); return; }
-  if (hhmm(c3.winA) === null || hhmm(c3.winB) === null) { abortErr("cfg", "cfg3.winA/winB ungültig (HH:MM)"); return; }
-  next();
+  if (miss !== null) { return abortErr("cfg", "cfg3." + miss + " fehlt"); }
+  if (!(c1.nSample >= 1) || !(c1.nLvl >= 1) || !(c1.msSample >= 1)) { return abortErr("cfg", "cfg1.nSample/nLvl/msSample müssen ≥ 1 sein"); }
+  if (!(c1.vWet > c1.vDry)) { return abortErr("cfg", "cfg1.vWet muss größer als vDry sein"); }
+  if (hhmm(c3.winA) === null || hhmm(c3.winB) === null) { return abortErr("cfg", "cfg3.winA/winB ungültig (HH:MM)"); }
+  return true;
 }
 
 // ---- Schritt 3: Uhrzeit (lokales Datum ohne Date-Objekt) ---------------------
 function stepClock() {
   var s = Shelly.getComponentStatus("sys");
-  if (!s || !isNum(s.unixtime) || typeof s.time !== "string" || s.time.length < 5) { abortErr("uhr", "Uhrzeit nicht gesetzt (kein NTP seit Neustart)"); return; }
+  if (!s || !isNum(s.unixtime) || typeof s.time !== "string" || s.time.length < 5) { return abortErr("uhr", "Uhrzeit nicht gesetzt (kein NTP seit Neustart)"); }
   now = s.unixtime;
   minDay = hhmm(s.time.slice(0, 5));
-  if (minDay === null) { abortErr("uhr", "Sys.time unlesbar: " + s.time); return; }
+  if (minDay === null) { return abortErr("uhr", "Sys.time unlesbar: " + s.time); }
   var utcMin = Math.floor(now / 60) % 1440;
   var off = minDay - utcMin;                // Zeitzonenversatz in Minuten aus lokaler Uhr und Unix-Zeit
   if (off > 720) off = off - 1440;
   if (off < -720) off = off + 1440;
   today = civil(Math.floor((now + off * 60) / 86400));
-  next();
+  return true;
 }
 
 // ---- Schritt 4: Messen mit einem Timer -------------------------------------
@@ -189,6 +209,7 @@ function onSample() {
       smp.lvl.push(is && typeof is.state === "boolean" ? (is.state ? 1 : 0) : null);
     }
     smp.n = smp.n + 1;
+    dbg("probe " + smp.n + " V=" + smp.v[smp.v.length - 1] + " lvl=" + (smp.lvl.length ? smp.lvl[smp.lvl.length - 1] : "-"));
     if (smp.n >= c1.nSample && smp.lvl.length >= c1.nLvl) {
       Timer.clear(smp.h);
       evalSamples();
@@ -234,7 +255,7 @@ function stepDay() {
     K.day = { date: today, n: 0, sec: 0 };
     clrErr("limit");
   }
-  next();
+  return true;
 }
 
 // ---- Schritt 6: Bewerten, Lernen, Pause, Freigabekette -----------------------
@@ -343,6 +364,7 @@ function stepEval() {
     }
     if (sec !== null) { j.ok = true; j.sec = sec; j.why = "ok"; }
   }
+  dbg("job " + JSON.stringify(j) + " state=" + s.state + " pauseOk=" + pauseOk);
   out.why = j.why;
   out.sec = j.sec === null ? "-" : j.sec;
 
@@ -352,7 +374,7 @@ function stepEval() {
     K.job = j;
     clrErr("alt");
   }
-  next();
+  return true;
 }
 
 // ---- Schritt 7: KVS schreiben, nur geänderte Einträge ------------------------
@@ -361,17 +383,18 @@ function stepWrite() {
   wq = [];
   for (var i = 0; i < keys.length; i++) { if (JSON.stringify(K[keys[i]]) !== orig[keys[i]]) wq.push(keys[i]); }
   wi = 0;
-  writeNext();
+  dbg("schreibe " + (wq.length ? wq.join(",") : "nichts"));
+  return writeNext();
 }
 function writeNext() {
-  if (wi >= wq.length) { next(); return; }
+  if (wi >= wq.length) return true;   // Warteschlange leer → nächster Schritt
   var k = wq[wi];
   wi = wi + 1;
-  Shelly.call("KVS.Set", { key: k, value: K[k] }, onWrite, k);
+  rpc("KVS.Set", { key: k, value: JSON.stringify(K[k]) }, onWrite, k);
 }
 function onWrite(res, ec, em, k) {
   if (ec !== 0) log("KVS.Set " + k + " fehlgeschlagen: " + em);
-  writeNext();
+  if (writeNext()) next();
 }
 
 // ---- Schritt 8: eine Konsolenzeile, Ende ------------------------------------
@@ -381,7 +404,10 @@ function stepDone() {
     + " lvl=" + (m.lvl === null ? "?" : m.lvl) + " st=" + s.state + " dry=" + (s.dryOk ? 1 : 0) + " pause=" + out.pauseH + "h"
     + " why=" + out.why + " sec=" + out.sec + " eff=" + (l.eff === null ? "-" : l.eff) + " sf=" + l.sf
     + " err=" + (errCode() === null ? "-" : errCode()) + " w=" + wq.length + " dauer=" + (Shelly.getUptimeMs() - t0) + "ms");
-  next();
+  return true;
 }
 
+// Schrittliste erst hier: mJS hoistet Funktionen nicht, die Namen gibt es erst nach ihrer Deklaration.
+var steps = [stepRead, stepCfg, stepClock, stepSample, stepDay, stepEval, stepWrite, stepDone];
+dbg("start");
 next();

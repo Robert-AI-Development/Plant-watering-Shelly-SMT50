@@ -1,4 +1,4 @@
-// tools/test/syntax.test.js v0.1.0 – erzwingt den Sprachumfang der Shelly-Script-Engine
+// tools/test/syntax.test.js v0.1.1 – erzwingt den Sprachumfang der Shelly-Script-Engine
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
@@ -33,5 +33,26 @@ for (const file of SCRIPTS) {
     // Kommentare und Strings entfernen, damit Regeln nur auf Code wirken
     const code = src.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '').replace(/"(?:[^"\\]|\\.)*"/g, '""').replace(/'(?:[^'\\]|\\.)*'/g, "''");
     for (const [re, what] of FORBIDDEN) assert.ok(!re.test(code), what + ' in ' + name);
+    for (const m of useBeforeDecl(code)) assert.fail(m + ' in ' + name);
   });
+}
+
+// mJS hoistet Funktionsdeklarationen nicht: ein Funktionsname existiert erst, wenn die Ausführung an
+// seiner Deklaration vorbei ist. Modulebene-Code (Klammertiefe 0, keine function-Zeile), der einen später
+// deklarierten Namen benutzt, stirbt auf dem Gerät mit ReferenceError – der Node-Mock hoistet und merkt nichts.
+function useBeforeDecl(code) {
+  const lines = code.split('\n');
+  const decl = new Map();
+  lines.forEach((l, i) => { const m = /^\s*function\s+(\w+)\s*\(/.exec(l); if (m) decl.set(m[1], i + 1); });
+  const found = [];
+  let depth = 0;
+  lines.forEach((l, i) => {
+    if (depth === 0 && !/^\s*function\b/.test(l)) {
+      for (const [fn, at] of decl) {
+        if (at > i + 1 && new RegExp('\\b' + fn + '\\b').test(l)) found.push(fn + ' wird in Zeile ' + (i + 1) + ' vor seiner Deklaration (Zeile ' + at + ') benutzt – mJS hoistet nicht');
+      }
+    }
+    for (const ch of l) { if (ch === '{') depth++; else if (ch === '}') depth--; }
+  });
+  return found;
 }

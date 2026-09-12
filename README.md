@@ -1,6 +1,6 @@
 # Pflanzenbewässerung mit Shelly Plus Uni und SMT50
 
-Version 0.1.0 – Stand 12.09.2026. Stellen mit `[TODO am Gerät]` sind noch am echten Aufbau zu prüfen oder zu messen.
+Version 0.1.1 – Stand 12.09.2026. Stellen mit `[TODO am Gerät]` sind noch am echten Aufbau zu prüfen oder zu messen.
 
 ## Zweck
 
@@ -84,10 +84,10 @@ Voraussetzungen: Shelly Plus Uni im WLAN, Uhrzeit per NTP gesetzt, Zeitzone in d
 
 1. **Peripherie anlegen** (Web-UI des Shelly → Peripherals/Add-ons): Analogeingang als **Voltmeter** mit Bereich 0–15 V (kleinerer Bereich = feinere Auflösung), DS18B20 über den **1-Wire-Scan** hinzufügen. Die IDs erscheinen als `voltmeter:100` und `temperature:100`; weichen sie ab, später in `cfg1.idV`/`cfg1.idT` eintragen.
 2. **Eingang 1** (IN2) in der Web-UI auf Typ „Switch" stellen.
-3. **Scripts anlegen** (Web-UI → Scripts → Add script), Namen exakt `bw_install`, `bw_main`, `bw_pump`. Inhalt aus `scripts/bw_install.js`, `scripts/bw_main.js`, `scripts/bw_pump.js` einfügen und speichern. Kein Script auf „Run on startup" stellen.
+3. **Scripts anlegen** (Web-UI → Scripts → Add script), Namen exakt `bw_install`, `bw_main`, `bw_pump`. Vorher `npm run build` ausführen und den Inhalt aus **`dist/`** (`dist/bw_install.js`, `dist/bw_main.js`, `dist/bw_pump.js`) einfügen und speichern – das ist derselbe Code ohne Kommentare und Einrückung, weil der Script-Speicher am Gerät begrenzt ist (seit Firmware 1.0.3 etwa 15 KB; `bw_main.js` mit Kommentaren liegt darüber). **Der Editor der Web-UI hat beim Einfügen Text verloren** (Firmware 2.0.0, 12.09.2026: 166 bzw. 210 Byte am Dateiende fehlten, Script startete mit `SyntaxError: Got EOF`). Zuverlässiger ist der Upload per RPC: `node tools/put-script.js <ip> <id> dist/bw_main.js` schickt die Datei in Stücken und vergleicht danach die Byte-Zahl am Gerät. Beim Einfügen im Editor **immer** prüfen: `http://<ip>/rpc/Script.GetCode?id=<id>&len=1` liefert `left`; `left + 1` muss der Dateigröße aus `npm run build` entsprechen. Kein Script auf „Run on startup" stellen.
 4. **Installer starten:** `bw_install` einmal mit „Start" ausführen und die Konsole lesen. Er legt acht KVS-Einträge an (nur wenn sie fehlen), drei Zeitplan-Einträge und setzt die Switch-Konfiguration (Ausgang nach Neustart aus, automatische Abschaltung nach `tMax` + 10 s). Danach beendet er sich selbst. Er darf beliebig oft wiederholt werden.
 5. **Prüfen:** Web-UI → Schedules zeigt `0 */15 * * * *` (bw_main), `0 0 8,20 * * *` (bw_pump) und `0 5 8,20 * * *` (Switch.Set aus). KVS ansehen: `http://<ip>/rpc/KVS.GetMany?match=*` im Browser oder `tools/kvs_dump.sh <ip>`.
-6. **Zielband eintragen** (siehe Kalibrierung): Eintrag `cfg2` im KVS bearbeiten (Web-UI → Settings → Key-Value Storage, oder per RPC `KVS.Set`).
+6. **Zielband eintragen** (siehe Kalibrierung): Eintrag `cfg2` im KVS bearbeiten (Web-UI → Settings → Key-Value Storage, „Format as JSON“ anhaken, oder per RPC `KVS.Set`). Alle Werte sind JSON-Strings – die Web-UI kann nur Strings anzeigen und bearbeiten; ein Wert, der kein JSON-Objekt ist, wird vom Installer durch die Startwerte ersetzt (Konsole meldet es).
 7. Ab jetzt läuft `bw_main` alle 15 Minuten. Die erste Konsolenzeile zeigt, ob alle drei Sensoren gelesen werden.
 
 ## Konfiguration (alle KVS-Felder)
@@ -158,6 +158,8 @@ Alle Werte liegen im KVS des Shelly; die Scripts enthalten keine Schwellen, Zeit
 
 ## Betrieb und Ablesen
 
+- **Installer/Zeitplan:** Der erste `Schedule.Create` je Lauf scheitert am Gerät gelegentlich mit „timespec validation" – der Installer wiederholt ihn automatisch (bis zu 3×). In der Konsole taucht dann eine Zeile `Schedule.Create '…' Versuch 1/3` auf; das ist normal, am Ende stehen alle drei Zeitplan-Einträge.
+- **Debug:** In jedem Script steht oben `var DEBUG = 0;`. Auf `1` gesetzt, schreibt es zusätzlich jeden Schritt, jeden RPC-Aufruf mit Parametern, jeden gelesenen KVS-Eintrag mit Typ und Inhalt sowie Messwerte (`[bw_main dbg] …`) in die Konsole. Für den Normalbetrieb wieder auf `0`.
 - **Konsole** (Web-UI → Scripts → Script öffnen → Konsole): `bw_main` schreibt je Takt eine Zeile, zum Beispiel `V=1.196 pct=34 tC=22 lvl=0 st=beob dry=0 pause=24h why=ok sec=70 eff=- sf=1 err=- w=3 dauer=2600ms`. `why` ist der Grund für oder gegen einen Auftrag (siehe Tabelle unten), `w` die Zahl der KVS-Schreibvorgänge dieses Takts, `dauer` die Laufzeit.
 - **KVS** ablesen: `http://<ip>/rpc/KVS.GetMany?match=*` oder `tools/kvs_dump.sh <ip>`. `Sys.GetStatus` liefert `kvs_rev`, den Zähler aller Schreibvorgänge.
 - **Von Hand gießen:** `job` auf `{"ok":true,"sec":70,"pct":30,"why":"hand","ts":<unixtime jetzt>}` setzen und innerhalb von `jobAge` Minuten `bw_pump` starten (oder das nächste Fenster abwarten). Die Gabe wird wie jede andere bewertet und gelernt.
@@ -232,7 +234,7 @@ Vorrang: `noeff` wird nie überschrieben; eine blockierende Störung verdrängt 
 - **KVS:** 50 Einträge, je 253 Zeichen. Es gibt keine Messhistorie am Gerät; wer Verläufe will, braucht Stufe 2 (Backend, siehe `docs/konzept-v2.md` Abschnitt 8).
 - **Uhrzeit:** Der Zeitplan braucht eine gültige Uhrzeit. Solange das Gerät durchläuft, hält es die Zeit auch ohne Internet. Nach einem Stromausfall **ohne** Internet steht der Zeitplan, bis NTP wieder erreichbar ist; das System pausiert dann bewusst.
 - **Flash:** Jeder KVS-Schreibvorgang geht auf den Flash-Speicher; die Scripts schreiben nur bei Änderung.
-- **Sprachumfang:** `let`/`var`, Funktionen, `JSON`, `Math`; kein `const`, keine Klassen, keine Promises, kein Hoisting. Details in [`scripts/lib_notes.md`](scripts/lib_notes.md).
+- **Sprachumfang:** `let`/`var`, Funktionen, `JSON`, `Math`; kein `const`, keine Klassen, keine Promises, kein Hoisting – Funktionsnamen dürfen auf Modulebene erst nach ihrer Deklaration benutzt werden, deshalb steht die Schrittliste `steps[]` in jedem Script ganz unten. Die Aufruftiefe ist auf etwa zehn Ebenen begrenzt, deshalb ist die Schrittkette eine flache Schleife. Details in [`scripts/lib_notes.md`](scripts/lib_notes.md), Erfahrungen vom Gerät in [`LEARNING.md`](LEARNING.md).
 - **Analogeingang:** 0–15 V (oder 0–30 V) für ein Nutzsignal von 0–3 V; ein Feuchteprozent sind rund 0,03 V, deshalb Mehrfachmessung und Hysterese.
 
 ## Entwicklung und Tests ohne Gerät

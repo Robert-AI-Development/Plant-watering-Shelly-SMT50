@@ -1,6 +1,6 @@
-// tools/mock/shelly-mock.js v0.1.0 – Geräte-Mock für die Shelly-Gen2-Scripts (Node ≥ 20, keine Abhängigkeiten)
+// tools/mock/shelly-mock.js v0.1.1 – Geräte-Mock für die Shelly-Gen2-Scripts (Node ≥ 20, keine Abhängigkeiten)
 //
-// Bildet nach, was die Scripts vom Gerät brauchen: KVS (50 × 253 Zeichen, Schreibzähler),
+// Bildet nach, was die Scripts vom Gerät brauchen: KVS (50 × 253 Zeichen, Rohwerte als String, Schreibzähler),
 // Zeitplan, Script-Liste, Switch mit toggle_after/auto_off, Sensoren, Sys-Status mit lokaler
 // Uhrzeit, Timer und RPC mit virtueller Uhr. Die Scripts laufen unverändert per vm in einer
 // Sandbox mit den globalen Objekten Shelly, Timer, print, console.
@@ -13,6 +13,8 @@ const path = require('node:path');
 const RPC_DELAY_MS = 20;      // Verzögerung bis zum Callback
 const MAX_PENDING_RPC = 5;    // Gerätegrenze laut Doku
 const MAX_TIMERS = 5;         // Gerätegrenze laut Doku
+const MAX_CALL_DEPTH = 10;    // Aufruftiefe im Script: am Gerät gemessen – 12 Ebenen laufen, 14 stürzen ab ("Too much recursion", LEARNING.md)
+Error.stackTraceLimit = 200;  // damit die Tiefenmessung alle Frames sieht
 const KVS_MAX_KEYS = 50;
 const KVS_MAX_KEY = 42;
 const KVS_MAX_VAL = 253;
@@ -50,6 +52,8 @@ class Device {
     this.schedules = [];
     this.schedNextId = 1;
     this.schedRev = 0;
+    this.schedCreateFailFirst = true;   // Gerätequirk (FW 2.0.0): der erste Schedule.Create je Script-Lauf scheitert mit "timespec validation" (LEARNING.md)
+    this.schedCreateCount = 0;
     this.scripts = [
       { id: 1, name: 'bw_install', enable: false, running: false },
       { id: 2, name: 'bw_main', enable: false, running: false },
@@ -72,6 +76,8 @@ class Device {
     this.switchLog = [];
     this.onSwitch = null;           // Hook function(dev, id, on, nowMs)
     this.errors = [];
+    this.maxCallDepth = 0;          // tiefste gemessene Verschachtelung im Script
+    this.depthReported = false;
     this.currentScript = null;
     this.rpcDelayMs = RPC_DELAY_MS;
   }
@@ -217,10 +223,18 @@ class Device {
   }
 
   // ---- KVS --------------------------------------------------------------
-  kvsGet(key) { const s = this.kvs.get(key); return s === undefined ? undefined : JSON.parse(s); }
-  kvsSetRaw(key, value) { // ohne Zähler, für Test-Vorbereitung
-    this.kvs.set(key, JSON.stringify(value));
+  // Der KVS hält Rohwerte wie das Gerät: unsere Scripts schreiben JSON-Strings (Entscheidung 15).
+  // kvsGet liefert den geparsten Wert (Objekt), kvsSetRaw nimmt Objekte und speichert sie als JSON-String.
+  kvsGet(key) {
+    const s = this.kvs.get(key);
+    if (s === undefined) return undefined;
+    if (typeof s !== 'string') return clone(s);
+    try { return JSON.parse(s); } catch (e) { return s; }
   }
+  kvsSetRaw(key, value) { // ohne Zähler, für Test-Vorbereitung
+    this.kvs.set(key, typeof value === 'string' ? value : JSON.stringify(value));
+  }
+  kvsRaw(key) { return this.kvs.get(key); }
   kvsDelete(key) { this.kvs.delete(key); }
   etag(key) { const s = this.kvs.get(key) || ''; let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) & 0xffffff; return h.toString(16); }
 
@@ -231,13 +245,15 @@ class Device {
     switch (method) {
       case 'KVS.Get': {
         if (!this.kvs.has(P.key)) return { code: -105, msg: "Argument 'key': key not found" };
-        return { result: { etag: this.etag(P.key), value: this.kvsGet(P.key) } };
+        return { result: { etag: this.etag(P.key), value: this.kvs.get(P.key) } };
       }
       case 'KVS.Set': {
         if (typeof P.key !== 'string' || P.key.length === 0) return { code: -103, msg: "Argument 'key': missing" };
         if (P.key.length > KVS_MAX_KEY) return { code: -103, msg: "Argument 'key': too long" };
-        const s = JSON.stringify(P.value);
-        if (s === undefined) return { code: -103, msg: "Argument 'value': missing" };
+        if (P.value === undefined) return { code: -103, msg: "Argument 'value': missing" };
+        // Gerät nimmt jeden JSON-Wert, die Web-UI zeigt aber nur Strings lesbar an → Projektregel: nur JSON-Strings
+        if (typeof P.value !== 'string') this.errors.push('KVS.Set ' + P.key + ': Wert ist ' + typeof P.value + ', kein String – JSON.stringify verwenden (Web-UI zeigt Objekte als [object Object])');
+        const s = typeof P.value === 'string' ? P.value : JSON.stringify(P.value);
         if (s.length > KVS_MAX_VAL) return { code: -103, msg: "Argument 'value': too long (" + s.length + ' > ' + KVS_MAX_VAL + ')' };
         if (!this.kvs.has(P.key) && this.kvs.size >= KVS_MAX_KEYS) return { code: -103, msg: 'KVS full' };
         this.kvs.set(P.key, s);
@@ -259,14 +275,17 @@ class Device {
       case 'KVS.GetMany': {
         const all = [];
         for (const k of this.kvs.keys()) if (this.match(P.match, k)) all.push(k);
+        // Antwortformat wie am Gerät gemessen (Probe 12.09.2026): items als Array von {key, etag, value}, dazu offset/total
         const off = P.offset || 0;
-        const items = {};
-        for (let i = off; i < all.length && i < off + this.kvsPageSize; i++) items[all[i]] = { etag: this.etag(all[i]), value: this.kvsGet(all[i]) };
+        const items = [];
+        for (let i = off; i < all.length && i < off + this.kvsPageSize; i++) items.push({ key: all[i], etag: this.etag(all[i]), value: this.kvs.get(all[i]) });
         return { result: { items: items, offset: off, total: all.length } };
       }
       case 'Schedule.List':
         return { result: { jobs: clone(this.schedules), rev: this.schedRev } };
       case 'Schedule.Create': {
+        // Gerätequirk: der erste Create je Script-Lauf scheitert mit einer irreführenden timespec-Meldung; ein Retry gelingt (LEARNING.md)
+        if (this.schedCreateFailFirst && this.currentScript !== null && this.schedCreateCount === 0) { this.schedCreateCount++; return { code: -103, msg: "Argument 'timespec': Failed validation!" }; }
         if (typeof P.timespec !== 'string') return { code: -103, msg: "Argument 'timespec': missing" };
         if (!Array.isArray(P.calls) || P.calls.length === 0) return { code: -103, msg: "Argument 'calls': missing" };
         if (P.calls.length > SCHED_MAX_CALLS) return { code: -103, msg: 'too many calls' };
@@ -358,9 +377,22 @@ class Device {
   }
 
   // ---- Sandbox für ein Script -------------------------------------------
-  makeSandbox(scriptId) {
+  makeSandbox(scriptId, file) {
     const dev = this;
+    // Aufruftiefe des Scripts an jeder Engine-Grenze messen (print, Shelly.call, Timer.set, JSON): V8 hoistet
+    // und rekursiert beliebig tief, mJS auf dem Gerät nicht – zu tiefe Ketten gelten hier als Fehler.
+    function depthCheck(where) {
+      const lines = new Error().stack.split('\n');
+      let d = 0;
+      for (const l of lines) if (file && l.includes(file)) d++;
+      if (d > dev.maxCallDepth) dev.maxCallDepth = d;
+      if (d > MAX_CALL_DEPTH && !dev.depthReported) {
+        dev.depthReported = true;
+        dev.errors.push('Aufruftiefe ' + d + ' bei ' + where + ' – mJS verträgt nur etwa ' + MAX_CALL_DEPTH + ' Ebenen (Too much recursion, LEARNING.md)');
+      }
+    }
     function print() {
+      depthCheck('print');
       const parts = [];
       for (let i = 0; i < arguments.length; i++) {
         const a = arguments[i];
@@ -370,6 +402,7 @@ class Device {
     }
     const Shelly = {
       call: function (method, params, cb, ud) {
+        depthCheck('Shelly.call ' + method);
         dev.pendingRpc++;
         if (dev.pendingRpc > dev.maxPendingRpc) dev.maxPendingRpc = dev.pendingRpc;
         if (dev.pendingRpc > MAX_PENDING_RPC) dev.errors.push('Mehr als ' + MAX_PENDING_RPC + ' offene RPC-Aufrufe (' + method + ')');
@@ -395,6 +428,7 @@ class Device {
     };
     const Timer = {
       set: function (ms, repeat, cb, ud) {
+        depthCheck('Timer.set');
         if (dev.timers.size >= MAX_TIMERS) { dev.errors.push('Mehr als ' + MAX_TIMERS + ' Timer'); }
         const id = ++dev.timerSeq;
         const t = { period: ms, repeat: !!repeat, cb: cb, ud: ud, ev: null };
@@ -417,7 +451,11 @@ class Device {
       },
       getInfo: function (id) { const t = dev.timers.get(id); return t ? { interval: t.repeat ? t.period : 0, next: t.ev ? t.ev.at - dev.bootMs : 0 } : undefined; },
     };
-    return { Shelly: Shelly, Timer: Timer, print: print, console: { log: print } };
+    const J = {
+      stringify: function (v, r, sp) { depthCheck('JSON.stringify'); return JSON.stringify(v, r, sp); },
+      parse: function (t, r) { depthCheck('JSON.parse'); return JSON.parse(t, r); },
+    };
+    return { Shelly: Shelly, Timer: Timer, print: print, console: { log: print }, JSON: J };
   }
 
   script(name) { return this.scripts.find((s) => s.name === name); }
@@ -426,6 +464,8 @@ class Device {
 // ---- Script ausführen ---------------------------------------------------
 // Lädt die Datei, startet sie als Script mit dem Namen der Datei (bw_install/bw_main/bw_pump)
 // und treibt die virtuelle Uhr, bis das Script sich per Script.Stop beendet hat.
+// Achtung: V8 hoistet Funktionsdeklarationen, mJS auf dem Gerät nicht. Verwendung vor Deklaration auf
+// Modulebene läuft hier durch und stirbt am Gerät – das prüft tools/test/syntax.test.js statisch.
 function runScript(dev, file, opts) {
   opts = opts || {};
   const name = path.basename(file, '.js');
@@ -439,7 +479,10 @@ function runScript(dev, file, opts) {
   script.running = true;
   dev.currentScript = script.id;
   dev.pendingRpc = 0;
-  const sandbox = dev.makeSandbox(script.id);
+  dev.maxCallDepth = 0;
+  dev.depthReported = false;
+  dev.schedCreateCount = 0;
+  const sandbox = dev.makeSandbox(script.id, file);
   try {
     vm.runInNewContext(code, sandbox, { filename: file });
   } catch (e) {
@@ -456,6 +499,7 @@ function runScript(dev, file, opts) {
     errors: dev.errors.slice(errStart),
     writes: dev.kvsWrites - writesStart,
     elapsedMs: dev.nowMs - t0,
+    maxCallDepth: dev.maxCallDepth,
   };
 }
 
@@ -525,4 +569,5 @@ function simulate(dev, untilMs, files, opts) {
   return runs;
 }
 
-module.exports = { Device, runScript, simulate, cronMatch, parseCron, KVS_MAX_VAL, KVS_MAX_KEYS };
+module.exports = {
+  MAX_CALL_DEPTH, Device, runScript, simulate, cronMatch, parseCron, KVS_MAX_VAL, KVS_MAX_KEYS };

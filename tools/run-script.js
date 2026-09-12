@@ -33,6 +33,6 @@ for (const [k, v] of dev.kvs) console.log(k.padEnd(5), v.length.toString().padSt
 console.log('--- Zeitplan ---');
 for (const j of dev.schedules) console.log(j.id, j.timespec, JSON.stringify(j.calls));
 console.log('--- Switch 0 ---', JSON.stringify(dev.switches[0].config), 'output=' + dev.switches[0].output);
-console.log('--- Ergebnis --- beendet=' + r.stopped + ' Dauer=' + r.elapsedMs + ' ms, max. offene RPC=' + dev.maxPendingRpc + ', Fehler=' + r.errors.length);
+console.log('--- Ergebnis --- beendet=' + r.stopped + ' Dauer=' + r.elapsedMs + ' ms, max. offene RPC=' + dev.maxPendingRpc + ', max. Aufruftiefe=' + r.maxCallDepth + ', Fehler=' + r.errors.length);
 for (const e of r.errors) console.log(e);
 process.exit(r.errors.length || !r.stopped ? 1 : 0);

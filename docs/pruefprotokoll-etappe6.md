@@ -2,6 +2,17 @@
 
 Jede Zeile einmal am echten Aufbau durchspielen, Ergebnis und Datum eintragen. Vorher: Installer gelaufen, cfg2-Zielband eingetragen, Pumpe angeschlossen, Behälter gefüllt. KVS-Stand jederzeit mit `tools/kvs_dump.sh <ip>` oder `http://<ip>/rpc/KVS.GetMany?match=*` ablesen.
 
+## Inbetriebnahme / Gerätetest 12.09.2026 (v0.1.1, Firmware 2.0.0)
+
+Über einen SSH-Tunnel zum Gerät (`tools/put-script.js`, `tools/console.js`) verifiziert:
+
+- **Scripts vollständig geladen:** Upload per `Script.PutCode` in Stücken, Byte-Zahl am Gerät gegen die Datei geprüft (`Script.GetCode`). Der Web-Editor hatte beim Einfügen Text verloren (Dateiende fehlte) – siehe `LEARNING.md`.
+- **Installer:** legt 8 KVS-Einträge (alle als JSON-Strings, in der Web-UI mit „Format as JSON" lesbar) und 3 Zeitplan-Einträge an (`0 */15 * * * *` bw_main, `0 0 8,20 * * *` bw_pump, `0 5 8,20 * * *` Sicherheits-Aus). Der erste `Schedule.Create` scheitert am Gerät und wird automatisch wiederholt (`LEARNING.md`).
+- **bw_main / bw_pump:** starten ohne Uncaught-Fehler; Messwerte plausibel (`V≈0,27`, `tC≈24`). `err=cfg`/`why=cfg` ist erwartet, solange das Zielband in `cfg2` noch `null` ist.
+- **Sprach-/Engine-Grenzen gemessen:** kein Hoisting; Stacktiefe (12 ok, 14 Absturz); KVS-Werte müssen Strings sein. Details in `LEARNING.md`.
+
+Offen (an der Pflanze zu messen): Kalibrierpunkte `vDry/vWet`, `lvlEmpty`, Zielband `cfg2`, `dropSlow` – die Zeilen unten sowie die `[TODO am Gerät]`-Stellen in der README.
+
 | Nr. | Prüfung | Vorgehen | Erwartung | Ergebnis / Datum |
 | --- | --- | --- | --- | --- |
 | 1 | Installer wiederholbar | `bw_install` zweimal starten, `Schedule.List` ansehen | genau drei eigene Einträge, cfg-Werte unverändert | |

@@ -1,4 +1,4 @@
-// tools/test/install.test.js v0.1.0 – Etappe 1: Installer
+// tools/test/install.test.js v0.1.1 – Etappe 1: Installer
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
@@ -26,6 +26,24 @@ test('Installer legt acht KVS-Einträge, drei Zeitplan-Einträge und die Switch-
   assert.equal(dev.kvsGet('job').ok, false);
   assert.equal(dev.kvsGet('cfg2').pctSoll, null);
   assert.match(r.log.join('\n'), /Script-IDs: install=1 main=2 pump=3/);
+});
+
+test('Retry: der am Gerät fehlschlagende erste Schedule.Create wird wiederholt, alle drei Einträge entstehen', () => {
+  const dev = new Device();               // schedCreateFailFirst ist standardmäßig an (Gerätequirk)
+  const r = runScript(dev, FILES.bw_install);
+  ok(r);
+  assert.deepEqual(dev.schedules.map((j) => j.timespec), ['0 */15 * * * *', '0 0 8,20 * * *', '0 5 8,20 * * *'], 'Takt-Eintrag trotz erstem Fehlschlag vorhanden');
+  const creates = dev.rpcLog.filter((c) => c.method === 'Schedule.Create').length;
+  assert.equal(creates, 4, 'ein fehlgeschlagener plus drei erfolgreiche Create-Aufrufe');
+  assert.match(r.log.join('\n'), /Versuch 1\/3/);
+});
+
+test('ohne den Gerätequirk entstehen die drei Einträge in genau drei Create-Aufrufen', () => {
+  const dev = new Device();
+  dev.schedCreateFailFirst = false;
+  ok(runScript(dev, FILES.bw_install));
+  assert.equal(dev.schedules.length, 3);
+  assert.equal(dev.rpcLog.filter((c) => c.method === 'Schedule.Create').length, 3);
 });
 
 test('zweiter Lauf: keine Duplikate im Zeitplan, keine KVS-Schreibvorgänge, Änderungen bleiben erhalten', () => {
