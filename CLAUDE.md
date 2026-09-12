@@ -17,6 +17,9 @@ Lernende Pflanzenbewässerung auf dem Shelly Plus Uni (Bodenfeuchte SMT50, DS18B
 - `docs/PLAN.md` – Etappenplan, **Entscheidungstabelle** und Abweichungen; hier stehen die Gründe für Design-Entscheidungen. `docs/konzept-v2.md`, `umsetzungsplan-v1/v2.md` sind die Regelquellen.
 - `README.md` – vollständige Nutzerdoku (Stückliste, Verdrahtung, alle KVS-Felder, Störungscodes). Bei Änderungen an cfg-Feldern oder err-Codes mitziehen.
 - `LEARNING.md` – Lern-Log vom echten Gerät (Symptom · Ursache · Warum unentdeckt · Fix · Vorbeugung). Jede Überraschung, die der Mock nicht zeigt, kommt hier hinein **und** als Regel in `syntax.test.js`.
+- `AGENTS.md` – Anleitung für KI-Agenten (herstellerübergreifend). **Wichtig: Commit/Push nur mit ausdrücklicher menschlicher Zustimmung.**
+- `docs/handbuch/` – zweisprachiges (DE/EN) Handbuch: Einführung, Hardware, Installation, VPS-Mitentwickeln, Claude Code & graft, **Shelly per Remote live debuggen**, Mitwirken. Bei Verhaltens-/Setup-Änderungen mitziehen.
+- `docs/seo-keywords.md` – Keyword-/SEO-Analyse und GitHub-Topics-Liste; Keywords sind in README und Handbuch eingearbeitet.
 
 ## Befehle
 

@@ -1,10 +1,28 @@
-# Pflanzenbewässerung mit Shelly Plus Uni und SMT50
+# Selbstlernende Pflanzenbewässerung mit Shelly Plus Uni & SMT50 — DIY Smart Home ohne Cloud
+
+> **Gieß smart – Programmierung out of the box mit KI (Claude Code), läuft lokal auf deinem Shelly.**
+> Automatische Pflanzenbewässerung mit Bodenfeuchte (SMT50) und Temperatur (DS18B20), selbstlernend, **ideal für
+> den Urlaub** – und komplett **mit KI programmiert und live debuggt**.
+
+*🇬🇧 English: A self-learning **Shelly plant-watering** system (soil moisture SMT50, DS18B20 temperature) that runs
+**locally, no cloud** – built and live-debugged with **AI (Claude Code)**. Great for **watering plants while on
+vacation**. See the bilingual [handbook](docs/handbuch/README.md).*
 
 Version 0.1.1 – Stand 12.09.2026. Stellen mit `[TODO am Gerät]` sind noch am echten Aufbau zu prüfen oder zu messen.
+
+> 📖 **Neu hier?** Das zweisprachige **[Handbuch](docs/handbuch/README.md)** führt Schritt für Schritt durch
+> Hardware, Installation, Weiterentwickeln auf einem eigenen Server und das **Live-Debuggen des Shelly per KI**.
+> Für KI-Agenten: **[AGENTS.md](AGENTS.md)**.
 
 ## Zweck
 
 Ein Shelly Plus Uni misst alle 15 Minuten Bodenfeuchte, Umgebungstemperatur und Wasserstand und entscheidet selbst, ob und wie lange um 08:00 und 20:00 gegossen wird. Das Gerät lernt, wie viel Feuchte eine Pumpensekunde bringt, passt sich über die Temperatur an Sommer und Winter an und baut Staunässe über Trockenphasen ab. Alles läuft am Gerät ohne Backend und ohne Cloud; nur die Uhrzeit kommt aus dem Internet.
+
+**Ideal für den Urlaub:** einmal kalibriert, versorgt das System deine Zimmer- und Balkonpflanzen zuverlässig,
+während du weg bist – mit harten Sicherheitsgrenzen gegen Überwässerung. **Besonderheit:** Dieses DIY-Projekt lässt
+sich mit **künstlicher Intelligenz (Claude Code, Fable 5.1) direkt am echten Gerät live debuggen** – die KI liest
+und schreibt den Shelly über einen Remote-Tunnel, lädt Scripts hoch und liest die Konsole mit. Wie das geht, steht
+im [Handbuch, Kapitel 6](docs/handbuch/06-shelly-remote-debug.md).
 
 ## Inhalt
 
@@ -242,14 +260,33 @@ Vorrang: `noeff` wird nie überschrieben; eine blockierende Störung verdrängt 
 `tools/mock/shelly-mock.js` bildet das Gerät in Node nach (KVS, Zeitplan, Switch mit `toggle_after`, Sensoren, Sys-Status mit Ortszeit, Timer, RPC mit virtueller Uhr). Die Scripts laufen dort unverändert.
 
 ```
-npm test                                   # 53 Tests: Installer, Messen, Freigabekette, Dosis, Pause, Pumpe, Lernen, 7-Tage-Simulation
+npm test                                   # 58 Tests: Installer, Messen, Freigabekette, Dosis, Pause, Pumpe, Lernen, 7-Tage-Simulation
 npm run check                              # Syntaxprüfung der drei Scripts
+npm run build                              # dist/ – kompakter Code für den Upload aufs Gerät
 node tools/run-script.js scripts/bw_install.js
 node tools/run-script.js scripts/bw_main.js --seed --voltage 1.2 --temp 24 --level 0
 node tools/run-script.js scripts/bw_pump.js --seed --kvs 'job={"ok":true,"sec":70,"pct":34,"why":"hand","ts":1789192500}'
 ```
 
-`tools/test/syntax.test.js` verbietet Konstrukte, die die Shelly-Engine nicht kennt (Arrow-Functions, Template-Strings, `const`, anonyme Funktionen, `Date`). Planung und Entscheidungen: [`docs/PLAN.md`](docs/PLAN.md); Prüfschritte am Gerät: [`docs/pruefprotokoll-etappe6.md`](docs/pruefprotokoll-etappe6.md).
+`tools/test/syntax.test.js` verbietet Konstrukte, die die Shelly-Engine nicht kennt (Arrow-Functions, Template-Strings, `const`, anonyme Funktionen, `Date`). Planung und Entscheidungen: [`docs/PLAN.md`](docs/PLAN.md); Prüfschritte am Gerät: [`docs/pruefprotokoll-etappe6.md`](docs/pruefprotokoll-etappe6.md); am Gerät gefundene Eigenheiten: [`LEARNING.md`](LEARNING.md).
+
+## Handbuch & Weiterentwicklung
+
+Das zweisprachige (Deutsch/English) **[Handbuch unter `docs/handbuch/`](docs/handbuch/README.md)** erklärt alles
+ausführlich – für Anfänger und Fortgeschrittene:
+
+1. [Einführung & Architektur](docs/handbuch/01-einfuehrung.md)
+2. [Hardware & Verdrahtung](docs/handbuch/02-hardware-verdrahtung.md)
+3. [Installation am Gerät](docs/handbuch/03-installation.md)
+4. [Auf eigenem VPS mitentwickeln](docs/handbuch/04-vps-mitentwickeln.md) (Hostinger, git clone, Node, Claude Code)
+5. [Claude Code & graft](docs/handbuch/05-claude-code-graft.md) (Aufbau & Verwendung)
+6. [Shelly per Remote live debuggen](docs/handbuch/06-shelly-remote-debug.md) (MobaXterm-Tunnel – **KI debuggt Hardware live**)
+7. [Mitwirken & Tests](docs/handbuch/07-mitwirken-tests.md)
+
+- Mitentwickeln mit **KI-Agenten:** [`AGENTS.md`](AGENTS.md) (inkl. Regel: Commits nur mit menschlicher Zustimmung).
+- Projekt auf einem eigenen Server aufsetzen? Empfehlung **Hostinger VPS** (Rabatt über den Freunde-Link):
+  <https://www.hostinger.com/de?REFERRALCODE=KPQ4INFOETIT>
+- Warum das Projekt so heißt und wofür es rankt: [`docs/seo-keywords.md`](docs/seo-keywords.md).
 
 ## Lizenz
 
