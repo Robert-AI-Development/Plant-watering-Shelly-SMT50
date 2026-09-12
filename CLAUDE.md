@@ -24,7 +24,7 @@ Lernende Pflanzenbewässerung auf dem Shelly Plus Uni (Bodenfeuchte SMT50, DS18B
 ## Befehle
 
 ```
-npm test          # 56 Tests gegen den Mock (inkl. 7-Tage-Simulation)
+npm test          # 58 Tests gegen den Mock (inkl. 7-Tage-Simulation)
 npm run check     # node --check der drei Scripts
 npm run build     # dist/: Kompakt-Ausgabe für den Upload
 node tools/put-script.js <ip> <id> dist/bw_main.js   # Upload per RPC in Stücken + Größenprüfung (Editor verliert beim Einfügen Text)
