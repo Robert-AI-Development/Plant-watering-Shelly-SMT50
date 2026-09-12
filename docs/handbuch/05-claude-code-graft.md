@@ -74,7 +74,7 @@ scripts/     bw_install.js, bw_main.js, bw_pump.js  ← laufen auf dem Shelly
              lib_notes.md  ← jede genutzte Shelly-RPC dokumentiert
 tools/       mock/ (Gerät in Node), run-script.js, build.js, put-script.js,
              console.js, probe/  ← Entwicklung & Geräte-Debug
-tools/test/  node --test (58 Tests, inkl. 7-Tage-Simulation)
+tools/test/  node --test (89 Tests, inkl. 7-Tage-Simulation)
 docs/        PLAN.md (Entscheidungen), handbuch/ (dieses Handbuch), seo-keywords.md
 hardware/    Stückliste, Verdrahtung
 README.md · CLAUDE.md · AGENTS.md · LEARNING.md

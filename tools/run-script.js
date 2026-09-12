@@ -1,11 +1,14 @@
 #!/usr/bin/env node
-// tools/run-script.js v0.1.0 – ein Script gegen den Mock laufen lassen und Konsole + KVS ausgeben
+// tools/run-script.js v0.1.1 – ein Script gegen den Mock laufen lassen und Konsole + KVS ausgeben
 // Aufruf: node tools/run-script.js scripts/bw_install.js [--seed] [--voltage 1.4] [--temp 24] [--level 0]
 //   --seed      vorher bw_install.js laufen lassen und Beispiel-Zielband eintragen
 //   --kvs k=v   KVS-Eintrag vor dem Lauf setzen (v als JSON), mehrfach möglich
+//   --hwdemo    Simulation der Hardware-Tests: virtueller Bediener (Sensor-Rampen, go-Kommandos), bw_pump als zweites Script,
+//               Laufzeit bis 60 min virtuell – z. B. node tools/run-script.js scripts/bw_hwtest.js --seed --hwdemo
 'use strict';
 const path = require('node:path');
 const { Device, runScript } = require('./mock/shelly-mock.js');
+const { ramps, driver } = require('./mock/hwdemo.js');
 
 const args = process.argv.slice(2);
 const file = args.find((a) => a.endsWith('.js'));
@@ -25,7 +28,17 @@ if (args.includes('--seed')) {
 for (let i = 0; i < args.length; i++) {
   if (args[i] === '--kvs') { const kv = args[i + 1]; const k = kv.slice(0, kv.indexOf('=')); dev.kvsSetRaw(k, JSON.parse(kv.slice(k.length + 1))); }
 }
-const r = runScript(dev, path.resolve(file));
+const opts = {};
+if (args.includes('--hwdemo')) {
+  const name = path.basename(file, '.js');
+  opts.maxMs = 60 * 60 * 1000;
+  dev.nowMs = dev.bootMs = Date.UTC(2026, 8, 12, 8, 7, 0);   // 10:07 lokal: Taktlücke, kein Gießfenster
+  opts.files = { bw_pump: path.join(__dirname, '..', 'scripts', 'bw_pump.js') };
+  if (name === 'bw_hwtest') { ramps(dev); driver(dev); }
+  if (name === 'bw_hwpump') driver(dev, { key: 'hwp' });
+  dev.log.push('--- hwdemo: virtueller Bediener aktiv ---');
+}
+const r = runScript(dev, path.resolve(file), opts);
 console.log('--- Konsole ---');
 for (const l of r.log) console.log(l);
 console.log('--- KVS (' + dev.kvsWrites + ' Schreibvorgänge im Lauf: ' + r.writes + ') ---');

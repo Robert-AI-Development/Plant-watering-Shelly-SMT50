@@ -1,6 +1,6 @@
 {
   "name": "pflanzenbewaesserung-shelly-smt50",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "description": "Selbstlernende Pflanzenbewässerung mit Shelly Plus Uni (Bodenfeuchte SMT50, Temperatur DS18B20) – läuft lokal ohne Cloud, ideal für den Urlaub, programmiert & live-debuggt mit KI (Claude Code). DIY Smart Home; tools/ enthält einen Node-Mock zum Testen ohne Gerät.",
   "keywords": [
@@ -29,7 +29,7 @@
   "engines": { "node": ">=20" },
   "scripts": {
     "test": "node --test \"tools/test/*.test.js\"",
-    "check": "node --check scripts/bw_install.js && node --check scripts/bw_main.js && node --check scripts/bw_pump.js",
+    "check": "node --check scripts/bw_install.js && node --check scripts/bw_main.js && node --check scripts/bw_pump.js && node --check scripts/bw_hwtest.js && node --check scripts/bw_hwpump.js",
     "build": "node tools/build.js"
   }
 }

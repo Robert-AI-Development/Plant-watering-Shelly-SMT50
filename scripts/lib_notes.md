@@ -1,4 +1,4 @@
-# lib_notes.md – genutzte Shelly-Gen2-Aufrufe (v0.1.0, geprüft 12.09.2026)
+# lib_notes.md – genutzte Shelly-Gen2-Aufrufe (v0.1.1, geprüft 13.09.2026)
 
 Jeder Aufruf wurde gegen die Doku unter https://shelly-api-docs.shelly.cloud/gen2/ geprüft. Basis-URL für Komponenten: `https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/<Komponente>`. Die Spalte „Genutzt von" nennt das Script.
 
@@ -7,28 +7,32 @@ Jeder Aufruf wurde gegen die Doku unter https://shelly-api-docs.shelly.cloud/gen
 | Aufruf | Parameter | Antwort | Genutzt von | Doku |
 | --- | --- | --- | --- | --- |
 | `KVS.GetMany` | `match` (Standard `*`), `offset` | `items`, `offset`, `total` – **paginiert**, bis `offset + Anzahl ≥ total` weiterlesen. `items` ist am Gerät ein **Array** von `{key, etag, value}` (gemessen 12.09.2026, Probe E); die Doku beschreibt ein Objekt `key → {etag, value}` – die Scripts verarbeiten beide Formen | alle | [KVS](https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/KVS) |
-| `KVS.Get` | `key` | `etag`, `value` | (Reserve) | [KVS](https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/KVS) |
+| `KVS.Get` | `key` | `etag`, `value`; Fehler `-105` wenn der Schlüssel fehlt | bw_hwtest, bw_hwpump (Kommandokanal `hwc`, alle `nCmd` Ticks), tools/hwtest.js | [KVS](https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/KVS) |
 | `KVS.Set` | `key`, `value` – bei uns immer ein **JSON-String** (`JSON.stringify`), optional `etag` | `etag`, `rev` | alle | [KVS](https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/KVS) |
-| `KVS.Delete` | `key` | `rev` | Nutzer (err löschen) | [KVS](https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/KVS) |
+| `KVS.Delete` | `key` | `rev`; `-105` wenn der Schlüssel fehlt | bw_hwpump (Sicherung `hwb1/hwb2` nach dem Rückbau), tools/hwtest.js `cleanup`, Nutzer (err löschen) | [KVS](https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/KVS) |
 | `Schedule.Create` | `enable`, `timespec` (5/6/7 Cron-Felder), `calls` | `id`, `rev` | Installer. **Am Gerät scheitert der erste Create je Script-Lauf sporadisch mit „Invalid argument 'timespec': Failed validation!" – Retry nötig** (LEARNING.md) | [Schedule](https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Schedule) |
 | `Script.PutCode` | `id`, `code` (String), `append` (true = anhängen) | `len` (Gesamtlänge in Byte) | `tools/put-script.js` (Upload in 1024-Zeichen-Stücken, Script muss gestoppt sein) | [Script](https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Script) |
 | `Script.GetCode` | `id`, `offset`, `len` | `data`, `left` (Rest in Byte) | Größenkontrolle nach dem Upload: `len=1` → `left + 1` = Dateigröße | [Script](https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Script) |
 | `Schedule.List` | – | `jobs[] {id, enable, timespec, calls[]}`, `rev` | bw_install | [Schedule](https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Schedule) |
 | `Schedule.Create` | `enable`, `timespec`, `calls[] {method, params}` | `id`, `rev` | bw_install | [Schedule](https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Schedule) |
 | `Schedule.Delete` | `id` | `rev` | bw_install | [Schedule](https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Schedule) |
-| `Script.List` | – | `scripts[] {id, name, enable, running}` | bw_install | [Script](https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Script) |
-| `Script.Start` | `id` | `was_running` | Zeitplan | [Script](https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Script) |
+| `Script.List` | – | `scripts[] {id, name, enable, running}` | bw_install, bw_hwpump (ID von bw_pump per Name, Zahl laufender Scripts), tools/hwtest.js | [Script](https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Script) |
+| `Script.Start` | `id` | `was_running` | Zeitplan, bw_hwpump → bw_pump (danach beendet sich bw_hwpump: geteilter Heap, LEARNING.md), tools/hwtest.js | [Script](https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Script) |
 | `Script.Stop` | `id` | `was_running` | alle (auf eigene ID) | [Script](https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Script) |
 | `Script.SetConfig` | `id`, `config {enable}` (`enable` = Autostart beim Boot) | `restart_required` | bw_install | [Script](https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Script) |
-| `Switch.Set` | `id`, `on`, optional `toggle_after` (s) | `was_on` | bw_pump, Zeitplan (Sicherheits-Aus) | [Switch](https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Switch) |
+| `Script.GetStatus` | `id` | `running`, `mem_used`, `mem_peak` (nur während des Laufs), `mem_free` (freier Script-Heap, für alle Scripts gleich – ~24.920 im Leerlauf), `cpu`, `errors[]` (z. B. `"out_of_memory"`, bleibt bis zum nächsten Lauf stehen), `error_msg` | tools/hwtest.js (`watch`/`status`), Diagnose | [Script](https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Script) |
+| `Script.Create` | `name` | `id` | tools/hwtest.js `preflight` (legt bw_hwtest/bw_hwpump an) | [Script](https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Script) |
+| `Switch.Set` | `id`, `on`, optional `toggle_after` (s) | `was_on` | bw_pump, Zeitplan (Sicherheits-Aus), bw_hwpump nur `on:false` (Sicherheits-Aus im Fehlerfall), tools/hwtest.js `stop` | [Switch](https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Switch) |
 | `Switch.SetConfig` | `id`, `config {initial_state, auto_off, auto_off_delay}` | `restart_required` | bw_install | [Switch](https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Switch) |
 | `Sys.GetStatus` | – | `time` (HH:MM lokal, `null` ohne NTP), `unixtime` (UTC, `null` ohne NTP), `ram_free`, `kvs_rev`, `uptime` | alle (synchron über `Shelly.getComponentStatus("sys")`) | [Sys](https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Sys) |
 | `Voltmeter.GetStatus` | `id` (hier 100) | `voltage` (V, `null` bei Fehler), `errors[]` | bw_main (synchron) | [Voltmeter](https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Voltmeter) |
 | `Temperature.GetStatus` | `id` (hier 100) | `tC` (`null` bei Fehler), `tF`, `errors[]` | bw_main (synchron) | [Temperature](https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Temperature) |
-| `Input.GetStatus` | `id` (hier 1) | `state` (bool, Typ `switch`), `errors[]` | bw_main, bw_pump (synchron) | [Input](https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Input) |
+| `Input.GetStatus` | `id` (hier 1) | `state` (bool, Typ `switch`; **`null`, wenn der Eingang deaktiviert ist**), `errors[]` | bw_main, bw_pump, bw_hwtest, bw_hwpump (synchron) | [Input](https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Input) |
+| `Input.GetConfig` / `Input.SetConfig` | `id`; `config {enable, type ("switch"), invert}` | Konfiguration bzw. `restart_required` | tools/hwtest.js `preflight` / `input-on` (Eingang 1 auf Typ Switch aktivieren) | [Input](https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Input) |
+| `Sys.GetConfig` | – | u. a. `debug.websocket.enable`, `location.tz` | tools/hwtest.js `preflight` (Debug-Websocket an?) | [Sys](https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Input) |
 | `Switch.GetStatus` | `id` | `output`, `timer_started_at`, `timer_duration`, `source` | bw_pump (synchron) | [Switch](https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/Switch) |
 
-Limits laut Doku: Zeitplan 20 Einträge, 5 Calls je Eintrag; Timespec 5/6/7 Felder (6 Felder = `Sekunde Minute Stunde Tag Monat Wochentag`); KVS 50 Schlüssel, Schlüssel ≤ 42 Zeichen, Wert ≤ 253 Zeichen; maximal 3 laufende Scripts.
+Limits laut Doku: Zeitplan 20 Einträge, 5 Calls je Eintrag; Timespec 5/6/7 Felder (6 Felder = `Sekunde Minute Stunde Tag Monat Wochentag`); KVS 50 Schlüssel, Schlüssel ≤ 42 Zeichen, Wert ≤ 253 Zeichen; maximal 3 laufende Scripts. **Gemessen (13.09.2026):** `KVS.GetMany` liefert 11 Einträge je Seite; der Script-Heap ist ~25 KB groß und wird von allen Scripts geteilt (`Script.GetStatus.mem_free`) – zwei große Scripts gleichzeitig enden mit `out_of_memory` (LEARNING.md).
 
 ## Script-API (Doku: [Script APIs → Shelly](https://shelly-api-docs.shelly.cloud/gen2/Scripts/APIs/Shelly), [Timer](https://shelly-api-docs.shelly.cloud/gen2/Scripts/APIs/Timer), [Language Reference](https://shelly-api-docs.shelly.cloud/gen2/Scripts/LanguageReference))
 
@@ -53,3 +57,6 @@ Limits laut Doku: Zeitplan 20 Einträge, 5 Calls je Eintrag; Timespec 5/6/7 Feld
 - Lang laufende Schleifen blockieren die Firmware. Die Scripts rechnen nur wenige Millisekunden pro Schritt.
 - Eine Exception in einem asynchronen Callback beendet das Script. Jeder Schritt läuft in `try/catch`.
 - Bewusst nicht genutzt: `Date`, Arrow-Functions, Template-Strings, `const`, Destructuring, `for…of`. Prüfung: `tools/test/syntax.test.js`.
+- **Array-Methoden:** mJS kennt `Array.prototype.shift` nicht (`Function "shift" not found!`, Gerätetest 13.09.2026); belegt sind nur `push`, `slice`, `splice`, `indexOf`, `join`. `shift/unshift/forEach/map/filter/reduce/find/includes/some/every/sort` verbietet `syntax.test.js`. Ringpuffer werden per Index geführt.
+- **Geteilter Script-Heap (~25 KB):** Langläufer wie `bw_hwtest`/`bw_hwpump` halten in Wartephasen keine KVS-Objekte (`K = {}; orig = {}`) und lesen vor dem Schreiben neu; ein Script, das ein zweites startet, beendet sich danach (Pumpentest in zwei Durchgängen). Messwerte in `LEARNING.md`.
+- **Tabellen mit Funktionsreferenzen** (Phasentabelle) werden in einer Funktion gebaut (`PH = phases()`), nie als mehrzeiliges Literal auf Modulebene – `useBeforeDecl` prüft inzwischen auch solche Literale.

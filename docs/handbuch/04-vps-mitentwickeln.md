@@ -22,7 +22,7 @@ node -v && npm -v                                                   # Node ≥ 2
 
 git clone https://github.com/Robert-AI-Development/Plant-watering-Shelly-SMT50.git
 cd Plant-watering-Shelly-SMT50
-npm install && npm test                                             # 58 Tests grün?
+npm install && npm test                                             # 89 Tests grün?
 
 npm install -g @anthropic-ai/claude-code                            # Claude Code
 claude                                                              # startet den KI-Editor, folge dem Login
@@ -123,7 +123,7 @@ node -v && npm -v                                                   # check Node
 
 git clone https://github.com/Robert-AI-Development/Plant-watering-Shelly-SMT50.git
 cd Plant-watering-Shelly-SMT50
-npm install && npm test                                             # 58 tests green?
+npm install && npm test                                             # 89 tests green?
 
 npm install -g @anthropic-ai/claude-code                            # Claude Code
 claude                                                              # starts the AI editor, follow the login

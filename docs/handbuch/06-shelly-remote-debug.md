@@ -89,10 +89,45 @@ Am einfachsten sagst du das Claude Code direkt: „erlaube lokalen Zugriff auf `
 | `tools/console.js <ip> [sek] [id]` | Geräte-Konsole über den Debug-Websocket mitlesen, optional ein Script starten | `node tools/console.js 127.0.0.1:8010 15 4` |
 | `tools/probe/engine_probe.js` | Sondier-Script, um Engine-Eigenheiten am Gerät zu messen | per `put-script.js` hochladen, mit `console.js` beobachten |
 | `tools/kvs_dump.sh <ip>` | KVS eines Geräts ausgeben | `tools/kvs_dump.sh 127.0.0.1:8010` |
+| `tools/hwtest.js <ip> <kommando>` | Hardware-Test steuern (Node ≥ 22). Unterbefehle: `preflight` (Uhrzeit, Sekunden bis Takt, Fensterabstand, Scripts, Input 1, Switch 0, KVS, Debug-Websocket prüfen; legt `bw_hwtest`/`bw_hwpump` an), `input-on` (Input 1 als Switch aktivieren), `cfg k=v …` (`hwt`-Felder setzen), `start bw_hwtest\|bw_hwpump [sek]` (Kommandozähler zurücksetzen, Script starten, mitlesen), `watch [sek]` (Konsole gefiltert + Statuszeile alle 5 s; startet Durchgang B des Pumpentests automatisch), `go`/`skip`/`abort` (Kommando an die wartende Phase), `status` (Einzeiler), `report` (`hwr`/`hwp` + `cfg1`), `restore` (Sicherung `hwb1`/`hwb2` zurückschreiben), `cleanup` (`hwc`/`hwb1`/`hwb2` löschen), `stop` (Not-Aus) | `node tools/hwtest.js 127.0.0.1:8010 start bw_hwtest 20` |
 
 **Ausführliches Debuggen:** In jedem Script steht oben `var DEBUG = 0;`. Mit `node tools/build.js --debug` erzeugst
 du `dist/`-Dateien mit `DEBUG = 1` – die schreiben dann jeden Schritt, jeden RPC-Aufruf und jeden KVS-Eintrag in die
 Konsole, die du mit `console.js` live mitliest. Für den Normalbetrieb wieder `npm run build` (DEBUG=0) hochladen.
+
+### Hardware-Test im Interview
+
+Der Hardware-Test aus [Kapitel 3](03-installation.md#hardware-prüfen-bw_hwtest--bw_hwpump) ist für genau diese
+Konstellation gebaut: **Claude fragt über den Tunnel, der Mensch handelt am Aufbau.** `bw_hwtest` läuft am Gerät
+durch die Phasen t1/t2 (Fühler ≤ 20 °C / ≥ 30 °C), m1/m2 (SMT50 trocken in Luft / im Wasserglas) und l1/l2
+(Schwimmer LEER / VOLL). Vor jeder wartenden Phase nennt Claude die Anweisung („Fühler-Hülse ins Eiswasser",
+„SMT50 abwischen, trocken in Luft halten", „Schwimmer auf LEER halten" …), du führst sie aus und meldest dich, dann
+geht das Kommando `go` ans Gerät. Die Live-Zeilen (eine je 5 s) und die Statuszeile von `hwtest.js watch` zeigen,
+ob der Messwert schon stabil ist; m2 läuft ohne `go` durch, sobald der Wert im Wasser stabil ist.
+
+- **Kommandokanal `hwc`:** `go`, `skip` und `abort` schreibt `hwtest.js` als Zähler in den KVS-Schlüssel `hwc`
+  (`{n, cmd}`). Das Script pollt ihn alle `nCmd` Ticks per `KVS.Get` und verarbeitet nur ein `n`, das größer ist
+  als das zuletzt gesehene; ein `go` in einer Phase, die nicht wartet, wird gemeldet und verworfen. `skip`
+  überspringt die Phase (Code `sk`), `abort` beendet den Lauf (Code `ab`).
+- **Pumpentest in zwei Durchgängen** (der Script-Heap des Geräts ist mit ~25 KB zu klein für zwei große Scripts
+  nebeneinander): `start bw_hwpump` → **Durchgang A:** nach `go` prüft das Script die Zeitwache (nur in der Lücke
+  zum 15-min-Takt von `bw_main`, nicht ±25 min um 08:00/20:00/00:00) und die Vorbedingungen (`bw_pump` vorhanden,
+  Ausgang aus, Wasserstand stabil und nicht LEER, keine Störung `noeff`), sichert `st`/`day` nach `hwb1` und
+  `job`/`err`/`lrn` nach `hwb2`, schreibt einen Testauftrag (`why:"hwtest"`, Dauer `hwt.pumpSec`) und startet
+  `bw_pump` – dann beendet es sich, damit `bw_pump` allein pumpt. `watch` wartet auf das Ende von `bw_pump` und
+  startet **Durchgang B** automatisch: Ergebnis vergleichen (p1 Gabe eingetragen, p2 Ausgang aus, p3 `st`/`job`
+  passen), Ausgang notfalls aus, Rückbau aus `hwb1`/`hwb2`, Sicherung löschen, Bericht. Das Test-Script schaltet
+  die Pumpe **nie selbst ein**; kein Testauftrag überlebt den Rückbau.
+- **Not-Aus:** `hwtest.js <ip> stop` stoppt `bw_hwtest`, `bw_hwpump` und `bw_pump` und schaltet den Ausgang aus.
+  Liegt danach noch eine Sicherung `hwb1`/`hwb2` vor, stellt `restore` den alten Zustand wieder her (nur, wenn
+  `bw_hwpump` nicht läuft); erst danach `cleanup`.
+- **Tunnelabriss:** Reißt die SSH-Verbindung ab, läuft das Script am Gerät **autonom weiter**: jede Phase hat einen
+  Timeout (`hwt.tPhase`, 900 s), der ganze Lauf ebenfalls (`hwt.tAll`, 3600 s); eine Phase, auf die niemand mehr
+  antwortet, endet mit Code `to`. Der Stand steht jederzeit im KVS – `hwr` für den Sensortest, `hwp` für den
+  Pumpentest – und ist nach dem Wiederverbinden mit `hwtest.js <ip> status` oder `report` lesbar; `watch`
+  verbindet sich mit dem Websocket automatisch neu. Ein zwischen Durchgang A und B unterbrochener Pumpentest wird
+  mit einem erneuten `start bw_hwpump` fortgesetzt: Die vorhandene Sicherung `hwb1`/`hwb2` schaltet direkt auf
+  Durchgang B (`bw_pump` muss beendet sein).
 
 ### Quick-Notes & Fehlersuche
 
@@ -103,6 +138,14 @@ Konsole, die du mit `console.js` live mitliest. Für den Normalbetrieb wieder `n
   hochladen. Der Web-Editor verliert beim Einfügen manchmal Text – deshalb per RPC hochladen.
 - **`Script.PutCode` scheitert** → Script muss gestoppt sein; `put-script.js` stoppt es vorher automatisch.
 - **Port 8010 belegt** → im Tunnel und in den Befehlen einen anderen Port nehmen (z. B. 8011).
+- **Debug-Websocket voller Firmware-Zeilen** (`shos_rpc_inst.c`, `shelly_ejs_rpc.cpp`, `y_notifications.cpp`,
+  `shelly_debug.cpp`, `shelly_script.cpp`) → das ist Rauschen der Firmware, kein Script-Output. `hwtest.js watch`
+  filtert es weg; `console.js` zeigt es roh.
+- **`out_of_memory` in `Script.GetStatus` → `errors`** → Der Script-Heap ist nur ~25 KB groß und wird von **allen**
+  Scripts geteilt. Steht das dort, hielt ein zweites großes Script gleichzeitig zu viel Speicher (z. B. ein
+  wartendes Test-Script neben `bw_main` oder `bw_pump`). `Script.GetStatus` liefert dazu `mem_used`, `mem_peak`,
+  `mem_free`; der Eintrag in `errors` bleibt bis zum nächsten Lauf des Scripts stehen. Deshalb pumpt im Pumpentest
+  `bw_pump` allein, und Langläufer geben ihre KVS-Objekte in Wartephasen frei.
 - **Sicherheit:** Der Tunnel bindet auf `127.0.0.1` des VPS – nur lokal auf dem VPS erreichbar, nicht öffentlich.
   Nutze SSH-Schlüssel statt Passwort und schließe den Tunnel, wenn du fertig bist.
 
@@ -183,10 +226,44 @@ writes it. Then `curl http://127.0.0.1:8010/rpc/Shelly.GetDeviceInfo` to test.
 | `tools/console.js <ip> [sec] [id]` | watch the device console over the debug websocket, optionally start a script | `node tools/console.js 127.0.0.1:8010 15 4` |
 | `tools/probe/engine_probe.js` | probe script to measure engine quirks on the device | upload via `put-script.js`, watch with `console.js` |
 | `tools/kvs_dump.sh <ip>` | dump a device's KVS | `tools/kvs_dump.sh 127.0.0.1:8010` |
+| `tools/hwtest.js <ip> <command>` | drive the hardware test (Node ≥ 22). Subcommands: `preflight` (check clock, seconds to the next cycle, window distance, scripts, input 1, switch 0, KVS, debug websocket; creates `bw_hwtest`/`bw_hwpump`), `input-on` (enable input 1 as switch), `cfg k=v …` (set `hwt` fields), `start bw_hwtest\|bw_hwpump [sec]` (reset command counter, start script, watch), `watch [sec]` (filtered console + status line every 5 s; starts pass B of the pump test automatically), `go`/`skip`/`abort` (command to the waiting phase), `status` (one-liner), `report` (`hwr`/`hwp` + `cfg1`), `restore` (write back backup `hwb1`/`hwb2`), `cleanup` (delete `hwc`/`hwb1`/`hwb2`), `stop` (emergency stop) | `node tools/hwtest.js 127.0.0.1:8010 start bw_hwtest 20` |
 
 **Verbose debugging:** every script starts with `var DEBUG = 0;`. `node tools/build.js --debug` produces `dist/`
 files with `DEBUG = 1` – they log every step, every RPC call and every KVS entry to the console you watch with
 `console.js`. For normal operation upload `npm run build` (DEBUG=0) again.
+
+### Hardware test as an interview
+
+The hardware test from [chapter 3](03-installation.md#check-the-hardware-bw_hwtest--bw_hwpump) is built for exactly
+this setup: **Claude asks through the tunnel, the human acts at the rig.** `bw_hwtest` runs on the device through
+the phases t1/t2 (probe ≤ 20 °C / ≥ 30 °C), m1/m2 (SMT50 dry in air / in a glass of water) and l1/l2 (float
+EMPTY / FULL). Before each waiting phase Claude gives the instruction ("probe sleeve into ice water", "wipe the
+SMT50, hold it dry in air", "hold the float at EMPTY" …), you carry it out and report back, then the command `go`
+goes to the device. The live lines (one every 5 s) and the status line of `hwtest.js watch` show whether the
+reading is stable yet; m2 completes without `go` as soon as the value in water is stable.
+
+- **Command channel `hwc`:** `hwtest.js` writes `go`, `skip` and `abort` as a counter into the KVS key `hwc`
+  (`{n, cmd}`). The script polls it every `nCmd` ticks via `KVS.Get` and only processes an `n` greater than the last
+  one seen; a `go` in a phase that is not waiting is reported and discarded. `skip` skips the phase (code `sk`),
+  `abort` ends the run (code `ab`).
+- **Pump test in two passes** (the device's script heap of ~25 KB is too small for two large scripts side by side):
+  `start bw_hwpump` → **pass A:** after `go` the script checks the time guard (only in the gap of `bw_main`'s
+  15-minute cycle, not ±25 min around 08:00/20:00/00:00) and the preconditions (`bw_pump` present, output off,
+  water level stable and not EMPTY, no `noeff` fault), backs up `st`/`day` to `hwb1` and `job`/`err`/`lrn` to
+  `hwb2`, writes a test job (`why:"hwtest"`, duration `hwt.pumpSec`) and starts `bw_pump` – then it exits so that
+  `bw_pump` pumps alone. `watch` waits for `bw_pump` to finish and starts **pass B** automatically: compare the
+  result (p1 dose recorded, p2 output off, p3 `st`/`job` match), switch the output off if necessary, restore from
+  `hwb1`/`hwb2`, delete the backup, report. The test script **never switches the pump on itself**; no test job
+  survives the restore.
+- **Emergency stop:** `hwtest.js <ip> stop` stops `bw_hwtest`, `bw_hwpump` and `bw_pump` and switches the output
+  off. If a backup `hwb1`/`hwb2` is still present afterwards, `restore` puts the old state back (only while
+  `bw_hwpump` is not running); only then `cleanup`.
+- **Tunnel drop:** if the SSH connection breaks, the script on the device **keeps running autonomously**: every
+  phase has a timeout (`hwt.tPhase`, 900 s), and so does the whole run (`hwt.tAll`, 3600 s); a phase nobody answers
+  ends with code `to`. The state is always in the KVS – `hwr` for the sensor test, `hwp` for the pump test – and can
+  be read after reconnecting with `hwtest.js <ip> status` or `report`; `watch` reconnects to the websocket by
+  itself. A pump test interrupted between pass A and pass B is continued with another `start bw_hwpump`: the
+  existing backup `hwb1`/`hwb2` switches straight to pass B (`bw_pump` must have finished).
 
 ### Quick notes & troubleshooting
 
@@ -197,6 +274,14 @@ files with `DEBUG = 1` – they log every step, every RPC call and every KVS ent
   sometimes loses text on paste – hence uploading via RPC.
 - **`Script.PutCode` fails** → the script must be stopped; `put-script.js` stops it first automatically.
 - **Port 8010 in use** → use a different port in the tunnel and commands (e.g. 8011).
+- **Debug websocket full of firmware lines** (`shos_rpc_inst.c`, `shelly_ejs_rpc.cpp`, `y_notifications.cpp`,
+  `shelly_debug.cpp`, `shelly_script.cpp`) → that is firmware noise, not script output. `hwtest.js watch` filters
+  it out; `console.js` shows it raw.
+- **`out_of_memory` in `Script.GetStatus` → `errors`** → the script heap is only ~25 KB and is shared by **all**
+  scripts. If it shows up, a second large script held too much memory at the same time (e.g. a waiting test script
+  next to `bw_main` or `bw_pump`). `Script.GetStatus` also returns `mem_used`, `mem_peak`, `mem_free`; the entry in
+  `errors` stays until the script's next run. That is why `bw_pump` pumps alone in the pump test and long runners
+  release their KVS objects during waiting phases.
 - **Security:** the tunnel binds to the VPS's `127.0.0.1` – reachable only locally on the VPS, not publicly. Use an
   SSH key instead of a password and close the tunnel when done.
 

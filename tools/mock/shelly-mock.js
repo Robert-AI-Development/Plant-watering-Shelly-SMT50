@@ -1,9 +1,11 @@
-// tools/mock/shelly-mock.js v0.1.1 – Geräte-Mock für die Shelly-Gen2-Scripts (Node ≥ 20, keine Abhängigkeiten)
+// tools/mock/shelly-mock.js v0.1.2 – Geräte-Mock für die Shelly-Gen2-Scripts (Node ≥ 20, keine Abhängigkeiten)
 //
 // Bildet nach, was die Scripts vom Gerät brauchen: KVS (50 × 253 Zeichen, Rohwerte als String, Schreibzähler),
 // Zeitplan, Script-Liste, Switch mit toggle_after/auto_off, Sensoren, Sys-Status mit lokaler
 // Uhrzeit, Timer und RPC mit virtueller Uhr. Die Scripts laufen unverändert per vm in einer
 // Sandbox mit den globalen Objekten Shelly, Timer, print, console.
+// v0.1.2: Script.Start führt eine registrierte Datei (dev.files[name]) als zweites Script aus; Timer und Fehler
+// werden je Script geführt; Input-Konfiguration (enable/type) mit state:null bei deaktiviertem Eingang; dev.onRpc-Hook.
 'use strict';
 
 const vm = require('node:vm');
@@ -58,9 +60,16 @@ class Device {
       { id: 1, name: 'bw_install', enable: false, running: false },
       { id: 2, name: 'bw_main', enable: false, running: false },
       { id: 3, name: 'bw_pump', enable: false, running: false },
+      { id: 4, name: 'bw_hwtest', enable: false, running: false },   // am Gerät id 5/6; die Scripts suchen per Name
+      { id: 5, name: 'bw_hwpump', enable: false, running: false },
     ];
+    this.files = opts.files || {};   // Scriptname → Dateipfad: Script.Start führt die Datei als zweites Script aus
     this.switches = { 0: newSwitch(), 1: newSwitch() };
     this.components = { 'voltmeter:100': true, 'temperature:100': true, 'input:0': true, 'input:1': true };
+    // Eingangs-Konfiguration wie am Gerät: ein deaktivierter Eingang liefert state:null (12.09.2026: input:1 enable:false)
+    this.inputCfg = { 0: { enable: true, type: 'switch', invert: false }, 1: { enable: true, type: 'switch', invert: false } };
+    this.onRpc = null;              // Hook function(dev, method, params, scriptId) vor jedem Shelly.call (Test-Treiber)
+    this.runGen = {};               // Laufgeneration je Script: Callbacks eines beendeten Laufs treffen keinen Neustart desselben Scripts
     this.voltage = 1.5;             // Zahl, null oder function(dev)
     this.tC = 22;                   // Zahl, null oder function(dev)
     this.inputs = { 0: false, 1: false }; // bool oder function(dev)
@@ -72,6 +81,7 @@ class Device {
     this.maxPendingRpc = 0;
     this.maxTimersUsed = 0;
     this.log = [];
+    this.logT = [];                 // virtuelle Zeit (ms) je Konsolenzeile, für Prüfungen der Ausgaberate
     this.rpcLog = [];
     this.switchLog = [];
     this.onSwitch = null;           // Hook function(dev, id, on, nowMs)
@@ -138,10 +148,22 @@ class Device {
     }
   }
   advance(ms) { return this.runUntil(this.nowMs + ms, null); }
-  fail(e) {
+  fail(e, scriptId) {
     this.errors.push(e && e.stack ? e.stack : String(e));
-    // Auf dem Gerät beendet eine Exception im Callback das Script.
-    for (const s of this.scripts) if (s.id === this.currentScript) s.running = false;
+    // Auf dem Gerät beendet eine Exception im Callback das Script – samt seinen Timern.
+    const sid = scriptId === undefined ? this.currentScript : scriptId;
+    for (const s of this.scripts) if (s.id === sid) s.running = false;
+    this.clearTimersOf(sid);
+  }
+  isRunning(scriptId) { const s = this.scripts.find((x) => x.id === scriptId); return !!(s && s.running); }
+  clearTimersOf(scriptId) {
+    for (const [id, t] of this.timers) { if (t.sid === scriptId) { if (t.ev) this.cancel(t.ev); this.timers.delete(id); } }
+  }
+  // Zweites Script starten (Script.Start auf eine registrierte Datei): eigene Sandbox, gleiche virtuelle Uhr
+  spawn(script, file) {
+    const code = fs.readFileSync(file, 'utf8');
+    const sandbox = this.makeSandbox(script.id, file);
+    try { vm.runInNewContext(code, sandbox, { filename: file }); } catch (e) { this.fail(e, script.id); }
   }
 
   // ---- Sensoren ---------------------------------------------------------
@@ -174,6 +196,8 @@ class Device {
       }
       case 'input': {
         if (!this.components['input:' + id]) return null;
+        const ic = this.inputCfg[id];
+        if (ic && ic.enable === false) return { id: id, state: null };
         return { id: id, state: this.readInput(id) };
       }
       case 'switch': {
@@ -193,6 +217,7 @@ class Device {
       id = parseInt(typeOrKey.split(':')[1], 10);
     }
     if (type === 'switch' && this.switches[id]) return Object.assign({ id: id, name: null }, clone(this.switches[id].config));
+    if (type === 'input' && this.inputCfg[id]) return Object.assign({ id: id, name: null }, clone(this.inputCfg[id]));
     if (type === 'sys') return { device: { name: 'mock' }, location: { tz: 'Europe/Vienna' } };
     return null;
   }
@@ -313,13 +338,32 @@ class Device {
         const s = this.scripts.find((x) => x.id === P.id);
         if (!s) return { code: -105, msg: 'script not found' };
         const was = s.running; s.running = true;
+        // Registrierte Datei: wie am Gerät asynchron als zweites Script starten (frischer Stack, gleiche Uhr)
+        const file = this.files[s.name];
+        if (!was && file) { const dev = this; this.schedule(0, function () { dev.spawn(s, file); }); }
         return { result: { was_running: was } };
       }
       case 'Script.Stop': {
         const s = this.scripts.find((x) => x.id === P.id);
         if (!s) return { code: -105, msg: 'script not found' };
         const was = s.running; s.running = false;
+        this.clearTimersOf(s.id);   // Timer eines gestoppten Scripts verschwinden mit ihm
         return { result: { was_running: was } };
+      }
+      case 'Script.Create': {
+        if (typeof P.name !== 'string' || !P.name) return { code: -103, msg: "Argument 'name': missing" };
+        const nid = this.scripts.reduce((m, x) => Math.max(m, x.id), 0) + 1;
+        this.scripts.push({ id: nid, name: P.name, enable: false, running: false });
+        return { result: { id: nid } };
+      }
+      case 'Input.GetConfig': {
+        const c = this.componentConfig('input', P.id);
+        return c ? { result: c } : { code: -105, msg: "Argument 'id': input " + P.id + ' not found' };
+      }
+      case 'Input.SetConfig': {
+        if (!this.inputCfg[P.id]) return { code: -105, msg: "Argument 'id': input " + P.id + ' not found' };
+        Object.assign(this.inputCfg[P.id], P.config || {});
+        return { result: { restart_required: false } };
       }
       case 'Script.SetConfig': {
         const s = this.scripts.find((x) => x.id === P.id);
@@ -379,6 +423,8 @@ class Device {
   // ---- Sandbox für ein Script -------------------------------------------
   makeSandbox(scriptId, file) {
     const dev = this;
+    const gen = (this.runGen[scriptId] = (this.runGen[scriptId] || 0) + 1);
+    function alive() { return dev.isRunning(scriptId) && dev.runGen[scriptId] === gen; }
     // Aufruftiefe des Scripts an jeder Engine-Grenze messen (print, Shelly.call, Timer.set, JSON): V8 hoistet
     // und rekursiert beliebig tief, mJS auf dem Gerät nicht – zu tiefe Ketten gelten hier als Fehler.
     function depthCheck(where) {
@@ -399,6 +445,7 @@ class Device {
         parts.push(typeof a === 'object' ? JSON.stringify(a) : String(a));
       }
       dev.log.push(parts.join(' '));
+      dev.logT.push(dev.nowMs);
     }
     const Shelly = {
       call: function (method, params, cb, ud) {
@@ -406,14 +453,16 @@ class Device {
         dev.pendingRpc++;
         if (dev.pendingRpc > dev.maxPendingRpc) dev.maxPendingRpc = dev.pendingRpc;
         if (dev.pendingRpc > MAX_PENDING_RPC) dev.errors.push('Mehr als ' + MAX_PENDING_RPC + ' offene RPC-Aufrufe (' + method + ')');
-        dev.rpcLog.push({ t: dev.nowMs, method: method, params: clone(params) });
+        dev.rpcLog.push({ t: dev.nowMs, method: method, params: clone(params), sid: scriptId });
+        if (dev.onRpc) dev.onRpc(dev, method, clone(params), scriptId);
         const r = dev.dispatch(method, clone(params));
         dev.schedule(dev.rpcDelayMs, function () {
           dev.pendingRpc--;
-          if (typeof cb === 'function') {
+          if (typeof cb !== 'function' || !alive()) return;   // gestopptes Script (oder ein früherer Lauf) bekommt keine Antwort mehr
+          try {
             if (r.code) cb(undefined, r.code, r.msg, ud);
             else cb(clone(r.result), 0, undefined, ud);
-          }
+          } catch (e) { dev.fail(e, scriptId); }
         });
         return undefined;
       },
@@ -431,13 +480,13 @@ class Device {
         depthCheck('Timer.set');
         if (dev.timers.size >= MAX_TIMERS) { dev.errors.push('Mehr als ' + MAX_TIMERS + ' Timer'); }
         const id = ++dev.timerSeq;
-        const t = { period: ms, repeat: !!repeat, cb: cb, ud: ud, ev: null };
+        const t = { period: ms, repeat: !!repeat, cb: cb, ud: ud, ev: null, sid: scriptId };
         dev.timers.set(id, t);
         if (dev.timers.size > dev.maxTimersUsed) dev.maxTimersUsed = dev.timers.size;
         const fire = function () {
-          if (dev.timers.get(id) !== t) return;
+          if (dev.timers.get(id) !== t || !alive()) return;
           if (t.repeat) t.ev = dev.schedule(t.period, fire); else dev.timers.delete(id);
-          t.cb(t.ud);
+          try { t.cb(t.ud); } catch (e) { dev.fail(e, scriptId); }
         };
         t.ev = dev.schedule(ms, fire);
         return id;
@@ -488,10 +537,12 @@ function runScript(dev, file, opts) {
   } catch (e) {
     dev.fail(e);
   }
+  if (opts.files) Object.assign(dev.files, opts.files);
   const maxMs = opts.maxMs || 10 * 60 * 1000;
   dev.runUntil(t0 + maxMs, function () { return !script.running; });
-  // Offene Timer eines beendeten Scripts verschwinden mit dem Script.
-  for (const [id, t] of dev.timers) { if (t.ev) dev.cancel(t.ev); dev.timers.delete(id); }
+  // Offene Timer eines beendeten Scripts verschwinden mit dem Script (nur die eigenen – ein per Script.Start
+  // gestartetes zweites Script läuft weiter).
+  dev.clearTimersOf(script.id);
   dev.currentScript = null;
   return {
     stopped: !script.running,

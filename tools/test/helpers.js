@@ -1,4 +1,4 @@
-// tools/test/helpers.js v0.1.0 – gemeinsame Helfer für die Tests
+// tools/test/helpers.js v0.1.1 – gemeinsame Helfer für die Tests (v0.1.1: Hardware-Test-Scripts)
 'use strict';
 const path = require('node:path');
 const { Device, runScript } = require('../mock/shelly-mock.js');
@@ -8,6 +8,8 @@ const FILES = {
   bw_install: path.join(SCRIPTS, 'bw_install.js'),
   bw_main: path.join(SCRIPTS, 'bw_main.js'),
   bw_pump: path.join(SCRIPTS, 'bw_pump.js'),
+  bw_hwtest: path.join(SCRIPTS, 'bw_hwtest.js'),
+  bw_hwpump: path.join(SCRIPTS, 'bw_hwpump.js'),
 };
 
 // Beispiel-Zielband für Tests (am Gerät kommen die Werte aus den zwei Pflanzenmessungen)
@@ -46,5 +48,31 @@ function patch(dev, key, fields) {
 
 function runMain(dev, opts) { return runScript(dev, FILES.bw_main, opts); }
 function runPump(dev, opts) { return runScript(dev, FILES.bw_pump, opts); }
+// Hardware-Test-Scripts: Langläufer, deshalb maxMs 60 min; bw_hwpump startet bw_pump per Script.Start (registrierte Datei)
+function runHwtest(dev, opts) { return runScript(dev, FILES.bw_hwtest, Object.assign({ maxMs: 60 * 60 * 1000 }, opts || {})); }
+function runHwpump(dev, opts) { return runScript(dev, FILES.bw_hwpump, Object.assign({ maxMs: 60 * 60 * 1000, files: { bw_pump: FILES.bw_pump } }, opts || {})); }
+// Pumpentest komplett: Durchgang A (Freigabe, Auftrag, Script.Start), dann läuft bw_pump allein weiter (virtuelle Uhr),
+// dann Durchgang B (Bewertung, Rückbau) – nur wenn A eine Sicherung hinterlassen hat
+function pumpTest(dev, opts) {
+  const a = runHwpump(dev, opts);
+  let b = null;
+  if (dev.kvsRaw('hwb1') !== undefined || dev.kvsRaw('hwb2') !== undefined) {
+    dev.advance(90 * 1000);
+    b = runHwpump(dev, opts);
+  }
+  return { a: a, b: b, log: a.log.concat(b ? b.log : []), errors: a.errors.concat(b ? b.errors : []), stopped: a.stopped && (b === null || b.stopped), writes: a.writes + (b ? b.writes : 0), maxCallDepth: Math.max(a.maxCallDepth, b ? b.maxCallDepth : 0) };
+}
 
-module.exports = { Device, runScript, FILES, BAND, voltFor, seeded, patch, runMain, runPump };
+// Gerätezustand vom 12.09.2026: Installer gelaufen, cfg2-Zielband null (→ err=cfg nach einem bw_main-Takt), Sensor in Erde (0,42 V),
+// 23,9 °C, Wasser vorhanden (input:1 = false). Uhrzeit 10:07 lokal: Taktlücke, kein Gießfenster.
+function hwDevice(opts) {
+  const dev = seeded(Object.assign({ noBand: true, nowMs: Date.UTC(2026, 8, 12, 8, 7, 0) }, opts || {}));
+  dev.voltage = 0.42;
+  dev.tC = 23.9;
+  dev.inputs[1] = false;
+  runMain(dev);
+  dev.kvsWrites = 0;
+  return dev;
+}
+
+module.exports = { Device, runScript, FILES, BAND, voltFor, seeded, patch, runMain, runPump, runHwtest, runHwpump, pumpTest, hwDevice };

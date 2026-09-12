@@ -4,6 +4,69 @@ Was der Mock nicht zeigt und erst am Shelly Plus Uni auffällt. Jeder Eintrag na
 **Symptom · Ursache · Warum unentdeckt · Fix · Vorbeugung.** Neue Einträge oben anfügen; jede Vorbeugung, die
 sich statisch prüfen lässt, landet zusätzlich als Regel in `tools/test/syntax.test.js`.
 
+## 2026-09-13 – Hardware-Test: `bw_pump` stirbt neben dem Test-Script mit `out_of_memory` – der Script-Heap ist geteilt
+
+**Symptom.** `bw_hwpump` (Test-Script, Kompakt 14,9 KB) startet `bw_pump` per `Script.Start`; `bw_pump` endet sofort ohne eine
+Konsolenzeile, `Script.GetStatus` zeigt `"errors":["out_of_memory"]`. Während der Sensortest lief, starb auch `bw_main` im
+15-min-Takt so. Nach einer Speicherdiät lief `bw_pump` zwar an und pumpte 30 s, starb dann aber beim zweiten KVS-Lesen –
+`st/day/job` wurden nie geschrieben.
+
+**Ursache.** Alle Scripts teilen sich einen Heap von etwa 25 KB (`Script.GetStatus` meldet im Leerlauf für jedes Script
+dasselbe `mem_free: 24920`). Gemessen: `bw_hwpump` belegte 13.552 Byte (Spitze 15.400), weil es alle KVS-Einträge als
+Objekte plus `orig`-Strings über die ganze Wartezeit hielt; für `bw_pump` (7.396 beim Parsen) blieben 11.354 – zu wenig.
+Ohne `K/orig` in den Wartephasen: `bw_hwpump` 9.044, `bw_hwtest` 9.576. Damit laufen `bw_main` (5.404 beim Parsen) und
+`bw_pump` daneben an. `bw_pump` braucht aber beim erneuten Lesen von 13 KVS-Einträgen (mit den Test-Einträgen `hwt/hwr/hwp/
+hwb1/hwb2`) über 15,8 KB Spitze – neben einem 9-KB-Script wieder `out_of_memory`. `bw_main` + `bw_pump` gleichzeitig
+(Normalbetrieb um 08:00/20:00) laufen problemlos (je ~7,4 KB, `bw_main` ist nach 4 s fertig, bevor `bw_pump` seine Spitze hat).
+
+**Warum unentdeckt.** Der Mock hat kein Speichermodell; bisher lief immer nur ein Script, und die Betriebs-Scripts sind nach
+Sekunden fertig. Ein Langläufer neben einem zweiten Script ist ein neues Muster.
+
+**Fix.** (1) Beide Test-Scripts setzen `K = {}; orig = {};`, sobald sie warten (der Stand wird vor dem Schreiben neu
+gelesen). (2) Der Pumpentest läuft in zwei Durchgängen: A bereitet den Auftrag vor, startet `bw_pump` und beendet sich;
+`bw_pump` pumpt allein; B (erkennbar an der Sicherung `hwb1/hwb2`) bewertet, baut zurück und berichtet. `tools/hwtest.js
+watch` startet B automatisch. Entscheidung 28 in `docs/PLAN.md`.
+
+**Vorbeugung.** Regel in `CLAUDE.md`: nie zwei große Scripts gleichzeitig laufen lassen; Langläufer geben KVS-Objekte in
+Wartephasen frei; vor einem `Script.Start` aus einem Script `mem_free` bedenken. `hwtest.js preflight/status` zeigt
+laufende Scripts, `Script.GetStatus.errors` bleibt bis zum nächsten Lauf stehen und verrät den Absturz. Ein Speichermodell
+im Mock gibt es nicht – die Zahlen oben sind die Referenz.
+
+## 2026-09-13 – `Function "shift" not found!`: mJS kennt `Array.prototype.shift` nicht
+
+**Symptom.** `bw_hwtest` bricht am Gerät nach dem ersten Messtick ab: `ABBRUCH: Function "shift" not found!` – im Mock lief
+derselbe Ringpuffer (`push` + `shift`) fehlerfrei.
+
+**Ursache.** Die Shelly-Engine implementiert nur einen Teil der Array-Methoden (`push`, `slice`, `splice`, `indexOf`,
+`join` sind belegt); `shift`, `unshift`, `forEach`, `map`, `filter`, `reduce`, `find`, `includes`, `some`, `every`, `sort`
+gelten als nicht vorhanden.
+
+**Warum unentdeckt.** V8 im Mock kennt alle Methoden; `syntax.test.js` prüfte Sprachkonstrukte, keine Methodennamen.
+
+**Fix.** Ringpuffer per Index (`ring[i % n] = v`, Lesen über `(i − 1 − k) % n`), keine Array-Methoden außer `push`.
+
+**Vorbeugung.** Neue Regel in `syntax.test.js`: die genannten Methodennamen sind in `scripts/*.js` verboten.
+
+## 2026-09-13 – Messwerte des Hardware-Tests (`bw_hwtest`, `bw_hwpump`, `tools/hwtest.js`)
+
+- **Kalibrierung am Gerät:** Trockenpunkt 0,296 V (Sensor abgewischt in Luft; am 12.09. 0,20 V), Nasspunkt 3,134 V, Schwimmer
+  LEER = 1 / VOLL = 0 (`lvlEmpty` 1 bestätigt), Fühler 19,8 °C im Eiswasser und 33,5 °C im warmen Wasser; alle sechs Phasen
+  in 532 s, `ram_free` mindestens 125.424. Pumpentest: `bw_pump` „Pumpe ein für 30 s“, „Pumpe aus: ok nach 30 s“,
+  Durchgang B `ok,ok,ok,ok`, KVS danach byteidentisch.
+- **`KVS.GetMany` liefert am Gerät 11 Einträge je Seite** (Mock: 5) – wer nur die erste Seite liest, übersieht Einträge
+  (`st` fehlte scheinbar). Die Scripts paginieren; `tools/kvs_dump.sh` und `hwtest.js` ebenfalls.
+- **Debug-Websocket:** neben den `print`-Zeilen kommen Firmware-Zeilen (`shos_rpc_inst.c`, `shelly_ejs_rpc.cpp`,
+  `y_notifications.cpp`, `shelly_debug.cpp`, `shelly_script.cpp`) und beim Start `JS RAM stat … used: N` (Heap nach dem
+  Parsen: `bw_hwtest` 3.564, `bw_main` 5.404, `bw_pump` 7.396); `hwtest.js watch` filtert das Rauschen, `console.js` nicht.
+  Die Konsole muss vor `Script.Start` verbunden sein, sonst fehlt die erste Zeile.
+- **Ein 1-s-Tick mit `getComponentStatus`** kostet laut Firmware-Log 12–17 % CPU; eine Konsolenzeile je 5 s je Phase kommt
+  vollständig an.
+- **Flash:** `fs_free` 57.344 vor dem Upload, 24.576 nach zwei Test-Scripts (13,4 + 13,9 KB). Script 4 (`engine_probe`)
+  kann gelöscht werden, wenn Platz fehlt.
+- **Mock-Nachbildung:** `Script.Start` führt eine registrierte Datei als zweites Script aus; Callbacks eines beendeten Laufs
+  dürfen einen Neustart desselben Scripts nicht treffen (Laufgeneration) – sonst stirbt Durchgang B im Mock an einem
+  `Script.Stop`-Callback aus Durchgang A.
+
 ## 2026-09-12 – Installer: erster `Schedule.Create` je Lauf scheitert mit falschem „timespec"-Fehler
 
 **Symptom.** Der Installer legt den 15-min-Takt nicht an: `Schedule.Create '0 */15 * * * *': Invalid argument 'timespec': Failed validation!`. Die beiden folgenden Creates (`0 0 8,20`, `0 5 8,20`) gelingen im selben Lauf.

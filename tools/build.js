@@ -11,7 +11,7 @@ const path = require('node:path');
 const SCRIPT_MAX_BYTES = 15000;
 const SRC = path.join(__dirname, '..', 'scripts');
 const OUT = path.join(__dirname, '..', 'dist');
-const NAMES = ['bw_install.js', 'bw_main.js', 'bw_pump.js'];
+const NAMES = ['bw_install.js', 'bw_main.js', 'bw_pump.js', 'bw_hwtest.js', 'bw_hwpump.js'];
 
 // Zeilenkommentar ab dem ersten // außerhalb eines Strings abschneiden
 function stripLineComment(line) {

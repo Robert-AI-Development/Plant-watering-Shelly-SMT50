@@ -11,7 +11,7 @@
 ```bash
 # Auf deinem Rechner (Node ≥ 20), im Projektordner:
 npm install
-npm test                 # 58 Tests gegen den Mock – müssen grün sein
+npm test                 # 89 Tests gegen den Mock – müssen grün sein
 npm run build            # erzeugt dist/ (kompakter Code für das Gerät)
 
 # Scripts aufs Gerät laden (zuverlässiger als Copy&Paste im Web-Editor):
@@ -47,6 +47,44 @@ rote Faden mit den wichtigen Fallstricken, die wir am echten Gerät gefunden hab
 4. **Prüfen.** Web-UI → Schedules zeigt `0 */15 * * * *`, `0 0 8,20 * * *`, `0 5 8,20 * * *`. KVS ansehen:
    `http://<ip>/rpc/KVS.GetMany?match=*` oder `tools/kvs_dump.sh <ip>`.
 
+### Hardware prüfen (bw_hwtest / bw_hwpump)
+
+Bevor du kalibrierst, kannst du die Verdrahtung mit zwei zusätzlichen Geräte-Scripts durchprüfen: `bw_hwtest`
+testet die Sensoren (DS18B20 kalt/warm, SMT50 trocken/nass, Schwimmer LEER/VOLL), `bw_hwpump` die Pumpe – und
+zwar über `bw_pump`, genau wie im Normalbetrieb. Gesteuert wird vom Rechner aus mit `tools/hwtest.js` (Node ≥ 22)
+im Interview: Das Script wartet, du baust die Phase auf und gibst sie mit `go` frei. Der Ablauf im Detail steht in
+[Kapitel 6, „Hardware-Test im Interview"](06-shelly-remote-debug.md#hardware-test-im-interview).
+
+**Voraussetzungen:** Eiswasser oder kaltes Wasser (≤ 20 °C) und warmes Wasser (≥ 30 °C, nicht über 32 °C) für die
+Fühler-Hülse, ein Glas Wasser und ein Tuch für den SMT50, ein Eimer für den Pumpenschlauch, Wasserbehälter voll,
+Schwimmer von Hand bewegbar, Input 1 aktiv (Typ Switch). Nicht in den 25 Minuten um 08:00, 20:00 oder Mitternacht
+starten – die Zeitwache des Pumpentests wartet sonst.
+
+```bash
+node tools/hwtest.js <ip> preflight             # Uhrzeit, Scripts, Input 1, Switch, KVS prüfen; legt bw_hwtest/bw_hwpump an
+node tools/put-script.js <ip> 5 dist/bw_hwtest.js
+node tools/put-script.js <ip> 6 dist/bw_hwpump.js
+node tools/hwtest.js <ip> input-on              # nur wenn preflight Input 1 als deaktiviert meldet
+
+node tools/hwtest.js <ip> start bw_hwtest 20    # Sensortest: Phasen t1 t2 m1 m2 l1 l2
+node tools/hwtest.js <ip> watch 120             # Konsole und Statuszeile mitlesen
+node tools/hwtest.js <ip> go                    # wartende Phase freigeben (auch: skip, abort)
+
+node tools/hwtest.js <ip> start bw_hwpump 20    # Pumpentest: nach go pumpt bw_pump, Durchgang B folgt automatisch
+node tools/hwtest.js <ip> watch 240
+node tools/hwtest.js <ip> report                # Ergebnis (hwr/hwp) und cfg1 lesbar ausgeben
+node tools/hwtest.js <ip> cleanup               # hwc/hwb1/hwb2 löschen
+```
+
+- Die Kalibrierwerte **`vDry`, `vWet` (Trocken-/Nasspunkt des SMT50) und `lvlEmpty` (Schwimmer-Pegel für LEER)
+  landen bei plausiblem Ergebnis automatisch in `cfg1`** (Schalter `hwt.cal`, Standard 1; Alt- und Neuwert stehen
+  im Bericht unter `cal`).
+- Die Test-Scripts werden als **id 5 (`bw_hwtest`) und id 6 (`bw_hwpump`)** angelegt (`preflight` erledigt das)
+  und **gehören nie in den Zeitplan**: Sie sind Langläufer und werden nur von Hand gestartet.
+- **Not-Aus:** `node tools/hwtest.js <ip> stop` stoppt die Test-Scripts und `bw_pump` und schaltet den Ausgang aus;
+  danach `restore`, falls ein Pumpentest unterbrochen wurde. Zum Schluss Sensoren zurück in den Topf, Schwimmer auf
+  VOLL, Behälter füllen.
+
 ### Kalibrierung & Zielband
 
 Das System **misst und protokolliert sofort, gießt aber erst, wenn das Zielband (`cfg2`) gesetzt ist**. Solange
@@ -75,7 +113,7 @@ Fenster ein Gießauftrag. Von Hand gießen zum Testen: siehe [README-Abschnitt �
 ```bash
 # On your machine (Node ≥ 20), in the project folder:
 npm install
-npm test                 # 58 tests against the mock – must be green
+npm test                 # 89 tests against the mock – must be green
 npm run build            # creates dist/ (compact code for the device)
 
 # Upload scripts to the device (more reliable than copy&paste in the web editor):
@@ -107,6 +145,44 @@ storyline with the important pitfalls we found on the real device (see [`../../L
    device with "timespec validation" – the installer retries automatically (`Versuch 1/3` in the console is normal).
 4. **Verify.** Web UI → Schedules shows `0 */15 * * * *`, `0 0 8,20 * * *`, `0 5 8,20 * * *`. Inspect the KVS:
    `http://<ip>/rpc/KVS.GetMany?match=*` or `tools/kvs_dump.sh <ip>`.
+
+### Check the hardware (bw_hwtest / bw_hwpump)
+
+Before calibrating you can verify the wiring with two additional device scripts: `bw_hwtest` tests the sensors
+(DS18B20 cold/warm, SMT50 dry/wet, float switch EMPTY/FULL), `bw_hwpump` tests the pump – through `bw_pump`, exactly
+as in normal operation. You drive it from your machine with `tools/hwtest.js` (Node ≥ 22) as an interview: the
+script waits, you set up the phase and release it with `go`. The detailed procedure is in
+[chapter 6, "Hardware test as an interview"](06-shelly-remote-debug.md#hardware-test-as-an-interview).
+
+**Prerequisites:** ice water or cold water (≤ 20 °C) and warm water (≥ 30 °C, not above 32 °C) for the probe
+sleeve, a glass of water and a cloth for the SMT50, a bucket for the pump hose, water tank full, float switch
+movable by hand, input 1 enabled (type Switch). Do not start within the 25 minutes around 08:00, 20:00 or midnight –
+the pump test's time guard would wait.
+
+```bash
+node tools/hwtest.js <ip> preflight             # check clock, scripts, input 1, switch, KVS; creates bw_hwtest/bw_hwpump
+node tools/put-script.js <ip> 5 dist/bw_hwtest.js
+node tools/put-script.js <ip> 6 dist/bw_hwpump.js
+node tools/hwtest.js <ip> input-on              # only if preflight reports input 1 as disabled
+
+node tools/hwtest.js <ip> start bw_hwtest 20    # sensor test: phases t1 t2 m1 m2 l1 l2
+node tools/hwtest.js <ip> watch 120             # follow console and status line
+node tools/hwtest.js <ip> go                    # release the waiting phase (also: skip, abort)
+
+node tools/hwtest.js <ip> start bw_hwpump 20    # pump test: after go, bw_pump pumps; pass B follows automatically
+node tools/hwtest.js <ip> watch 240
+node tools/hwtest.js <ip> report                # print result (hwr/hwp) and cfg1 readably
+node tools/hwtest.js <ip> cleanup               # delete hwc/hwb1/hwb2
+```
+
+- The calibration values **`vDry`, `vWet` (dry/wet point of the SMT50) and `lvlEmpty` (float level meaning EMPTY)
+  are written to `cfg1` automatically when the result is plausible** (switch `hwt.cal`, default 1; old and new
+  values appear in the report under `cal`).
+- The test scripts are created as **id 5 (`bw_hwtest`) and id 6 (`bw_hwpump`)** (`preflight` does that) and
+  **never belong in the schedule**: they are long runners and are only started by hand.
+- **Emergency stop:** `node tools/hwtest.js <ip> stop` stops the test scripts and `bw_pump` and switches the output
+  off; then `restore` if a pump test was interrupted. Finally put the sensors back into the pot, float to FULL,
+  refill the tank.
 
 ### Calibration & target band
 

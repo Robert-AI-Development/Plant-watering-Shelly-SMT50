@@ -6,7 +6,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
-const SCRIPTS = ['bw_install.js', 'bw_main.js', 'bw_pump.js'].map((f) => path.join(__dirname, '..', '..', 'scripts', f));
+const SCRIPTS = ['bw_install.js', 'bw_main.js', 'bw_pump.js', 'bw_hwtest.js', 'bw_hwpump.js'].map((f) => path.join(__dirname, '..', '..', 'scripts', f));
 
 // Verbotene Konstrukte: nicht in der Shelly Language Reference gelistet oder laut Doku gefährlich.
 const FORBIDDEN = [
@@ -20,6 +20,7 @@ const FORBIDDEN = [
   [/\basync\b|\bawait\b|\bPromise\b/, 'async/Promise'],
   [/\bfunction\s*\(/, 'anonyme Funktion (Doku: verschachtelte anonyme Funktionen lassen das Gerät abstürzen)'],
   [/\bparseInt\b|\bparseFloat\b/, 'parseInt/parseFloat (nicht in der Language Reference gelistet)'],
+  [/\.(shift|unshift|forEach|map|filter|reduce|find|includes|some|every|sort)\s*\(/, 'Array-Methode, die mJS nicht kennt (Gerät 13.09.2026: "Function shift not found"; nur push/slice/splice/indexOf/join nutzen)'],
 ];
 
 for (const file of SCRIPTS) {
@@ -38,21 +39,26 @@ for (const file of SCRIPTS) {
 }
 
 // mJS hoistet Funktionsdeklarationen nicht: ein Funktionsname existiert erst, wenn die Ausführung an
-// seiner Deklaration vorbei ist. Modulebene-Code (Klammertiefe 0, keine function-Zeile), der einen später
-// deklarierten Namen benutzt, stirbt auf dem Gerät mit ReferenceError – der Node-Mock hoistet und merkt nichts.
+// seiner Deklaration vorbei ist. Modulebene-Code, der einen später deklarierten Namen benutzt, stirbt auf dem
+// Gerät mit ReferenceError – der Node-Mock hoistet und merkt nichts. Geprüft werden alle Zeilen außerhalb von
+// Funktionskörpern, also auch mehrzeilige Literale auf Modulebene (var PH = [ {…}, … ]) – nicht nur Klammertiefe 0.
 function useBeforeDecl(code) {
   const lines = code.split('\n');
   const decl = new Map();
   lines.forEach((l, i) => { const m = /^\s*function\s+(\w+)\s*\(/.exec(l); if (m) decl.set(m[1], i + 1); });
   const found = [];
   let depth = 0;
+  let inFn = false;   // innerhalb einer Funktionsdeklaration auf Modulebene
   lines.forEach((l, i) => {
-    if (depth === 0 && !/^\s*function\b/.test(l)) {
+    const fnLine = depth === 0 && /^\s*function\b/.test(l);
+    if (fnLine) inFn = true;
+    if (!inFn && !fnLine) {
       for (const [fn, at] of decl) {
         if (at > i + 1 && new RegExp('\\b' + fn + '\\b').test(l)) found.push(fn + ' wird in Zeile ' + (i + 1) + ' vor seiner Deklaration (Zeile ' + at + ') benutzt – mJS hoistet nicht');
       }
     }
     for (const ch of l) { if (ch === '{') depth++; else if (ch === '}') depth--; }
+    if (inFn && depth === 0) inFn = false;
   });
   return found;
 }

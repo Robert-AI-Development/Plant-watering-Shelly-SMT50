@@ -72,6 +72,17 @@ Sicherheits-Aus greift auch bei abgestürztem Script 2 · Ausgang nach Neustart 
 
 Stückliste mit Bezugsquellen, Verdrahtung mit Bild, Kalibrieranleitung, Installationsschritte in der Web-UI, Konfigurationstabelle aus dem Katalog, Betriebsanleitung, Störungstabelle, Sicherheitshinweise, Funktionsbeschreibung, Grenzen. Abschluss: eine unbeteiligte Person baut nach der README nach – ohne Rückfrage. Stand: README vollständig, Stellen mit `[TODO am Gerät]` sind noch offen.
 
+## Etappe 8 – Hardware-Test (`bw_hwtest.js`, `bw_hwpump.js`, `tools/hwtest.js`)
+
+Zwei Test-Scripts prüfen die Hardware phasenweise mit dem Menschen am Aufbau (Interview über Claude Code): Fühler ≤ 20 °C und ≥ 30 °C, Sensor trocken und im Wasser (Kalibrierpunkte automatisch nach `cfg1`), Schwimmer LEER und VOLL (`lvlEmpty`), Pumpe über den echten `bw_pump`-Pfad (Auftrag im KVS, `Script.Start`, Sicherung und Rückbau der Zustände). Vorher im Mock simuliert (`tools/mock/hwdemo.js`, `--hwdemo`), am Gerät über den Tunnel gefahren.
+
+| Aufgabe | Ergebnis | Prüfung |
+| --- | --- | --- |
+| Sensorphasen mit Kommandokanal `hwc`, Stand `hwr`, Schwellen `hwt` | `bw_hwtest.js` | 12 Tests; Gerät 13.09.2026: alle Phasen ok, vDry 0,296 V, vWet 3,134 V, lvlEmpty 1 |
+| Pumpentest über `bw_pump` mit Sicherung/Rückbau | `bw_hwpump.js` (zwei Durchgänge) | 15 Tests; Gerät 13.09.2026: 30 s gepumpt, KVS byteidentisch zurückgebaut |
+| Mock: zweites Script per `Script.Start`, Input-Konfiguration, Laufgeneration | `shelly-mock.js` v0.1.2 | bestehende 58 Tests unverändert grün |
+| Steuerung vom VPS | `tools/hwtest.js` | Gerätelauf komplett über das Werkzeug geführt |
+
 * * *
 
 ## Entscheidungen aus dem Interview vom 12.09.2026
@@ -98,6 +109,14 @@ Stückliste mit Bezugsquellen, Verdrahtung mit Bild, Kalibrieranleitung, Install
 | 18 | Debug-Schalter | `var DEBUG = 0;` in jedem Script; `dbg()` loggt nur bei 1. `rpc()` kapselt `Shelly.call` und loggt Methode + Parameter, `next()` loggt jeden Schritt, `onKvsPage` jeden Eintrag mit Typ, dazu Messwerte (Proben, Wasserstand, Pumpen-Überwachung, Auftrag). Kostet eine Stack-Ebene (Tiefe 5 statt 4) und ~0,6 KB |
 | 19 | Upload per RPC mit Größenkontrolle | Der Editor der Web-UI hat beim Einfügen das Dateiende verloren (166/210 Byte). `tools/put-script.js` lädt per `Script.PutCode` in Stücken hoch und vergleicht `Script.GetCode → left` mit der Dateigröße; auch nach Einfügen im Editor ist diese Kontrolle Pflicht (README) |
 | 20 | Schedule.Create-Retry | Der erste `Schedule.Create` je Installer-Lauf scheitert am Gerät mit einem irreführenden „timespec validation"-Fehler (Inhalt egal; per curl/Probe ist derselbe Aufruf gültig). `onCreate` wiederholt bis 3× nach 400 ms; der zweite Versuch gelingt. Mock bildet den Quirk nach (`schedCreateFailFirst`), zwei Tests sichern den Retry. Root Cause vermutlich espruino-Heap des großen Scripts, nicht abschließend geklärt |
+| 21 | Eigene Test-Scripts (Etappe 8) | Hardware-Test als zwei eigene Scripts `bw_hwtest`/`bw_hwpump` (Langläufer 10–30 min, nur von Hand gestartet, nie im Zeitplan, `enable:false`) statt Erweiterung von `bw_main`/`bw_pump`. Ein Script wäre 23,7 KB kompakt gewesen – über der 15-KB-Grenze; Aufteilung in Sensor- und Pumpenteil |
+| 22 | Kommandokanal `hwc` | Mensch/Werkzeug schreiben `{n, cmd: go\|skip\|abort}` in den KVS; das Script pollt alle `nCmd` Ticks per `KVS.Get`, verarbeitet nur `n` größer als zuletzt gesehen (alte Kommandos wirken nie) und verwirft `go` in Phasen, die nicht warten. Alternative `Script.Eval`/Web-UI verworfen: KVS ist überall sichtbar und im Mock nachgebildet |
+| 23 | Pumpe nur über `bw_pump` | Der Test schaltet die Pumpe nie ein; er setzt `err={code:null}`, `day` (bei Tageslimit) und `job={ok:true,sec:pumpSec,pct:null,why:"hwtest"}` und startet `bw_pump`. `pct:null` verhindert Bewertung und Lernwert. Nur `Switch.Set on:false` als Sicherheits-Aus |
+| 24 | Zeitwache statt Zeitplanänderung | Pumpenstart nur in der Lücke zum 15-min-Takt (`guardS` 90 s nach dem Takt bis 900 − guardS − pumpSec) und nicht ± `winMin` (25 min) um `winA`, `winB` und Mitternacht. Der Bewässerungs-Zeitplan wird nie angefasst |
+| 25 | Sicherung/Rückbau im KVS | `st/day` → `hwb1`, `job/err/lrn` → `hwb2` (zwei Schlüssel, zusammen > 253 Zeichen) vor dem Auftrag; Rückbau danach, `job.ok` immer false, Sicherung gelöscht. Stehen `hwb1/hwb2` beim Start (Absturz, Stop von außen), ist der Lauf automatisch Durchgang B (Wiederanlauf, `rec:1`); `tools/hwtest.js restore` als Notweg |
+| 26 | Kalibrierwerte automatisch | Interview-Entscheidung: `bw_hwtest` schreibt `vDry/vWet/lvlEmpty` nach `cfg1` (Lesen-Ändern-Schreiben auf frisch gelesenem `cfg1`), wenn plausibel: Trockenpunkt nur nach `go`, ≤ `vDryMax`, ≥ `vErrLo`+0,05; Nasspunkt ≥ `vWetMin`, ≤ `vErrHi`−0,10; `vWet − vDry ≥ 1 V`; Schwimmer LEER ≠ VOLL und mindestens ein beobachteter Wechsel. Sonst nur Meldung; Schalter `hwt.cal` |
+| 27 | Mock führt `Script.Start` aus | Registrierte Dateien (`dev.files`) laufen als zweites Script im selben Ereignisstrom; Timer, Fehler und RPC-Callbacks je Script und je Laufgeneration; Input-Konfiguration mit `state:null` bei `enable:false`; `dev.onRpc`-Hook für den virtuellen Bediener |
+| 28 | Zwei Durchgänge wegen geteiltem Heap | Der Script-Heap (~25 KB) ist von allen Scripts geteilt; `bw_pump` braucht mit den Test-Einträgen über 15,8 KB Spitze und starb neben dem Test-Script mit `out_of_memory`. Durchgang A startet `bw_pump` und beendet sich; B bewertet und baut zurück; `hwtest.js watch` startet B automatisch. Beide Test-Scripts geben `K/orig` in Wartephasen frei, damit `bw_main` im Takt weiterläuft (9,0/9,6 KB statt 13,5 KB). Messwerte in `LEARNING.md` |
 
 ## Abweichungen vom Onboarding-Prompt (alle aus Entscheidungen oder aus Widersprüchen der Docs)
 
@@ -127,9 +146,17 @@ Stückliste mit Bezugsquellen, Verdrahtung mit Bild, Kalibrieranleitung, Install
 - **Dritter Fehler am Gerät:** `bw_main` v0.1.1 brach mit `ReferenceError: "evalSamples" is not defined` ab – eine Funktion aus der Dateimitte fehlte, obwohl derselbe Pfad mit v0.1.0 lief. Ursache per `Script.GetCode` bestätigt: am Gerät fehlten 166 (`bw_install`) bzw. 210 Byte (`bw_main`) am Dateiende – Verlust beim Einfügen im Editor, nicht das Speicherlimit (Firmware 2.0.0 hält 19 KB). Abhilfe: Entscheidung 19.
 - **Grenze des Mocks:** Der Mock führt die Scripts in V8 aus (`vm.runInNewContext`). Was V8 großzügiger auslegt als mJS (Hoisting, Stacktiefe, evtl. weitere Sprachdetails), fällt nur am Gerät oder über Regeln in `syntax.test.js` bzw. Messungen im Mock auf. Jede weitere Engine-Überraschung wird dort nachgetragen.
 
+## Nachträge aus dem Hardware-Test (13.09.2026)
+
+- **Vierter Engine-Fehler:** `bw_hwtest` starb nach dem ersten Messtick mit `Function "shift" not found!` – mJS kennt `Array.prototype.shift` nicht. Ringpuffer per Index; neue Regel in `syntax.test.js` (verbotene Array-Methoden). `LEARNING.md`.
+- **Fünfter Engine-Fehler:** `bw_pump` starb neben dem laufenden Test-Script mit `out_of_memory`, ebenso `bw_main` im Takt. Der Script-Heap (~25 KB) ist geteilt. Entscheidung 28; Zahlen in `LEARNING.md`. Normalbetrieb (`bw_main` + `bw_pump` um 08:00) ist nicht betroffen (je ~7,4 KB).
+- **Gemessen:** `KVS.GetMany` 11 Einträge je Seite; Trockenpunkt 0,296 V (12.09.: 0,20 V – Sensor damals in Erde/feucht?), Nasspunkt 3,134 V, `lvlEmpty` 1 bestätigt; Fühler 19,8–33,5 °C; Flash `fs_free` nach zwei Test-Scripts 24.576 Byte.
+- **Testzahl:** 89 (58 bisher + 12 `hwtest.test.js` + 15 `hwpump.test.js` + 4 Größe/Syntax).
+
 ## Offen, bevor Etappe 3 am Gerät abgeschlossen werden kann
 
 - `pctSoll`, `pctLo`, `pctHi`, `pctDry` aus den zwei Messungen an der Pflanze
 - `dropSlow` für die 48-h-Regel
-- Bestätigung: Eingang 1 (`input:1`, Klemme IN2) = 1 bedeutet leer
+- ~~Bestätigung: Eingang 1 (`input:1`, Klemme IN2) = 1 bedeutet leer~~ – bestätigt 13.09.2026 per `bw_hwtest` (LEER = 1, VOLL = 0)
+- ~~Kalibrierpunkte `vDry`/`vWet`~~ – gemessen 13.09.2026 per `bw_hwtest` (0,296 V / 3,134 V, in `cfg1` geschrieben)
 - ~~Bestätigung: Analogeingang heißt `voltmeter:100`, DS18B20 heißt `temperature:100`~~ – bestätigt 12.09.2026 (`bw_main`: `V=0.28 … tC=24.4` mit den Standard-IDs 100)
