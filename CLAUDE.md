@@ -13,7 +13,7 @@ Lernende Pflanzenbewässerung auf dem Shelly Plus Uni (Bodenfeuchte SMT50, DS18B
 - `tools/mock/hwdemo.js` – virtueller Bediener für den Mock (Sensor-Rampen, go/skip/abort über den `onRpc`-Hook).
 - `scripts/lib_notes.md` – jede genutzte Shelly-RPC mit Parametern, Antwort und Doku-Link. **Vor jedem neuen RPC-Aufruf hier nachschlagen und die Tabelle ergänzen.**
 - `tools/mock/shelly-mock.js` – Gerät in Node (KVS, Schedule, Switch, Sensoren, Timer, virtuelle Uhr). `tools/run-script.js` lässt ein Script gegen den Mock laufen.
-- `tools/test/*.test.js` – `node --test`; `helpers.js` liefert `seeded()`, `patch()`, `voltFor()`.
+- `tools/test/*.test.js` – `node --test`; `helpers.js` liefert `seeded()`, `patch()`, `voltFor()`, `hwDevice()` (Gerätezustand vom 12.09.2026), `runHwtest()`, `pumpTest()` (Durchgang A, bw_pump allein, Durchgang B). `hwtest.test.js`/`hwpump.test.js` nutzen den virtuellen Bediener aus `tools/mock/hwdemo.js`.
 - `tools/build.js` – schreibt `dist/` (Kommentare/Einrückung entfernt); **nur `dist/` in den Script-Editor einfügen**, `scripts/` ist die Quelle.
 - `tools/put-script.js` – Upload per `Script.PutCode` in Stücken, prüft danach `Script.GetCode → left` gegen die Dateigröße. Nach **jedem** Upload (auch per Editor) die Größe prüfen.
 - `tools/console.js` – liest die Geräte-Konsole über den Debug-Websocket mit (Node ≥ 22), optional startet es ein Script. Für Tests am Gerät zusammen mit `DEBUG = 1`.
@@ -66,7 +66,8 @@ Node ≥ 20, keine Abhängigkeiten.
 - Verhalten zuerst im Mock testen (`npm test` muss grün bleiben); Änderungen an err-Codes, cfg-Feldern oder RPCs in `README.md`, `lib_notes.md` und ggf. `docs/PLAN.md` nachziehen.
 - Neue Design-Entscheidungen in die Entscheidungstabelle in `docs/PLAN.md` eintragen, nicht nur in den Code.
 - Prüfschritte am echten Gerät: `docs/pruefprotokoll-etappe6.md`. Stellen mit `[TODO am Gerät]` in der README sind offen und dürfen nicht ohne Gerätetest als erledigt markiert werden.
+- Hardware am Gerät prüfen (Mensch am Aufbau, Claude fragt per Interview): `node tools/hwtest.js <ip> preflight` → `put-script.js <ip> 5|6 dist/bw_hwtest.js|bw_hwpump.js` → `start bw_hwtest 20` → je Phase `watch 120` und `go`/`skip`/`abort` → `start bw_hwpump 20` → `go` → `watch 240` (Durchgang B startet automatisch) → `report` → `cleanup`. Ablauf und KVS-Felder in README „Hardware-Test“, Handbuch Kapitel 6; Messwerte im Prüfprotokoll. Nicht in den 25 min um 08:00/20:00/Mitternacht starten; kein zweites großes Script neben einem Test-Script.
 
 ## graft
 
-Das Repo ist mit graft indexiert (`graft/`, gitignored, wird automatisch aktualisiert). Für Codefragen zuerst `graft ask "…" --source`, `graft grep`, `graft skeleton <file>` oder `graft callers <sym>` nutzen statt Dateien ganz zu lesen; Details in `.claude/skills/graft/SKILL.md`. `graft check` prüft, ob der Graph zum Code passt.
+Das Repo ist mit graft indexiert (`graft/`, gitignored, wird automatisch aktualisiert; nach größeren Änderungen `graft build --deep` für die Konzeptknoten). Für Codefragen zuerst `graft ask "…" --source`, `graft grep`, `graft skeleton <file>` oder `graft callers <sym>` nutzen statt Dateien ganz zu lesen; Details in `.claude/skills/graft/SKILL.md`. `graft check` prüft, ob der Graph zum Code passt.
