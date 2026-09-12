@@ -34,6 +34,10 @@ Dauerhaft laufende Scripts stürzen auf dem Shelly nach Stunden ab. Deshalb best
 Einmal-Läufern**, die der Zeitplan des Geräts jeweils nur für wenige Sekunden startet. Es gibt **keinen Zustand
 im Arbeitsspeicher** – alles steht im **KVS** (Key-Value-Store) des Geräts.
 
+![Architektur: Sensoren und Pumpe am Shelly Plus Uni, drei Scripts (bw_install, bw_main, bw_pump), Zeitplan und KVS – läuft lokal ohne Cloud](img/architektur.svg)
+
+<details><summary>Gleiche Darstellung als Text (ASCII) — same diagram as text</summary>
+
 ```
                  ┌─────────────────────────── Shelly Plus Uni ───────────────────────────┐
    SMT50 ───────►│ voltmeter:100                                                          │
@@ -47,6 +51,8 @@ im Arbeitsspeicher** – alles steht im **KVS** (Key-Value-Store) des Geräts.
                  │  bw_pump (gießen im Fenster, Wasserstand überwachen)                    │
                  └────────────────────────────────────────────────────────────────────────┘
 ```
+
+</details>
 
 - **`bw_install`** – einmal von Hand gestartet: legt die KVS-Startwerte, den Zeitplan und die Switch-Sicherheit an.
 - **`bw_main`** – alle 15 Minuten: misst Feuchte/Temperatur/Wasserstand, prüft Plausibilität, bewertet die letzte
@@ -99,7 +105,9 @@ What makes it special:
 
 Long-running scripts crash on the Shelly after a few hours. So the system consists of **three one-shot runners**
 that the device's scheduler starts for just a few seconds each. There is **no state in RAM** – everything lives in
-the device's **KVS** (key-value store). See the diagram in the German section above.
+the device's **KVS** (key-value store).
+
+![Architecture: sensors and pump on the Shelly Plus Uni, three scripts (bw_install, bw_main, bw_pump), schedule and KVS – runs locally, no cloud](img/architektur.svg)
 
 - **`bw_install`** – run once by hand: creates the KVS defaults, the schedule and the switch safety config.
 - **`bw_main`** – every 15 minutes: measures moisture/temperature/level, checks plausibility, evaluates the last

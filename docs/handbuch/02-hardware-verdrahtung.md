@@ -33,6 +33,8 @@ und als Übersicht in der [README](../../README.md#stückliste). Kurz erklärt:
 
 ### Verdrahtung
 
+![Verdrahtungsübersicht: Netzteil, SMT50, DS18B20, Schwimmerschalter und Relais/Pumpe am Shelly Plus Uni](img/verdrahtung.svg)
+
 Der vollständige, bebilderte Plan mit Aderfarben steht in
 [`../../hardware/verdrahtung.md`](../../hardware/verdrahtung.md). Die Kurzform (Details siehe
 [README-Abschnitt „Verdrahtung"](../../README.md#verdrahtung)):
@@ -85,6 +87,8 @@ The complete **bill of materials with sources** is in
   switches the actual pump.
 
 ### Wiring
+
+![Wiring overview: PSU, SMT50, DS18B20, float switch and relay/pump on the Shelly Plus Uni](img/verdrahtung.svg)
 
 The complete, illustrated wiring plan with wire colours is in
 [`../../hardware/verdrahtung.md`](../../hardware/verdrahtung.md). Short form (details in the
