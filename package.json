@@ -6,7 +6,7 @@
   "license": "MIT",
   "engines": { "node": ">=20" },
   "scripts": {
-    "test": "node --test tools/test/",
+    "test": "node --test \"tools/test/*.test.js\"",
     "check": "node --check scripts/bw_install.js && node --check scripts/bw_main.js && node --check scripts/bw_pump.js"
   }
 }
