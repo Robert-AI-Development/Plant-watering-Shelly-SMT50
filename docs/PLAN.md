@@ -102,6 +102,15 @@ Stückliste mit Bezugsquellen, Verdrahtung mit Bild, Kalibrieranleitung, Install
 - **err-Codes**: `cfg`, `uhr`, `sensor`, `wasser`, `noeff` blockieren den Auftrag; `temp`, `zuviel`, `alt`, `limit` sind Hinweise. `noeff` wird nie überschrieben, ein blockierender Code überschreibt einen Hinweis, unter den blockierenden gilt cfg > uhr > sensor > wasser.
 - **Gleichzeitiger Start** von `bw_main` und `bw_pump` um 08:00/20:00: unkritisch, weil `bw_pump` seine Ergebnisse am Ende per Lesen-Ändern-Schreiben ablegt und `job.ok=false` als letzten Schritt setzt.
 
+## Nachträge aus der 7-Tage-Simulation (tools/test/szenario.test.js)
+
+- **Pause mit Toleranz:** Der Auftrag entsteht einen Takt vor dem Fenster (07:45), die Gabe startet Sekunden nach dem Fenster. Eine Pause von exakt 24 h würde das nächste 08:00-Fenster um Sekunden verfehlen und die Gabe auf 20:00 schieben. Deshalb gilt die Pause als abgelaufen, wenn sie beim nächsten Fenster bis auf einen Takt (15 min) vorbei ist. Das entspricht der Regel „das erste Fenster nach Ablauf" aus umsetzungsplan-v1 Abschnitt 5.
+- **Tagesmaximum in 2-°C-Schritten:** `lrn.tMaxD` wird auf gerade Grad gerundet, damit ein Sommertag nicht zehn Schreibvorgänge erzeugt. Das Überschreiten von `tHot` wird unabhängig davon exakt erfasst.
+- **job vor dem Fenster** wird nur aufgefrischt, wenn `job.ok = true` ist; bei `ok = false` prüft `bw_pump` das Alter nicht.
+- **Störung bei unlesbarem Wasserstand:** Ist der Wasserstand in einem Takt unstabil, bleibt eine stehende Störung `wasser` erhalten (weder gesetzt noch gelöscht).
+- **Erfahrungswerte:** 8–9 KVS-Schreibvorgänge an Tagen ohne Gabe, 13–16 an Tagen mit Gabe; `bw_main` läuft im Mock 2,6 s, `bw_pump` `sec` + 5–7 s.
+- **Stand der Prüfung:** 53 Tests in `tools/test/` grün (Installer, Messen, Freigabekette, Dosis, Pause, Pumpe, Lernen, Szenario über sieben Tage inklusive Hitzetage und „keine Wirkung").
+
 ## Offen, bevor Etappe 3 am Gerät abgeschlossen werden kann
 
 - `pctSoll`, `pctLo`, `pctHi`, `pctDry` aus den zwei Messungen an der Pflanze
