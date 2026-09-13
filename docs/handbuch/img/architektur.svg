@@ -37,13 +37,13 @@
   <text x="282" y="140" font-size="12" font-weight="700" fill="#92400e">Zeitplan (Schedule)</text>
   <text x="282" y="162" font-size="12" fill="#111827">alle 15 min → bw_main</text>
   <text x="282" y="182" font-size="12" fill="#111827">08:00 &amp; 20:00 → bw_pump</text>
-  <text x="282" y="202" font-size="12" fill="#111827">+5 min → Switch aus</text>
+  <text x="282" y="202" font-size="12" fill="#111827">+8 min → Switch aus</text>
   <text x="282" y="220" font-size="11" fill="#6b7280">(Sicherheits-Aus, ohne Script)</text>
 
   <!-- KVS -->
   <rect x="490" y="120" width="220" height="120" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
   <text x="502" y="140" font-size="12" font-weight="700" fill="#1d4ed8">KVS — Gedächtnis</text>
-  <text x="502" y="162" font-size="12" fill="#111827">cfg1 · cfg2 · cfg3 (Einstellungen)</text>
+  <text x="502" y="162" font-size="12" fill="#111827">cfg1 · cfg2 · cfg3 · cfg4 (Einstellungen)</text>
   <text x="502" y="182" font-size="12" fill="#111827">lrn (Lernwerte) · st (Zustand)</text>
   <text x="502" y="202" font-size="12" fill="#111827">job (Auftrag) · day · err</text>
   <text x="502" y="222" font-size="11" fill="#6b7280">50 Einträge, je ≤ 253 Zeichen</text>
@@ -60,7 +60,7 @@
   <text x="426" y="292" font-size="13" font-weight="700" fill="#14532d">bw_main</text>
   <text x="426" y="312" font-size="11" fill="#374151">alle 15 min:</text>
   <text x="426" y="328" font-size="11" fill="#374151">messen, bewerten,</text>
-  <text x="426" y="344" font-size="11" fill="#374151">lernen, Pause,</text>
+  <text x="426" y="344" font-size="11" fill="#374151">kontrollieren, Pause,</text>
   <text x="426" y="360" font-size="11" fill="#374151">Auftrag schreiben</text>
   <text x="426" y="380" font-size="11" fill="#b91c1c">nie an die Pumpe</text>
 

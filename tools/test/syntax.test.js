@@ -6,7 +6,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
-const SCRIPTS = ['bw_install.js', 'bw_main.js', 'bw_pump.js', 'bw_hwtest.js', 'bw_hwpump.js'].map((f) => path.join(__dirname, '..', '..', 'scripts', f));
+const SCRIPTS = ['bw_install.js', 'bw_main.js', 'bw_pump.js', 'bw_hwtest.js', 'bw_hwpump.js', 'bw_zeitraffer.js'].map((f) => path.join(__dirname, '..', '..', 'scripts', f));
 
 // Verbotene Konstrukte: nicht in der Shelly Language Reference gelistet oder laut Doku gefährlich.
 const FORBIDDEN = [

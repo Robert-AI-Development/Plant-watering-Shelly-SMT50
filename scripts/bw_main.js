@@ -1,30 +1,41 @@
-// bw_main.js v0.1.1 – Arbeitstakt alle 15 min: messen, bewerten, lernen, Pause bestimmen, Gießauftrag schreiben
+// bw_main.js v0.2.0 – Arbeitstakt (cfg3.tick, Standard 15 min): messen, kontrollieren, Trockenphase, Pause bestimmen, Gießauftrag schreiben
+//! Arbeitstakt (cfg3.tick, Standard alle 15 min): misst Feuchte, Temperatur und Wasserstand und schreibt den Gießauftrag "job".
+//! Auslöser: Feuchte unter cfg2.pctLo → job.ok=true, sec = (pctSoll−ist)/lrn.effW·sf + tDead, geklemmt tMin..tMax (ohne effW tStd).
+//! Gegossen wird erst im nächsten Fenster durch bw_pump, der dort in Portionen regelt und lrn.effW/sf lernt.
+//! Bremsen: Pause seit der letzten Gabe (pause 24 h; pauseHot 12 h bei Hitze über tHot oder nach why max/zeit unter pctLo; pauseSlow 48 h),
+//! Tageslimit maxDay, Behälter leer, Sensor unplausibel, Feuchte über pctLo. Der Grund steht in job.why (README).
+//! Kontrolle soak min nach dem Fenster: über pctHi+hyst → sf sinkt (Hinweis zuviel); Abfall seit dem Fenster über dropW → Hinweis sink.
+//! Trockenphase (keine Gabe bis Feuchte < pctDry): ab Wochentag cfg3.dryDay (5 = Freitag, null = nie) und bei Feuchte über pctHi.
+//! Band: pctDry<pctLo<pctOk<=pctSoll<pctHi und pctLo+hyst<pctOk, sonst Störung cfg. Dieses Script schaltet die Pumpe nie.
 //
 // Einmal-Läufer: startet über den Zeitplan, arbeitet eine Schrittkette ab und beendet sich per Script.Stop.
 // Rührt die Pumpe nie an. Alles Wissen liegt im KVS (cfg1..3, lrn, st, job, day, err), nichts im RAM.
-// Schritte:  1 KVS lesen   2 Pflichtfelder   3 Uhrzeit   4 Messen (Timer)   5 Tageswechsel
-//            6 Bewerten/Lernen/Pause/Auftrag   7 KVS schreiben (nur Änderungen)   8 Konsole, Script.Stop
+// Schritte:  1 KVS lesen   2 Pflichtfelder, Bandprüfung   3 Uhrzeit   4 Messen (Timer)   5 Tageswechsel (Trockentag)
+//            6 Nässe/Kontrolle/Trockenphase/Pause/Auftrag   7 KVS schreiben (nur Änderungen)   8 Konsole, Script.Stop
 // Regeln: docs/konzept-v2.md, docs/umsetzungsplan-v1.md/-v2.md, Entscheidungen in docs/PLAN.md.
 // Immer nur ein offener RPC-Aufruf, ein Timer, alle Callbacks benannt (Gerätegrenzen laut Doku).
+// v0.2.0: Lernen (effW, noeff) liegt bei bw_pump im Fenster; hier nur noch die Kontrolle (zuviel → sf, sink), Wochen-Trockenphase,
+// Bandprüfung, Nachholfenster (pauseHot nach why max/zeit) und die Dosis mit effW – Klemme tMin..tMax statt why tmin.
 
-var VER = "0.1.1";
+var VER = "0.2.0";
 var DEBUG = 0;                 // 1 = Debug-Zeilen in der Konsole: Schritte, RPC-Aufrufe, KVS-Inhalt, Messwerte
-var TICK_MIN = 15;   // Takt des Zeitplans in Minuten (bw_install: "0 */15 * * * *"); nur für die job-Schreibregel
 
 // Pflichtfelder je Konfigurationseintrag; OPEN2 darf null sein (Kalibrierung noch offen → nur messen)
 var REQ1 = ["vDry", "vWet", "vErrLo", "vErrHi", "nSample", "msSample", "lvlEmpty", "nLvl", "idV", "idT", "idLvl", "idSw"];
-var REQ2 = ["hyst", "effMin", "effMax", "alpha", "sfMin", "sfStep"];
-var OPEN2 = ["pctSoll", "pctLo", "pctHi", "pctDry", "dropSlow"];
-var REQ3 = ["tDead", "tMin", "tStd", "tMax", "tHot", "pauseHot", "pause", "pauseSlow", "soak", "jobAge", "maxDay", "tChk", "winA", "winB"];
+var REQ2 = ["hyst", "effMin", "effMax", "alpha", "sfMin", "sfStep"];   // dropW, sfUp sind freiwillig (fehlt → aus)
+var OPEN2 = ["pctSoll", "pctLo", "pctOk", "pctHi", "pctDry", "dropSlow"];
+// tick = Takt des Zeitplans in Minuten (Installer: "0 */tick * * * *"), winEvery darf null sein (Fenster alle N min statt winA/winB, Zeitraffer)
+var REQ3 = ["tDead", "tMin", "tStd", "tMax", "tHot", "pauseHot", "pause", "pauseSlow", "soak", "jobAge", "maxDay", "tChk", "winA", "winB", "tick"];
 
 // Störungscodes: Wert > 0 blockiert den Auftrag und ist der Vorrang beim Überschreiben; noeff wird nie überschrieben
 var BLOCK = { noeff: 6, cfg: 5, uhr: 4, sensor: 3, wasser: 2 };
-var ERR_ORDER = ["temp", "wasser", "sensor", "uhr", "cfg"];   // Reihenfolge beim Setzen: aufsteigender Vorrang
+// Reihenfolge beim Setzen: aufsteigender Vorrang; sink und zuviel sind Hinweise der Kontrolle und gelten bis zur nächsten
+var ERR_ORDER = ["sink", "temp", "zuviel", "wasser", "sensor", "uhr", "cfg"];
 
 var K = {};        // gelesene KVS-Einträge
 var orig = {};     // JSON der Einträge beim Lesen, für "schreiben nur bei Änderung"
 var c1 = null, c2 = null, c3 = null;
-var now = 0, today = "", minDay = 0, ram = null;
+var now = 0, today = "", dayNo = 0, minDay = 0, ram = null;
 var act = {};      // in diesem Takt aktive Störbedingungen
 var smp = { v: [], lvl: [], n: 0, h: null };
 var m = { V: null, pct: null, tC: null, lvl: null, empty: null, sensorOk: false, lvlOk: false };
@@ -63,8 +74,11 @@ function fromKvs(v) {
   try { o = JSON.parse(v); } catch (e) { o = null; }
   return o === undefined ? null : o;
 }
+function r1(x) { return Math.round(x * 10) / 10; }
 function r3(x) { return Math.round(x * 1000) / 1000; }
 function clamp(x, lo, hi) { return x < lo ? lo : (x > hi ? hi : x); }
+// Fensterdauer in s (Pumpe aus der letzten Portion): st.dur von bw_pump v0.2.0, altes st (nur sec) → sec
+function durOf(s) { return isNum(s.dur) ? s.dur : (isNum(s.sec) ? s.sec : 0); }
 function missing(o, req) {
   if (!o || typeof o !== "object") return req[0];
   for (var i = 0; i < req.length; i++) { var v = o[req[i]]; if (v === undefined || v === null) return req[i]; }
@@ -121,7 +135,7 @@ function setErr(code) {
 function clrErr(code) { if (errCode() === code) K.err = { code: null, ts: now, mem: ram }; }
 function applyErr() {
   // erst alle nicht mehr aktiven Bedingungen löschen, dann die aktiven in aufsteigendem Vorrang setzen;
-  // null = Bedingung in diesem Takt nicht prüfbar (z. B. Wasserstand unstabil) → Störung bleibt wie sie ist
+  // null/undefined = Bedingung in diesem Takt nicht prüfbar (Wasserstand unstabil, keine Kontrolle) → Störung bleibt wie sie ist
   for (var i = 0; i < ERR_ORDER.length; i++) { if (act[ERR_ORDER[i]] === false) clrErr(ERR_ORDER[i]); }
   for (var j = 0; j < ERR_ORDER.length; j++) { if (act[ERR_ORDER[j]] === true) setErr(ERR_ORDER[j]); }
 }
@@ -141,29 +155,25 @@ function abortErr(code, msg) {
 function stepRead() { t0 = Shelly.getUptimeMs(); kvsPage(0); }
 function kvsPage(off) { rpc("KVS.GetMany", { match: "*", offset: off }, onKvsPage, off); }
 function onKvsPage(res, ec, em, off) {
+  // Antwort am Gerät (Probe 12.09.2026): items als Array von {key, etag, value}, dazu offset/total
   if (ec !== 0) { fail("KVS.GetMany: " + em); return; }
-  var items = res && res.items ? res.items : {};
-  var n = 0;
-  if (typeof items.length === "number") {
-    for (var i = 0; i < items.length; i++) { K[items[i].key] = fromKvs(items[i].value); n = n + 1; }
-  } else {
-    var ks = Object.keys(items);
-    for (var j = 0; j < ks.length; j++) { K[ks[j]] = fromKvs(items[ks[j]].value); n = n + 1; }
-  }
+  var items = res && res.items ? res.items : [];
+  for (var i = 0; i < items.length; i++) K[items[i].key] = fromKvs(items[i].value);
   var total = res && isNum(res.total) ? res.total : 0;
-  if (n > 0 && off + n < total) { kvsPage(off + n); return; }
+  if (items.length > 0 && off + items.length < total) { kvsPage(off + items.length); return; }
   var keys = Object.keys(K);
   for (var q = 0; q < keys.length; q++) orig[keys[q]] = JSON.stringify(K[keys[q]]);
   if (DEBUG) { for (var d = 0; d < keys.length; d++) dbg("kvs " + keys[d] + " " + typeof K[keys[d]] + " " + orig[keys[d]]); }
   next();
 }
 
-// ---- Schritt 2: Pflichtfelder und Zustandseinträge ---------------------------
+// ---- Schritt 2: Pflichtfelder, Bandprüfung und Zustandseinträge ---------------
 function stepCfg() {
   c1 = K.cfg1; c2 = K.cfg2; c3 = K.cfg3;
-  // Zustandseinträge dürfen fehlen (z. B. err von Hand gelöscht) → Standard annehmen, wird zurückgeschrieben
-  if (!K.lrn || typeof K.lrn !== "object") K.lrn = { eff: null, sf: 1, rate: null, tMean: null, tMaxD: null, tMaxY: null };
-  if (K.lrn.sf === undefined || K.lrn.sf === null) K.lrn.sf = 1;
+  // Zustandseinträge dürfen fehlen (z. B. err von Hand gelöscht) → Standard annehmen, wird zurückgeschrieben;
+  // altes lrn.eff (v0.1) bleibt stehen und wird ignoriert, fehlendes effW → tStd
+  if (!K.lrn || typeof K.lrn !== "object") K.lrn = { effW: null, sf: 0.7, rate: null, tMean: null, tMaxD: null, tMaxY: null };
+  if (!isNum(K.lrn.sf)) K.lrn.sf = 0.7;
   if (!K.st || typeof K.st !== "object") K.st = { state: "beob", ts: null, sec: null, pctB: null, pctA: null, rated: false, dryOk: false };
   if (!K.day || typeof K.day !== "object") K.day = { date: null, n: 0, sec: 0 };
   if (!K.err || typeof K.err !== "object") K.err = { code: null, ts: null, mem: null };
@@ -177,9 +187,13 @@ function stepCfg() {
   if (miss !== null) { return abortErr("cfg", "cfg2." + miss + " fehlt"); }
   miss = missing(c3, REQ3);
   if (miss !== null) { return abortErr("cfg", "cfg3." + miss + " fehlt"); }
-  if (!(c1.nSample >= 1) || !(c1.nLvl >= 1) || !(c1.msSample >= 1)) { return abortErr("cfg", "cfg1.nSample/nLvl/msSample müssen ≥ 1 sein"); }
+  if (!(c1.nSample >= 1) || !(c1.nLvl >= 1) || !(c1.msSample >= 1) || !(c3.tick >= 1)) { return abortErr("cfg", "cfg1.nSample/nLvl/msSample, cfg3.tick müssen ≥ 1 sein"); }
   if (!(c1.vWet > c1.vDry)) { return abortErr("cfg", "cfg1.vWet muss größer als vDry sein"); }
   if (hhmm(c3.winA) === null || hhmm(c3.winB) === null) { return abortErr("cfg", "cfg3.winA/winB ungültig (HH:MM)"); }
+  // Bandordnung (nur wenn das Band vollständig ist; offene Felder melden sich in Schritt 6 als why=cfg)
+  if (missing(c2, OPEN2) === null && !(c2.pctDry < c2.pctLo && c2.pctLo < c2.pctOk && c2.pctLo + c2.hyst < c2.pctOk && c2.pctOk <= c2.pctSoll && c2.pctSoll < c2.pctHi)) {
+    return abortErr("cfg", "cfg2: Band ungültig (pctDry<pctLo<pctOk<=pctSoll<pctHi, pctLo+hyst<pctOk)");
+  }
   return true;
 }
 
@@ -194,7 +208,8 @@ function stepClock() {
   var off = minDay - utcMin;                // Zeitzonenversatz in Minuten aus lokaler Uhr und Unix-Zeit
   if (off > 720) off = off - 1440;
   if (off < -720) off = off + 1440;
-  today = civil(Math.floor((now + off * 60) / 86400));
+  dayNo = Math.floor((now + off * 60) / 86400);   // lokale Tagesnummer seit 1970-01-01 (Wochentag: (dayNo + 4) % 7, 0 = Sonntag)
+  today = civil(dayNo);
   return true;
 }
 
@@ -231,25 +246,35 @@ function evalSamples() {
   m.tC = ts && isNum(ts.tC) ? ts.tC : null;
 }
 
-// ---- Schritt 5: Tageswechsel per Datumsvergleich -----------------------------
+// ---- Schritt 5: Tageswechsel per Datumsvergleich, Trockentag -------------------
 function rateLive() {
-  // Austrocknungsrate in %/h seit der letzten Bewertung; erst ab 24 h aussagekräftig (dropSlow gilt je 24 h)
+  // Austrocknungsrate in %/h seit der Kontrolle (Fensterende + soak); erst ab 24 h aussagekräftig (dropSlow gilt je 24 h)
   var s = K.st;
   if (!s.rated || !isNum(s.pctA) || !isNum(s.ts) || m.pct === null || !m.sensorOk) return null;
-  var hrs = (now - (s.ts + c3.soak * 60)) / 3600;
+  var hrs = (now - (s.ts + durOf(s) + c3.soak * 60)) / 3600;
   if (hrs < 24) return null;
   return (s.pctA - m.pct) / hrs;
+}
+function dryStart(why) {
+  // Trockenphase (Entscheidung 16): keine Gabe, bis eine Taktmessung unter pctDry liegt; beob → sperre, ein laufendes
+  // Fenster (gegossen) bleibt stehen und wird von der Kontrolle nach sperre überführt. Läuft die Phase schon: nichts zu tun.
+  var s = K.st;
+  if (s.state === "beob") { s.state = "sperre"; s.rated = true; }
+  else if (!s.dryOk) return;
+  s.dryOk = false;
+  log("Trockenphase (" + why + "): warte auf < " + c2.pctDry + " %");
 }
 function stepDay() {
   var d = K.day, l = K.lrn;
   if (d.date !== today) {
     if (d.date !== null) {
-      // echter Tageswechsel: Tagesmaximum weiterreichen, Jahreszeit-Anzeiger glätten, Rate und Speicher protokollieren
+      // echter Tageswechsel: Tagesmaximum weiterreichen, Jahreszeit-Anzeiger glätten, Rate und Speicher protokollieren, Trockentag
       l.tMaxY = l.tMaxD;
       if (l.tMaxD !== null) l.tMean = r3(l.tMean === null ? l.tMaxD : 0.9 * l.tMean + 0.1 * l.tMaxD);
       var r = rateLive();
       if (r !== null) l.rate = r3(r);
       K.err = { code: K.err.code, ts: K.err.ts, mem: ram };
+      if (isNum(c3.dryDay) && (dayNo + 4) % 7 === c3.dryDay) dryStart("Wochentag " + c3.dryDay);
     }
     l.tMaxD = null;
     K.day = { date: today, n: 0, sec: 0 };
@@ -258,44 +283,30 @@ function stepDay() {
   return true;
 }
 
-// ---- Schritt 6: Bewerten, Lernen, Pause, Freigabekette -----------------------
-function rateGift() {
-  // Bewertung nach der Einsickerzeit: Wirkung je wirksamer Pumpensekunde, sanft nachziehen
+// ---- Schritt 6: Nässe, Kontrolle, Trockenphase, Pause, Freigabekette ------------
+function control() {
+  // Kontrolle soak Minuten nach dem Fensterende: nur "zu viel" (sf sinkt, außer bw_pump hat es mit why=over schon getan)
+  // und "eingebrochen" (Abfall seit der letzten Fensterablesung über dropW → Hinweis sink). Den Lernwert effW liefert bw_pump.
   var l = K.lrn, s = K.st, pct = m.pct;
-  var effSec = s.sec - c3.tDead;
-  if (!isNum(s.pctB) || !isNum(s.sec) || effSec <= 0) {
-    log("Bewertung ohne Vorwert übersprungen");
-  } else {
-    var effNew = (pct - s.pctB) / effSec;
-    if (effNew < c2.effMin) {
-      setErr("noeff");
-      log("Gabe ohne Wirkung: " + r3(s.pctB) + " % → " + r3(pct) + " % nach " + s.sec + " s – kein Lernwert, Störung noeff (von Hand löschen)");
-    } else {
-      if (effNew > c2.effMax) effNew = c2.effMax;
-      var eff = l.eff === null ? effNew : (1 - c2.alpha) * l.eff + c2.alpha * effNew;
-      l.eff = r3(clamp(eff, c2.effMin, c2.effMax));
-      if (c2.pctHi !== null && pct > c2.pctHi) {
-        l.sf = r3(clamp(l.sf - c2.sfStep, c2.sfMin, 1));
-        act.zuviel = true;
-        log("zu viel: " + r3(pct) + " % > pctHi, Sicherheitsfaktor " + l.sf);
-      } else {
-        clrErr("zuviel");   // Hinweis gilt bis zur nächsten Bewertung
-      }
-      log("gelernt: eff_neu=" + r3(effNew) + " eff=" + l.eff);
-    }
-  }
-  s.pctA = r3(pct);
+  s.pctA = r1(pct);
   s.rated = true;
   s.state = "sperre";
-  s.dryOk = false;
+  if (!isNum(s.pctB) || !isNum(s.pctW)) { log("Kontrolle ohne Fensterwert"); return; }
+  act.zuviel = pct > c2.pctHi + c2.hyst && s.why !== "over";
+  if (act.zuviel) l.sf = r3(clamp(l.sf - c2.sfStep, c2.sfMin, 1));
+  act.sink = isNum(c2.dropW) && s.pctW - pct > c2.dropW;
+  log("Kontrolle: " + s.pctW + " → " + s.pctA + " % sf=" + l.sf + (act.zuviel ? " zuviel" : "") + (act.sink ? " sink" : ""));
 }
 function windowSoon() {
   // liegt ein Gießfenster innerhalb des nächsten Takts? Dann job frisch schreiben (Entscheidung 11)
+  // winEvery gesetzt (Zeitraffer): Fenster alle N Minuten ab der vollen Stunde, das nächste liegt N - (Minute mod N) voraus
+  var e = c3.winEvery;
+  if (isNum(e) && e >= 1) return e - (minDay % e) <= c3.tick;
   var w = [hhmm(c3.winA), hhmm(c3.winB)];
   for (var i = 0; i < w.length; i++) {
     var diff = w[i] - minDay;
     if (diff < 0) diff = diff + 1440;
-    if (diff > 0 && diff <= TICK_MIN) return true;
+    if (diff > 0 && diff <= c3.tick) return true;
   }
   return false;
 }
@@ -312,8 +323,10 @@ function stepEval() {
     if (l.tMaxD === null || tr > l.tMaxD) l.tMaxD = tr;
   }
 
-  // Bewertung 30 min nach der Gabe (nur mit gültigem Sensor)
-  if (s.state === "gegossen" && !s.rated && isNum(s.ts) && m.sensorOk && pct !== null && now - s.ts >= c3.soak * 60) rateGift();
+  // Nässe in der Taktmessung → Trockenphase; nicht während ein Fenster noch unkontrolliert ist (der Wert direkt nach der
+  // Gabe zählt nicht, erst die nächste Taktmessung). Dann die Kontrolle soak Minuten nach dem Fensterende (gültiger Sensor).
+  if (cfgOpen === null && m.sensorOk && pct > c2.pctHi && s.state !== "gegossen") dryStart("nass " + r1(pct) + " %");
+  if (cfgOpen === null && s.state === "gegossen" && !s.rated && isNum(s.ts) && m.sensorOk && now - (s.ts + durOf(s)) >= c3.soak * 60) control();
 
   // Störbedingungen dieses Takts
   act.uhr = false;                       // bis hierher kommt der Takt nur mit gültiger Uhrzeit
@@ -322,21 +335,21 @@ function stepEval() {
   act.wasser = m.lvlOk ? (m.empty === true) : null;
   act.temp = m.tC === null;
   applyErr();
-  if (act.zuviel) setErr("zuviel");
 
-  // Trockenphase nachgewiesen?
+  // Trockenphase beendet?
   if (s.state === "sperre" && !s.dryOk && m.sensorOk && c2.pctDry !== null && pct < c2.pctDry) s.dryOk = true;
 
-  // Pause dreistufig
+  // Pause dreistufig; Nachholfenster (pauseHot), wenn das Fenster mit max/zeit endete und die Feuchte danach unter pctLo lag
   var rate = rateLive();
   var tMax24 = l.tMaxD;
   if (l.tMaxY !== null && (tMax24 === null || l.tMaxY > tMax24)) tMax24 = l.tMaxY;
   var pauseH = c3.pause;
   if (tMax24 !== null && tMax24 > c3.tHot) pauseH = c3.pauseHot;
+  else if ((s.why === "max" || s.why === "zeit") && s.dryOk && isNum(s.pctA) && s.pctA < c2.pctLo) pauseH = c3.pauseHot;
   else if (rate !== null && c2.dropSlow !== null && rate * 24 < c2.dropSlow) pauseH = c3.pauseSlow;
   // Der Auftrag entsteht einen Takt vor dem Fenster, die Gabe selbst startet Sekunden nach dem Fenster:
   // die Pause gilt als abgelaufen, wenn sie beim nächsten Fenster bis auf einen Takt Toleranz vorbei ist
-  var pauseOk = !isNum(s.ts) || (now + 2 * TICK_MIN * 60) - s.ts >= pauseH * 3600;
+  var pauseOk = !isNum(s.ts) || (now + 2 * c3.tick * 60) - s.ts >= pauseH * 3600;
   if (s.state === "sperre" && pauseOk && s.dryOk) s.state = "beob";
   out.pauseH = pauseH;
 
@@ -355,14 +368,10 @@ function stepEval() {
   else if (s.state === "sperre") j.why = "trocken";
   else if (pct >= lo) j.why = "feucht";
   else {
-    var sec = null;
-    if (l.eff === null) sec = c3.tStd;                       // erste Gabe überhaupt: Standardgabe
-    else {
-      var raw = (c2.pctSoll - pct) / l.eff * l.sf + c3.tDead;
-      if (raw < c3.tMin) j.why = "tmin";
-      else sec = Math.round(raw) > c3.tMax ? c3.tMax : Math.round(raw);
-    }
-    if (sec !== null) { j.ok = true; j.sec = sec; j.why = "ok"; }
+    // Dosis: Defizit bis pctSoll durch Wirkung je Sekunde (Fensterskala), gedämpft mit sf, plus Totzeit; ohne Lernwert tStd
+    j.ok = true;
+    j.why = "ok";
+    j.sec = l.effW > 0 ? clamp(Math.round((c2.pctSoll - pct) / l.effW * l.sf + c3.tDead), c3.tMin, c3.tMax) : c3.tStd;
   }
   dbg("job " + JSON.stringify(j) + " state=" + s.state + " pauseOk=" + pauseOk);
   out.why = j.why;
@@ -402,7 +411,7 @@ function stepDone() {
   var l = K.lrn, s = K.st;
   log("V=" + (m.V === null ? "-" : r3(m.V)) + " pct=" + (m.pct === null ? "-" : r3(m.pct)) + " tC=" + (m.tC === null ? "-" : m.tC)
     + " lvl=" + (m.lvl === null ? "?" : m.lvl) + " st=" + s.state + " dry=" + (s.dryOk ? 1 : 0) + " pause=" + out.pauseH + "h"
-    + " why=" + out.why + " sec=" + out.sec + " eff=" + (l.eff === null ? "-" : l.eff) + " sf=" + l.sf
+    + " why=" + out.why + " sec=" + out.sec + " effW=" + (isNum(l.effW) ? l.effW : "-") + " sf=" + l.sf
     + " err=" + (errCode() === null ? "-" : errCode()) + " w=" + wq.length + " dauer=" + (Shelly.getUptimeMs() - t0) + "ms");
   return true;
 }

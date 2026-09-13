@@ -34,7 +34,8 @@ test('Volldurchlauf: A bereitet vor und startet bw_pump, Pumpe 30 s, B bewertet 
   assert.deepEqual(dev.switchLog.map((e) => (e.on ? 'on' : 'off') + (e.toggle_after ? ':' + e.toggle_after : '')), ['on:30', 'off', 'off'], 'nur bw_pump schaltet');
   assert.equal(calls(dev, 'Switch.Set', 5).length, 0, 'bw_hwpump selbst schaltet nicht');
   assert.equal(calls(dev, 'Script.Start', 5).length, 1);
-  assert.match(dev.log.join('\n'), /\[bw_pump 0\.1\.1\] Pumpe ein für 30 s/, 'bw_pump lief allein weiter (Konsole des Geräts)');
+  assert.match(dev.log.join('\n'), /\[bw_pump 0\.\d+\.\d+\] Fenster: Auftrag 30 s, pct null, Einzelportion/, 'bw_pump lief allein weiter (Konsole des Geräts)');
+  assert.match(dev.log.join('\n'), /P1 aus: ok nach 30 s/);
   assert.match(r.b.log.join('\n'), /Bericht 2\/2 Ende mit Rückbau/);
   assert.ok(r.writes <= 16, 'Schreibvorgänge ' + r.writes);
   assert.ok(r.maxCallDepth <= 10, 'Aufruftiefe ' + r.maxCallDepth);
@@ -79,7 +80,7 @@ test('Taktsperre: go kurz vor dem bw_main-Takt wartet bis in die Lücke, bw_main
   const st = calls(dev, 'Script.Start', 5)[0];
   assert.ok(st.t >= tick + 90 * 1000, 'Start erst nach Takt + guardS: ' + (st.t - tick) / 1000 + ' s');
   assert.match(r.a.log.join('\n'), /warte: takt/);
-  assert.match(r.log.join('\n'), /\[bw_main 0\.1\.1\]/, 'bw_main lief als zweites Script');
+  assert.match(r.log.join("\n"), /\[bw_main 0\.\d+\.\d+\]/, "bw_main lief als zweites Script");
   assert.deepEqual(snapshot(dev), before);
 });
 

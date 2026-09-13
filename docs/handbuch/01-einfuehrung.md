@@ -43,11 +43,11 @@ im Arbeitsspeicher** – alles steht im **KVS** (Key-Value-Store) des Geräts.
    SMT50 ───────►│ voltmeter:100                                                          │
    DS18B20 ─────►│ temperature:100      ┌── Zeitplan (Schedule) ──┐                       │
    Schwimmer ───►│ input:1              │ alle 15 min → bw_main    │   KVS (Gedächtnis)    │
-   Pumpe ◄───────│ switch:0             │ 08:00 & 20:00 → bw_pump  │   cfg1 cfg2 cfg3      │
-                 │                      │ +5 min → Switch aus (Sicherheit)  lrn st job    │
+   Pumpe ◄───────│ switch:0             │ 08:00 & 20:00 → bw_pump  │   cfg1 cfg2 cfg3 cfg4 │
+                 │                      │ +8 min → Switch aus (Sicherheit)  lrn st job    │
                  │  bw_install (einmal) │                          │   day err            │
                  │  bw_main (messen,    └──────────────────────────┘                       │
-                 │           lernen, Auftrag schreiben)                                    │
+                 │           kontrollieren, Auftrag schreiben)                             │
                  │  bw_pump (gießen im Fenster, Wasserstand überwachen)                    │
                  └────────────────────────────────────────────────────────────────────────┘
 ```
@@ -55,10 +55,12 @@ im Arbeitsspeicher** – alles steht im **KVS** (Key-Value-Store) des Geräts.
 </details>
 
 - **`bw_install`** – einmal von Hand gestartet: legt die KVS-Startwerte, den Zeitplan und die Switch-Sicherheit an.
-- **`bw_main`** – alle 15 Minuten: misst Feuchte/Temperatur/Wasserstand, prüft Plausibilität, bewertet die letzte
-  Gabe, lernt, bestimmt die Pause und schreibt einen **Gießauftrag** (`job`) mit Begründung. **Rührt die Pumpe nie an.**
-- **`bw_pump`** – in den Gießfenstern (08:00/20:00): liest den Auftrag, prüft alle Freigaben (Wasserstand,
-  Tageslimit, Störungen) und schaltet die Pumpe mit einer Selbstabschaltung (`toggle_after`).
+- **`bw_main`** – alle 15 Minuten: misst Feuchte/Temperatur/Wasserstand, prüft Plausibilität und Bandordnung,
+  kontrolliert das letzte Fenster (30 min danach), führt die Trockenphase, bestimmt die Pause und schreibt einen
+  **Gießauftrag** (`job`) mit Begründung. **Rührt die Pumpe nie an.**
+- **`bw_pump`** – in den Gießfenstern (08:00:30/20:00:30): liest den Auftrag, prüft die Freigaben (Wasserstand,
+  Tageslimit, Störungen), misst frisch und gießt in bis zu `nPort` Portionen mit Nachmessen (`toggle_after` je
+  Portion), lernt `lrn.effW`/`sf` und endet vor dem nächsten `bw_main`-Takt.
 
 Warum diese Trennung? So kann die messende/lernende Logik nie versehentlich die Pumpe auslösen, und jeder Takt
 beginnt sauber aus dem KVS. Details und die Gründe dahinter: [`../../README.md`](../../README.md) Abschnitt
@@ -72,7 +74,8 @@ System, bis ein Mensch nachsieht. Mehr dazu: README-Abschnitt „Sicherheit".
 
 ### Weiter geht's
 
-Baue die Hardware auf → [Kapitel 2](02-hardware-verdrahtung.md). Du willst nur den Code verstehen/erweitern →
+Schnell zum laufenden Gerät → [Kurzanleitung](../kurzanleitung.md) (Einrichtung in zehn Schritten, Zeitraffer,
+Kalibrierung, Parameter). Baue die Hardware auf → [Kapitel 2](02-hardware-verdrahtung.md). Du willst nur den Code verstehen/erweitern →
 [Kapitel 4](04-vps-mitentwickeln.md).
 
 ---
@@ -110,10 +113,12 @@ the device's **KVS** (key-value store).
 ![Architecture: sensors and pump on the Shelly Plus Uni, three scripts (bw_install, bw_main, bw_pump), schedule and KVS – runs locally, no cloud](img/architektur.svg)
 
 - **`bw_install`** – run once by hand: creates the KVS defaults, the schedule and the switch safety config.
-- **`bw_main`** – every 15 minutes: measures moisture/temperature/level, checks plausibility, evaluates the last
-  watering, learns, determines the pause and writes a **watering job** (`job`) with a reason. **Never touches the pump.**
-- **`bw_pump`** – during the watering windows (08:00/20:00): reads the job, checks all clearances (level, daily
-  limit, errors) and switches the pump with a self-off timer (`toggle_after`).
+- **`bw_main`** – every 15 minutes: measures moisture/temperature/level, checks plausibility and band order, checks
+  the last window 30 min later, runs the dry phase, determines the pause and writes a **watering job** (`job`) with a
+  reason. **Never touches the pump.**
+- **`bw_pump`** – during the watering windows (08:00:30/20:00:30): reads the job, checks the clearances (level, daily
+  limit, errors), takes a fresh reading and waters in up to `nPort` portions with re-measuring (`toggle_after` per
+  portion), learns `lrn.effW`/`sf` and finishes before the next `bw_main` cycle.
 
 Why the split? The measuring/learning logic can never accidentally trigger the pump, and every cycle starts clean
 from the KVS. Details and rationale: [`../../README.md`](../../README.md) section "Funktionsweise" and
@@ -127,5 +132,6 @@ human checks. More in the README "Sicherheit" section.
 
 ### Next
 
-Build the hardware → [chapter 2](02-hardware-verdrahtung.md). Just want to understand/extend the code →
+Fastest path to a running device → [Kurzanleitung](../kurzanleitung.md) (quick guide, German: setup in ten steps,
+fast-forward test, calibration, parameters). Build the hardware → [chapter 2](02-hardware-verdrahtung.md). Just want to understand/extend the code →
 [chapter 4](04-vps-mitentwickeln.md).

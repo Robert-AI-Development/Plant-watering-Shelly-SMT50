@@ -1,0 +1,193 @@
+ok       Uhrzeit 15:49 lokal, ram_free 133672, fs_free 40960
+ok       cfg2 Zielband: pctLo 40 → Gabe, pctOk 50 Ziel erreicht, pctSoll 55, pctHi 60 zu viel, pctDry 28
+ok       Wasserstand VOLL (lvl=false)
+ok       Ausgang aus
+ok       Sensoren: V=0.590 (10 %) tC=23.6
+warte – Sekunde 52, warte auf 8–30
+warte – Sekunde 54, warte auf 8–30
+warte – Sekunde 56, warte auf 8–30
+warte – Sekunde 58, warte auf 8–30
+warte – Sekunde 0, warte auf 8–30
+warte – Sekunde 2, warte auf 8–30
+warte – Sekunde 5, warte auf 8–30
+warte – Sekunde 7, warte auf 8–30
+sicherer Moment: 15:50:09
+Script.Start bw_zeitraffer (id 7) → {"was_running":false}
+lly_user_script.cpp:371 JS RAM stat: initial: 142508 after: 142460, used: 48
+lly_user_script.cpp:388 JS RAM stat: after user code: 142508 after: 140708, used: 1800
+[bw_zeitraffer 0.2.0] Sicherung zrb1..5 wird geschrieben; Profil: Takt 3 min, Fenster alle 6 min, Budget 120 s, bis 3 Portionen,
+ tHot 30 °C, maxDay 4, Trockenphase aus
+[status 15:50] läuft: bw_zeitraffer | V=0.590 tC=23.6 lvl=false sw=aus | hwr: lauf t1:ok t2:ok m1:- m2:- l1:- l2:- | hwp: ende p0:ok p1:ok p2:ok p3:ok
+lly_user_script.cpp:371 JS RAM stat: initial: 135976 after: 135940, used: 36
+lly_user_script.cpp:388 JS RAM stat: after user code: 135976 after: 133772, used: 2204
+[bw_zeitraffer 0.2.0] bw_install gestartet (id 1) – baut Zeitplan und auto_off. Zurück zum Normalbetrieb: bw_install erneut s
+tarten
+[bw_install 0.1.3] Script-IDs: install=1 main=2 pump=3
+[bw_install 0.1.3] Zeitplan: 3 Einträge, davon eigene: 3
+[bw_install 0.1.3] Switch 0: auto_off 50 s
+[bw_install 0.1.3] KVS neu angelegt: keine
+[bw_install 0.1.3] Zeitplan #1: 0 */3 * * * *
+[bw_install 0.1.3] Zeitplan #2: 30 */6 * * * *
+[bw_install 0.1.3] Zeitplan #3: 40 2,8,14,20,26,32,38,44,50,56 * * * *
+[bw_install 0.1.3] fertig – ZEITRAFFER aktiv: bw_main alle 3 min, bw_pump alle 6 min (Sekunde 30), Budget 120 s, bis 3 Portion
+en, Sicherheits-Aus 160 s nach der Fensterminute; zurück: bw_install starten
+[status 15:50] läuft: bw_install | V=0.560 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=init/null day.n=0 err=- mem(used/peak) main=- pump=- free=139356
+kein bw_zeitraffer/bw_install läuft mehr
+ok       Zeitplan: #1 [0 */3 * * * *] #2 [30 */6 * * * *] #3 [40 2,8,14,20,26,32,38,44,50,56 * * * *]
+ok       auto_off 50 s
+ok       Sicherung zrb1..5 vorhanden (Original: tick 15, tMax 180, tWin 420, pctDry 28)
+ok       Profil: Takt 3 min, Fenster alle 6 min, Budget 120 s, bis 3 Portionen, tStd 12 s, tHot 30 °C, maxDay 4, pctDry 39
+ok       Script-Heap frei: 25200, ram_free 143208, kvs_rev 496
+KALIBRIERLAUF – Zeitraffer aktiv (Takt 3 min, Fenster alle 6 min bei Sekunde 30, Budget 120 s, bis 3 Portionen à 10–15 s, maxDay 4; Trockenphase gilt hier nicht: pctDry 39, dryDay null)
+Fahrplan (F1 = erstes Fenster: die erste 6er-Minute nach dem ersten Takt, Sekunde 30; Schlauch liegt AM Sensor):
+  vor dem Start  Sensor in TROCKENER Erde (< pctLo 40, ideal < pctDry 28) → Takt: why=ok, F1 (trocken): Portionen bis ins Band; Sensor stecken lassen
+  F1+3           Kontrolle (Nachlauf unter dem Tropfer) · DANACH Sensor in MITTEL FEUCHTE Erde (40–50 %, vorbefeuchtet) → Pause 12 min: F1+9 why=ok, F1+12:30 F2 (mittel); stecken lassen
+  F2+3           Kontrolle · DANACH Sensor ins NASSE Substrat oder Wasserglas (> pctHi 60) → why=feucht, Fenster ohne Auftrag; mindestens 3 min drin lassen (Referenz nass)
+  optional       Sensor zurück in trockene Erde → F3 nach der Pause (zweiter Trocken-Wert), bis maxDay 4 (why=limit)
+  Ende           Strg+C oder Zeit um → node tools/hwtest.js 127.0.0.1:8010 normal 60 (Rückbau) → kal report → kal write
+Rekorder läuft 780 s → docs/kal/2026-09-13-13-50-kal.json (Strg+C beendet früher; die Datei ist jede Minute aktuell, kal report wertet sie aus)
+[status 15:50] läuft: - | V=0.580 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=init/null day.n=0 err=- mem(used/peak) main=- pump=- free=120140
+[status 15:50] läuft: - | V=0.600 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=init/null day.n=0 err=- mem(used/peak) main=- pump=- free=135764
+[status 15:50] läuft: - | V=0.600 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=init/null day.n=0 err=- mem(used/peak) main=- pump=- free=127064
+[status 15:50] läuft: - | V=0.600 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=init/null day.n=0 err=- mem(used/peak) main=- pump=- free=126992
+lly_user_script.cpp:371 JS RAM stat: initial: 139096 after: 139056, used: 40
+lly_user_script.cpp:388 JS RAM stat: after user code: 139096 after: 136216, used: 2880
+[bw_main 0.2.0] V=0.603 pct=10.829 tC=23.6 lvl=0 st=beob dry=0 pause=0.2h why=ok sec=12 effW=- sf=0.7 err=- w=3 dauer=5660ms
+[status 15:51] läuft: bw_main | V=0.600 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=- free=130800
+[status 15:51] läuft: - | V=0.610 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=- free=131012
+[status 15:51] läuft: - | V=0.600 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=- free=129404
+[status 15:51] läuft: - | V=0.590 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=- free=138796
+[status 15:51] läuft: - | V=0.580 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=- free=127616
+[status 15:51] läuft: - | V=0.590 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=- free=129952
+[status 15:51] läuft: - | V=0.610 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=- free=131672
+[status 15:51] läuft: - | V=0.580 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=- free=133704
+[status 15:52] läuft: - | V=0.590 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=- free=129856
+[status 15:52] läuft: - | V=0.590 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=- free=127244
+[status 15:52] läuft: - | V=0.610 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=- free=132668
+[status 15:52] läuft: - | V=0.600 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=- free=128260
+[status 15:52] läuft: - | V=0.610 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=- free=130684
+[status 15:52] läuft: - | V=0.580 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=- free=129924
+[status 15:52] läuft: - | V=0.590 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=- free=119552
+[status 15:52] läuft: - | V=0.590 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=- free=130580
+[status 15:53] läuft: - | V=0.610 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=- free=128028
+[status 15:53] läuft: - | V=0.590 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=- free=130296
+[status 15:53] läuft: - | V=0.590 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=- free=129576
+[status 15:53] läuft: - | V=0.600 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=- free=127024
+[status 15:53] läuft: - | V=0.590 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=- free=135152
+[status 15:53] läuft: - | V=0.600 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=- free=127776
+[status 15:53] läuft: - | V=0.600 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=- free=129088
+[status 15:53] läuft: - | V=0.590 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=- free=130892
+lly_user_script.cpp:371 JS RAM stat: initial: 121336 after: 121300, used: 36
+lly_user_script.cpp:388 JS RAM stat: after user code: 121336 after: 118864, used: 2472
+[bw_main 0.2.0] V=0.573 pct=9.772 tC=23.6 lvl=0 st=beob dry=0 pause=0.2h why=ok sec=12 effW=- sf=0.7 err=- w=0 dauer=5184ms
+[status 15:54] läuft: bw_main | V=0.600 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=- free=121680
+[status 15:54] läuft: - | V=0.590 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=- free=132040
+[status 15:54] läuft: - | V=0.570 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=- free=139232
+lly_user_script.cpp:371 JS RAM stat: initial: 134096 after: 134056, used: 40
+lly_user_script.cpp:388 JS RAM stat: after user code: 134096 after: 132244, used: 1852
+[bw_pump 0.2.0] Fenster: Auftrag 12 s, pct 10.829, effW null sf 0.7, Frist 120 s
+[status 15:54] läuft: bw_pump | V=0.590 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/undefined job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=10206/12516 free=126400
+[bw_pump 0.2.0] m0 10.4 % → P1 12 s
+[status 15:54] läuft: bw_pump | V=0.590 tC=23.6 lvl=false sw=EIN | ZEITRAFFER st=sperre/laeuft job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=10262/12516 free=129368
+[status 15:54] läuft: bw_pump | V=0.760 tC=23.6 lvl=false sw=EIN | ZEITRAFFER st=sperre/laeuft job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=10262/12516 free=134396
+[status 15:54] läuft: bw_pump | V=1.280 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/laeuft job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=10276/12516 free=129820
+[status 15:55] läuft: bw_pump | V=1.270 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/laeuft job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=10402/12516 free=128052
+istent_counters.cpp:585 PCS write interval < 60s
+[status 15:55] läuft: bw_pump | V=1.280 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/laeuft job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=10360/12516 free=128252
+[bw_pump 0.2.0] P1 12s: 10.4→34 (23.6, g 2.357, tRise 8, stabil 12s)
+[status 15:55] läuft: bw_pump | V=1.270 tC=23.6 lvl=false sw=EIN | ZEITRAFFER st=sperre/laeuft job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=10402/12516 free=128876
+[status 15:55] läuft: bw_pump | V=1.360 tC=23.6 lvl=false sw=EIN | ZEITRAFFER st=sperre/laeuft job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=10402/12516 free=132212
+[status 15:55] läuft: bw_pump | V=1.590 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/laeuft job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=10388/12516 free=136344
+[status 15:55] läuft: bw_pump | V=1.630 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/laeuft job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=10332/12516 free=130532
+[status 15:55] läuft: bw_pump | V=1.650 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/laeuft job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=10360/12516 free=126184
+[status 15:55] läuft: bw_pump | V=1.700 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/laeuft job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=10500/12516 free=127044
+[status 15:56] läuft: bw_pump | V=1.750 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/laeuft job=ok/12 day.n=0 err=- mem(used/peak) main=- pump=10472/12516 free=122516
+[bw_pump 0.2.0] P2 10s: 34→50.5 (16.5, g 2.006, tRise 5, unstabil 30s)
+shelly_ejs_timer.cpp:44 Timer 1 handle not found
+[bw_pump 0.2.0] ergebnis=unstab n=2 sec=22 dur=49 pct=10.4→50.5 effW=2.006 sf=0.7 day.n=1 err=null w=4 dauer=100199
+[status 15:56] läuft: bw_pump | V=1.800 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=gegossen/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=unstab/12 day.n=1 err=- mem(used/peak) main=- pump=- free=109260
+[status 15:56] läuft: - | V=1.810 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=gegossen/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=unstab/12 day.n=1 err=- mem(used/peak) main=- pump=- free=121972
+[status 15:56] läuft: - | V=1.800 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=gegossen/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=unstab/12 day.n=1 err=- mem(used/peak) main=- pump=- free=134828
+[status 15:56] läuft: - | V=1.810 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=gegossen/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=unstab/12 day.n=1 err=- mem(used/peak) main=- pump=- free=122696
+[status 15:56] läuft: - | V=1.800 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=gegossen/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=unstab/12 day.n=1 err=- mem(used/peak) main=- pump=- free=133920
+[status 15:56] läuft: - | V=1.850 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=gegossen/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=unstab/12 day.n=1 err=- mem(used/peak) main=- pump=- free=129328
+[status 15:56] läuft: - | V=1.840 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=gegossen/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=unstab/12 day.n=1 err=- mem(used/peak) main=- pump=- free=129996
+lly_user_script.cpp:371 JS RAM stat: initial: 139452 after: 139416, used: 36
+lly_user_script.cpp:388 JS RAM stat: after user code: 139452 after: 137580, used: 1872
+[bw_main 0.2.0] Kontrolle: 50.5 → 53.7 % sf=0.7
+[bw_main 0.2.0] V=1.82 pct=53.7 tC=23.6 lvl=0 st=sperre dry=1 pause=0.2h why=pause sec=- effW=2.006 sf=0.7 err=- w=2 dauer=5385m
+s
+[status 15:57] läuft: bw_main | V=1.860 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=122276
+[status 15:57] läuft: - | V=1.830 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=132528
+[status 15:57] läuft: - | V=1.850 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=131220
+[status 15:57] läuft: - | V=1.850 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=129392
+[status 15:57] läuft: - | V=1.860 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=129360
+[status 15:57] läuft: - | V=1.870 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=129436
+[status 15:57] läuft: - | V=1.860 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=134052
+[status 15:57] läuft: - | V=1.870 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=128324
+[status 15:58] läuft: - | V=1.860 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=135580
+[status 15:58] läuft: - | V=1.870 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=130792
+[status 15:58] läuft: - | V=1.860 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=131628
+[status 15:58] läuft: - | V=1.870 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=139576
+[status 15:58] läuft: - | V=1.870 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=129876
+[status 15:58] läuft: - | V=1.870 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=130828
+[status 15:58] läuft: - | V=1.870 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=129048
+[status 15:58] läuft: - | V=1.870 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=124896
+[status 15:59] läuft: - | V=1.860 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=138316
+[status 15:59] läuft: - | V=1.880 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=121532
+[status 15:59] läuft: - | V=1.860 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=129044
+[status 15:59] läuft: - | V=1.880 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=131728
+[status 15:59] läuft: - | V=1.860 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=133152
+[status 15:59] läuft: - | V=1.880 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=128288
+[status 15:59] läuft: - | V=1.870 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=139276
+[status 15:59] läuft: - | V=1.880 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=125364
+lly_user_script.cpp:371 JS RAM stat: initial: 139156 after: 139120, used: 36
+lly_user_script.cpp:388 JS RAM stat: after user code: 139156 after: 137304, used: 1852
+[bw_main 0.2.0] V=1.91 pct=56.871 tC=23.6 lvl=0 st=sperre dry=1 pause=0.2h why=pause sec=- effW=2.006 sf=0.7 err=- w=0 dauer=442
+6ms
+[status 16:00] läuft: - | V=1.870 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=132416
+[status 16:00] läuft: - | V=1.880 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=132036
+[status 16:00] läuft: - | V=1.880 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=136960
+lly_user_script.cpp:371 JS RAM stat: initial: 114056 after: 114008, used: 48
+lly_user_script.cpp:388 JS RAM stat: after user code: 114056 after: 111988, used: 2068
+[status 16:00] läuft: - | V=1.880 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=112332
+[status 16:00] läuft: - | V=1.900 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=132200
+[status 16:00] läuft: - | V=1.880 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=126212
+[status 16:00] läuft: - | V=1.880 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=123784
+[status 16:01] läuft: - | V=1.870 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=126088
+[status 16:01] läuft: - | V=1.880 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=128428
+[status 16:01] läuft: - | V=1.870 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=131564
+[status 16:01] läuft: - | V=1.890 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=137656
+[status 16:01] läuft: - | V=1.870 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=138444
+[status 16:01] läuft: - | V=1.880 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=129920
+[status 16:01] läuft: - | V=1.880 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=126872
+[status 16:01] läuft: - | V=1.880 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=128608
+[status 16:02] läuft: - | V=1.870 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=129904
+[status 16:02] läuft: - | V=1.880 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=129524
+[status 16:02] läuft: - | V=1.900 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=131132
+[status 16:02] läuft: - | V=1.870 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=130496
+[status 16:02] läuft: - | V=1.900 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=129600
+[status 16:02] läuft: - | V=1.910 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=130468
+[status 16:02] läuft: - | V=1.870 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=127352
+[status 16:02] läuft: - | V=1.880 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=128664
+[status 16:02] läuft: - | V=1.910 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=sperre/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=pause/null day.n=1 err=- mem(used/peak) main=- pump=- free=130344
+lly_user_script.cpp:371 JS RAM stat: initial: 139192 after: 139156, used: 36
+lly_user_script.cpp:388 JS RAM stat: after user code: 139192 after: 137336, used: 1856
+shelly_ejs_timer.cpp:44 Timer 1 handle not found
+[bw_main 0.2.0] V=1.897 pct=56.401 tC=23.6 lvl=0 st=beob dry=1 pause=0.2h why=feucht sec=- effW=2.006 sf=0.7 err=- w=2 dauer=534
+3ms
+[status 16:03] läuft: bw_main | V=1.900 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=feucht/null day.n=1 err=- mem(used/peak) main=- pump=- free=124744
+[status 16:03] läuft: - | V=1.910 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=feucht/null day.n=1 err=- mem(used/peak) main=- pump=- free=126976
+[status 16:03] läuft: - | V=1.910 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=feucht/null day.n=1 err=- mem(used/peak) main=- pump=- free=125692
+[status 16:03] läuft: - | V=1.900 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=feucht/null day.n=1 err=- mem(used/peak) main=- pump=- free=129620
+[status 16:03] läuft: - | V=1.900 tC=23.6 lvl=false sw=aus | ZEITRAFFER st=beob/unstab n=2 sec=22 pctB=10.4 pctW=50.5 effW=2.006 tr=5 job=feucht/null day.n=1 err=- mem(used/peak) main=- pump=- free=129368
+watch-Zeit um (780 s) – erneut aufrufen
+Kalibrierlauf 2026-09-13T13:50:34.253Z – 155 Proben, 1 Fenster; Band trocken < 40 (sehr trocken < 28), mittel 40–60, nass > 60 (Ziel pctOk 50, pctSoll 55)
+Fenster  Start   Zustand       m0     n  Σs   tRise  Spitze  Ruhe   pctW   effW   why
+     1   4:06  trocken!      10.4   2   22     12    55.5   55.5   50.5   2.01   unstab (Kontrolle 53.7)
+Zustand trocken: Gewinn effW 2.01 %/wirksame s aus 1 Fenster
+Zustand nass: nicht aufgezeichnet (Sensor zum Schluss ins nasse Substrat oder Wasserglas)
+Vorschlag: lrn.effW 2.01 (Mittel aus 1 Fenstern) · cfg4.tDead2 5 s (Median st.tr) · tDead Erstportion ≈ 12 s (kleinste tRise, Raster 5 s – der Messlauf ist genauer)
+Schreiben (nur im Normalbetrieb, mischt effW mit dem vorhandenen Wert α 0,5): node tools/hwtest.js <ip> kal write [datei]
+Zeitraffer läuft weiter – zurück: node tools/hwtest.js 127.0.0.1:8010 normal 60, dann: node tools/hwtest.js 127.0.0.1:8010 kal write docs/kal/2026-09-13-13-50-kal.json
+EXIT 0

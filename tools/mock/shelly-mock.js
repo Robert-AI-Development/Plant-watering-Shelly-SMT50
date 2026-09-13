@@ -1,4 +1,4 @@
-// tools/mock/shelly-mock.js v0.1.2 – Geräte-Mock für die Shelly-Gen2-Scripts (Node ≥ 20, keine Abhängigkeiten)
+// tools/mock/shelly-mock.js v0.1.4 – Geräte-Mock für die Shelly-Gen2-Scripts (Node ≥ 20, keine Abhängigkeiten)
 //
 // Bildet nach, was die Scripts vom Gerät brauchen: KVS (50 × 253 Zeichen, Rohwerte als String, Schreibzähler),
 // Zeitplan, Script-Liste, Switch mit toggle_after/auto_off, Sensoren, Sys-Status mit lokaler
@@ -6,6 +6,10 @@
 // Sandbox mit den globalen Objekten Shelly, Timer, print, console.
 // v0.1.2: Script.Start führt eine registrierte Datei (dev.files[name]) als zweites Script aus; Timer und Fehler
 // werden je Script geführt; Input-Konfiguration (enable/type) mit state:null bei deaktiviertem Eingang; dev.onRpc-Hook.
+// v0.1.3: simulate() wertet das Sekundenfeld des Zeitplans aus und überspringt Script.Start auf ein laufendes Script (was_running);
+// bw_zeitraffer in der Script-Liste.
+// v0.1.4: simulate(opts.maxMs) je Lauf (Standard 10 min), Überlappungswächter (Script.Start, während ein früherer Lauf auf der
+// echten Uhr noch liefe → dev.errors), ein Lauf ohne Script.Stop wird als Fehler gemeldet und running zurückgesetzt.
 'use strict';
 
 const vm = require('node:vm');
@@ -62,6 +66,7 @@ class Device {
       { id: 3, name: 'bw_pump', enable: false, running: false },
       { id: 4, name: 'bw_hwtest', enable: false, running: false },   // am Gerät id 5/6; die Scripts suchen per Name
       { id: 5, name: 'bw_hwpump', enable: false, running: false },
+      { id: 6, name: 'bw_zeitraffer', enable: false, running: false },   // am Gerät id 7
     ];
     this.files = opts.files || {};   // Scriptname → Dateipfad: Script.Start führt die Datei als zweites Script aus
     this.switches = { 0: newSwitch(), 1: newSwitch() };
@@ -578,37 +583,68 @@ function parseCron(spec) {
   if (dow.has(7)) dow.add(0);
   return { sec: parseField(f[0], 0, 59), min: parseField(f[1], 0, 59), hour: parseField(f[2], 0, 23), dom: parseField(f[3], 1, 31), mon: parseField(f[4], 1, 12), dow: dow };
 }
+function cronFields(c, localMs) {
+  // Minute, Stunde, Tag, Monat, Wochentag passen? (Sekunde separat)
+  const d = new Date(localMs);
+  return c.min.has(d.getUTCMinutes()) && c.hour.has(d.getUTCHours()) && c.dom.has(d.getUTCDate()) && c.mon.has(d.getUTCMonth() + 1) && c.dow.has(d.getUTCDay());
+}
 function cronMatch(spec, localMs) {
   const c = parseCron(spec);
-  const d = new Date(localMs);
-  return c.sec.has(d.getUTCSeconds()) && c.min.has(d.getUTCMinutes()) && c.hour.has(d.getUTCHours()) && c.dom.has(d.getUTCDate()) && c.mon.has(d.getUTCMonth() + 1) && c.dow.has(d.getUTCDay());
+  return c.sec.has(new Date(localMs).getUTCSeconds()) && cronFields(c, localMs);
 }
 
 // ---- Zeitplan-Simulation -------------------------------------------------
-// Läuft minutenweise bis untilMs, führt fällige Zeitplan-Einträge aus (Script.Start startet das
-// Script aus `files[name]`, andere Calls gehen an den Dispatcher). onMinute(dev) je Minute.
+// Läuft minutenweise bis untilMs, führt fällige Zeitplan-Einträge sekundengenau aus (Sekundenfeld des Timespecs, dann
+// Anlagereihenfolge): Script.Start startet das Script aus `files[name]` – läuft es noch, wird der Start wie am Gerät
+// übersprungen (was_running) – andere Calls gehen an den Dispatcher. onMinute(dev, t) je Minute nach den Einträgen.
+// Jeder Lauf bekommt opts.maxMs (Standard 10 min); danach springt die Uhr auf die Startsekunde zurück, damit weitere
+// Einträge derselben Sekunde und der Minutentakt stimmen. Deshalb merkt sich jeder Lauf sein Ende (`end`, virtuelle Uhr
+// nach dem Lauf): startet später ein Script, während ein früherer Lauf auf der echten Uhr noch liefe (end > Startzeit),
+// meldet der Überlappungswächter das in dev.errors – am Gerät liefen dann zwei Scripts auf dem geteilten Heap.
+// Ein Lauf ohne Script.Stop innerhalb maxMs wird als Fehler gemeldet und running zurückgesetzt, damit die Simulation weitergeht.
 function simulate(dev, untilMs, files, opts) {
   opts = opts || {};
   const runs = [];
+  const maxMs = opts.maxMs || 10 * 60 * 1000;
+  const hms = (ms) => { const l = ms + dev.tzOffsetMin * 60000; return pad2(Math.floor(l / 3600000) % 24) + ':' + pad2(Math.floor(l / 60000) % 60) + ':' + pad2(Math.floor(l / 1000) % 60); };
   // auf die nächste volle Minute gehen
   let t = dev.nowMs - (dev.nowMs % 60000);
   if (t < dev.nowMs) t += 60000;
   while (t <= untilMs) {
-    dev.runUntil(t, null);
-    dev.nowMs = t;
-    const localMs = dev.localMs();
-    for (const job of dev.schedules.slice()) {
-      if (!job.enable || !cronMatch(job.timespec, localMs)) continue;
-      for (const call of job.calls) {
+    const local0 = t + dev.tzOffsetMin * 60000;
+    const due = [];
+    dev.schedules.slice().forEach((job, i) => {
+      if (!job.enable) return;
+      const c = parseCron(job.timespec);
+      if (!cronFields(c, local0)) return;
+      for (const sec of [...c.sec].sort((x, y) => x - y)) due.push({ sec: sec, i: i, job: job });
+    });
+    due.sort((x, y) => x.sec - y.sec || x.i - y.i);
+    for (const e of due) {
+      const at = t + e.sec * 1000;
+      dev.runUntil(at, null);
+      dev.nowMs = at;
+      for (const call of e.job.calls) {
         if (call.method === 'Script.Start') {
           const s = dev.scripts.find((x) => x.id === call.params.id);
+          if (s && s.running) { runs.push({ t: at, name: s.name, skipped: true }); continue; }
           if (s && files[s.name]) {
-            const r = runScript(dev, files[s.name], { maxMs: 5 * 60 * 1000 });
-            runs.push({ t: t, name: s.name, result: r });
-            dev.nowMs = t; // Zeit für die weiteren Einträge derselben Minute zurücksetzen
+            for (const p of runs) {
+              if (!p.skipped && p.end > at) dev.errors.push('Überlappung: ' + s.name + ' startet um ' + hms(at) + ', während ' + p.name + ' noch bis ' + hms(p.end) + ' läuft');
+            }
+            const r = runScript(dev, files[s.name], { maxMs: maxMs });
+            if (!r.stopped) {
+              s.running = false;
+              const msg = 'Script ' + s.name + ' hat sich nicht beendet (maxMs ' + maxMs + ' ms, Start ' + hms(at) + ')';
+              dev.errors.push(msg);
+              r.errors.push(msg);
+            }
+            // Ende auf der echten Uhr: Zeitpunkt des Script.Stop; ohne Stop lief das Script mindestens bis at + maxMs
+            runs.push({ t: at, name: s.name, result: r, end: r.stopped ? dev.nowMs : at + maxMs });
+            dev.nowMs = at; // Zeit für die weiteren Einträge derselben Sekunde zurücksetzen
           }
         } else {
-          dev.rpcLog.push({ t: t, method: call.method, params: clone(call.params), source: 'schedule' });
+          dev.rpcLog.push({ t: at, method: call.method, params: clone(call.params), source: 'schedule' });
           dev.dispatch(call.method, clone(call.params));
         }
       }

@@ -77,7 +77,8 @@ gelten als nicht vorhanden.
 
 **Fix.** `onCreate` wiederholt einen fehlgeschlagenen `Schedule.Create` bis zu `CRETRY_MAX = 3` mal nach `CRETRY_MS = 400` ms (`sendCreate`/`Timer`). Der erste Versuch scheitert, der zweite gelingt; alle drei Einträge entstehen (am Gerät verifiziert über den SSH-Tunnel).
 
-**Vorbeugung.** Der Mock bildet den Quirk nach (`schedCreateFailFirst`, Standard an): der erste `Schedule.Create` je Script-Lauf scheitert mit derselben Meldung. Zwei Tests in `install.test.js` prüfen, dass der Retry alle drei Einträge erzeugt. Grundsatz bestätigt: Ein „validation failed" der Firmware ist nicht immer wörtlich zu nehmen – erst per curl/Probe gegenprüfen, ob die Anfrage wirklich ungültig ist.
+**Vorbeugung.** Der Mock bildet den Quirk nach (`schedCreateFailFirst`, Standard an): der erste `Schedule.Create` je Script-Lauf scheitert mit derselben Meldung. Zwei Tests in `install.test.js` prüfen, dass der Retry alle drei Einträge erzeugt.
+**Nachtrag 13.09.2026.** Die Meldung wurde beim manuellen Test als Fehler gelesen. Gegenprobe: `bw_install` v0.1.2 gibt vor `Script.List`/Zeitplan-Schritten die KVS-Objekte frei (`K = {}`, nur `idSw` und `cfg3` bleiben) – die erste Ablehnung kam trotzdem (12:15:08, `Invalid argument 'timespec'`). Es ist also kein KVS-Heap-Problem, sondern hängt am Script selbst (Größe/Zustand der Engine). Konsequenz: der Installer wiederholt die erste Ablehnung stumm (`dbg`), erst eine zweite erscheint als `Hinweis: Schedule.Create '…' vom Gerät abgelehnt …`; `install.test.js` prüft, dass die Konsole im Normalfall keine Schedule.Create-Zeile enthält. Grundsatz bestätigt: Ein „validation failed" der Firmware ist nicht immer wörtlich zu nehmen – erst per curl/Probe gegenprüfen, ob die Anfrage wirklich ungültig ist.
 
 ## 2026-09-12 – Der Script-Editor verliert beim Einfügen das Dateiende
 
@@ -210,3 +211,65 @@ Scripts auf v0.1.1. Keine Änderung an der Logik.
 - Regel in `CLAUDE.md` („Harte Regeln“), Entscheidung 13 in `docs/PLAN.md`, Hinweis in `README.md` und `lib_notes.md`.
 - Allgemeine Lehre: **Jede Aussage der Shelly-Doku, die der Mock nicht nachbildet, gehört als statischer Test ins
   Repo, nicht nur als Notiz.** Und: neue Scripts vor dem Zeitplan-Betrieb einmal von Hand am Gerät starten.
+
+## 2026-09-13 – `bw_pump` stirbt neben `bw_main` mit `out_of_memory`, sobald beide zur vollen Minute starten
+
+**Symptom.** Im Zeitraffer (Zeitplan `0 * * * * *` für `bw_main`, `0 */2 * * * *` für `bw_pump`) meldet `Script.GetStatus` von
+`bw_pump` in jeder geraden Minute `out_of_memory`; Konsole: `JS Error [5] out_of_memory used=791 peak=871 total=1746`. Keine Gabe.
+`bw_main` v0.1.2 allein: `mem_used` 13.216, `mem_peak` 16.380 (14 KVS-Einträge, Code 15,3 KB), `mem_free` min 11.536; Laufzeit 5–7,5 s.
+
+**Ursache.** Der Script-Heap (~25 KB) ist geteilt. `bw_main` hält beim Lesen alle KVS-Einträge doppelt (Objekte in `K`, JSON-Strings
+in `orig`) und braucht damit über 16 KB Spitze; für `bw_pump`, das zur selben Sekunde startet, bleiben 1,7 KB. Am 13.09. lief das
+Paar um 08:00 noch, weil `bw_main` kleiner war und weniger Einträge lagen – der Spielraum war nur nie gemessen.
+
+**Warum unentdeckt.** Der Mock hat kein Speichermodell und führt Zeitplan-Einträge nacheinander aus; die frühere Messung
+(„je ~7,4 KB“) galt einem anderen Moment im Lauf, nicht der Spitze.
+
+**Fix.** Der Installer setzt das Sekundenfeld des Pumpen-Zeitplans auf `PUMP_SEC` 30 (`30 0 8,20 * * *`, Zeitraffer `30 */2 * * * *`,
+Sicherheits-Aus `45 */2`): `bw_pump` startet 30 s nach `bw_main`, das dann längst fertig ist. `tools/hwtest.js` prüft den Zeitplan
+danach; die Statuszeile zeigt `mem_used` und `errors` beider Scripts. Timespecs mit Sekundenfeld ≠ 0 und `*` in der Minute nimmt
+das Gerät an (per RPC ohne Retry geprüft).
+
+**Vorbeugung.** Zwei Scripts nie zur selben Sekunde starten; Spitzenwerte mit `Script.GetStatus` während des Laufs messen (Werkzeug
+`hwtest.js watch`), nicht nur `mem_free` im Leerlauf. Beim Wachsen von `bw_main` oder der KVS-Einträge zuerst den Heap messen.
+Nebenbefund: Flash `fs_free` nach sechs Scripts 12.288 Byte (vorher 24.576) – vor einem siebten Script `engine_probe` (id 4) löschen.
+Konsole meldet nach jedem `bw_main`-Lauf `shelly_ejs_timer.cpp:44 Timer 1 handle not found` (`Timer.clear` auf den Mess-Timer) – ohne Folgen.
+**Nach dem Fix (Runde 2, 11:13–11:31):** vier Gaben, `bw_pump` allein `mem_used` ≤ 11.970, `bw_main` unverändert 13.216/16.380, kein Fehler; Rückbau byteidentisch.
+
+## 2026-09-13 – Messlauf am Aufbau: kurze Pulse messen den Schlauch, nicht die Erde
+
+**Symptom.** Drei Pulse à 3 s (`hwtest.js mess 3 3`, Sensor unter zwei Tropfern, Erde 10 %): Puls 1 ohne Reaktion, Puls 2 und 3
+heben die Feuchte um 9,5 bzw. 11,7 %, der Wert steigt aber 80–90 s lang weiter (Spitze erst bei 86 bzw. 80 s). Bei 34 % Feuchte
+bringen 3-s-Pulse nur noch +1–2 % über 4 Minuten. Ein 10-s-Puls bei 37,5 %: Anstieg ab 7,9 s (Pumpe läuft noch), Spitze 49,1 % fünf
+Sekunden nach dem Ausschalten, danach zwei Minuten stabil – kein Kriechen.
+
+**Ursache.** Bei 3-s-Pulsen geht der größte Teil ins Nachfüllen des Schlauchs (Totzeit hier 5–8 s, im Echtbetrieb laut Nutzer
+10–20 s); das anschließende Kriechen ist Nachlaufwasser, das minutenlang aus dem Schlauch auf den Sensor tropft. Ein Puls, der länger
+als die Totzeit ist, liefert eine schnelle, saubere Antwort: Wasserfront erreicht den Sensor während des Pumpens, Ruhewert nach ~5 s.
+
+**Warum unentdeckt.** Der Mock hatte bis heute kein Zeitmodell (Wirkung sofort beim Ausschalten); die Zeitraffer-Profile mit
+5-s-Gaben sahen im Mock plausibel aus.
+
+**Fix.** Regelkreis-Startwerte aus dem Messlauf: Korrekturportion mindestens `tPmin` 10 s (> Totzeit), Erstportion `tMin` 25 s,
+`tDead2` 8 s, `tSoak` 20 s, `tStab` 60 s, Stabilität mit Trendklausel (Spanne ≤ 1 % **und** Anstieg ≤ 0,5 % über 15 s), Gewinn am
+Gerät 5–6 % je wirksame Sekunde bei 37 % (`effMax` 30 als Sanity-Grenze). Zeitraffer-Portionen ≥ 10 s statt 5 s. Topfmodell im Mock
+mit Totzeit, Rampe und Drainage (`potModel`).
+
+**Vorbeugung.** Portionen nie kürzer als die Totzeit; `hwtest.js mess` vor jeder Änderung der Zeitwerte wiederholen (Rohdaten in
+`docs/kal/`). Für die Messung des Nachlaufs mindestens 240 s beobachten.
+
+## 2026-09-13 – Erstes Regelkreis-Fenster am Gerät: Lernwert im Zeitraffer hat die falsche Totzeit-Skala
+
+**Symptom:** Fenster 1 des Zeitraffers (15:54:30, trockene Erde 10,4 %): `P1 12s: 10.4→34 (23.6, g 2.357, tRise 8, stabil 12s)`, `P2 10s: 34→50.5 (16.5, g 2.006, tRise 5, unstabil 30s)`, `ergebnis=unstab n=2 sec=22 effW=2.006`. Der Regelkreis arbeitet (Erstportion, Messung, Korrekturportion, Ziel 50 erreicht), aber `effW` 2,0 %/s ist der Gewinn je *Profil*-Sekunde: das Zeitraffer-Profil rechnet mit `tDead` 2 / `tDead2` 0, das Wasser kam nach 8 bzw. 5 s. Echt: 40,1 % in (12 − 8) + (10 − 5) = 9 s → **4,5 %/s**. Mit `kal write` im Profilmaß hätte der Normalbetrieb (`tDead` 20) die Dosis aus 2,0 statt 4,5 gerechnet – zu große Gaben.
+**Ursache:** `effW` ist definiert als „% je wirksame Sekunde", wirksam = `sec − tDead(Profil)`. Stimmt das Profil nicht mit dem Schlauch überein, wandert der Fehler in den Lernwert. Im Zeitraffer ist das gewollt (klein gehalten, damit gelernt wird), beim Übertragen in den Normalbetrieb nicht.
+**Warum unentdeckt:** Das Topfmodell im Mock nutzt dieselben Totzeiten wie das Profil.
+**Fix:** `bw_pump` nennt je Portion `tRise` (echte Totzeit) in der Konsole; der Rekorder von `hwtest.js kal` schreibt diese Zeilen mit, `tools/lib/kal.js` rechnet den Lernwert auf die Skala „% je Sekunde nach tRise" um und schlägt `cfg3.tDead` (tRise der Erstportion) und `cfg4.tDead2` (Median der Folgeportionen) vor; ohne Konsolenzeilen bleibt es beim Profilmaß mit Warnung (`kal report <json> <log>` zieht Zeilen aus einer Logdatei nach).
+**Vorbeugung:** `cfg3.tDead` gehört zum Schlauch, nicht zum Script: nach jedem Umbau `hwtest.js mess` (tRise) und die Dosis-Startwerte prüfen. Lernwerte nie zwischen Profilen kopieren, ohne die Totzeit mitzunehmen.
+
+## 2026-09-13 – Messwerte aus dem ersten Gerätelauf von Etappe 10
+
+- **Flash:** `fs_free` 12 288 B mit sieben Scripts → 49 152 B, nachdem `engine_probe`, `bw_hwtest`, `bw_hwpump` gelöscht waren (vier Scripts) → 40 960 B nach dem Upload von `bw_pump` 17 475 B (LittleFS rechnet in 4-KB-Blöcken). `put-script.js` prüft seit v0.1.2 `fs_free + alter Code ≥ neue Datei + 4 096`.
+- **Heap:** `bw_pump` v0.2.0 (17 475 B) im Fenster `mem_used` 10 360–10 500, `mem_peak` **12 516** bei `mem_free` 25 200 – die 18-000-Byte-Ausnahme in `tools/build.js` ist gedeckt (Parse von `bw_main` 5 348 B kommt dank Frist nie dazu). `bw_main` v0.2.0: 5 660 ms Laufzeit, 3 Schreibvorgänge; Zeitraffer-Aktivierung 1 800 + 2 204 B.
+- **Firmware-Hinweise (harmlos):** `shelly_ejs_timer.cpp:44 Timer 1 handle not found` erscheint, wenn `Timer.clear` den eigenen wiederholenden Timer aus dessen Callback heraus löscht (`mode === "done"` in `onTick`) – die Engine will ihn danach neu einplanen. Script lief sauber weiter (`w=4`, `Script.Stop`). `persistent_counters.cpp:585 PCS write interval < 60s` meldet das Zählerschreiben des Switch bei Portionen im Abstand < 60 s – kein Fehler.
+- **Zeitplan:** die Minutenliste mit Sekundenfeld `40 2,8,14,20,26,32,38,44,50,56 * * * *` (Sicherheits-Aus des Zeitraffers) nimmt FW 2.0.0 an; `Schedule.Create` gelang beim ersten Versuch.
+- **Regelkreis:** Frist 120 s, Laufzeit 100 s (`dauer=100199`), zwei Portionen, Stabilisierung P1 nach 12 s, P2 lief in den 30-s-Timeout (`unstab`, Wert steigt unter dem Tropfer noch nach) – im Normalprofil sind `tStab` 60 und `tSoak` 20 dafür da. Kontrolle beim Takt danach (15:57): 53,7 % (+3,2); Takt 16:00: 56,9 % (Nachlauf +6,4 % gegenüber der Fensterablesung 50,5).

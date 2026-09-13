@@ -85,11 +85,12 @@ Am einfachsten sagst du das Claude Code direkt: „erlaube lokalen Zugriff auf `
 
 | Werkzeug | Zweck | Beispiel |
 | --- | --- | --- |
-| `tools/put-script.js <ip> <id> <datei>` | Script per RPC in Stücken hochladen **und Byte-Zahl am Gerät prüfen** | `node tools/put-script.js 127.0.0.1:8010 1 dist/bw_install.js` |
-| `tools/console.js <ip> [sek] [id]` | Geräte-Konsole über den Debug-Websocket mitlesen, optional ein Script starten | `node tools/console.js 127.0.0.1:8010 15 4` |
+| `tools/put-script.js <ip> <id> <datei>` | Script per RPC in Stücken hochladen **und den Code am Gerät byteidentisch prüfen** | `node tools/put-script.js 127.0.0.1:8010 1 dist/bw_install.js` |
+| `tools/verify-scripts.js <ip>` | alle Scripts am Gerät gegen `dist/` vergleichen (Prüfung nach jedem Upload; Doku-Zeilen werden mitgezählt) | `node tools/verify-scripts.js 127.0.0.1:8010` |
+| `tools/console.js <ip> [sek] [id]` | Geräte-Konsole über den Debug-Websocket mitlesen, optional ein Script starten | `node tools/console.js 127.0.0.1:8010 15 2` |
 | `tools/probe/engine_probe.js` | Sondier-Script, um Engine-Eigenheiten am Gerät zu messen | per `put-script.js` hochladen, mit `console.js` beobachten |
 | `tools/kvs_dump.sh <ip>` | KVS eines Geräts ausgeben | `tools/kvs_dump.sh 127.0.0.1:8010` |
-| `tools/hwtest.js <ip> <kommando>` | Hardware-Test steuern (Node ≥ 22). Unterbefehle: `preflight` (Uhrzeit, Sekunden bis Takt, Fensterabstand, Scripts, Input 1, Switch 0, KVS, Debug-Websocket prüfen; legt `bw_hwtest`/`bw_hwpump` an), `input-on` (Input 1 als Switch aktivieren), `cfg k=v …` (`hwt`-Felder setzen), `start bw_hwtest\|bw_hwpump [sek]` (Kommandozähler zurücksetzen, Script starten, mitlesen), `watch [sek]` (Konsole gefiltert + Statuszeile alle 5 s; startet Durchgang B des Pumpentests automatisch), `go`/`skip`/`abort` (Kommando an die wartende Phase), `status` (Einzeiler), `report` (`hwr`/`hwp` + `cfg1`), `restore` (Sicherung `hwb1`/`hwb2` zurückschreiben), `cleanup` (`hwc`/`hwb1`/`hwb2` löschen), `stop` (Not-Aus) | `node tools/hwtest.js 127.0.0.1:8010 start bw_hwtest 20` |
+| `tools/hwtest.js <ip> <kommando>` | Hardware-Test steuern (Node ≥ 22). Unterbefehle: `preflight [hw]` (Uhrzeit, Sekunden bis Takt, Fensterabstand, Scripts, Input 1, Switch 0, KVS, Debug-Websocket prüfen; legt `bw_zeitraffer` an, mit `hw` auch `bw_hwtest`/`bw_hwpump`), `scripts` (Scripts mit Größe, `mem_peak`, `fs_free`), `delete <id\|name>` (Test-Script löschen, nie Betriebs-Scripts), `input-on` (Input 1 als Switch aktivieren), `cfg k=v …` (`hwt`-Felder setzen), `start bw_hwtest\|bw_hwpump [sek]` (Kommandozähler zurücksetzen, Script starten, mitlesen), `watch [sek]` (Konsole gefiltert + Statuszeile alle 5 s, höchstens 300 s, im Zeitraffer 1800 s; endet im Normalbetrieb, sobald kein Test-Script läuft; startet Durchgang B des Pumpentests automatisch; im Zeitraffer zeigt die Statuszeile `st`, `st.n` Portionen, `pctW`, `why`, `err` und den Speicher von `bw_main`/`bw_pump`), `go`/`skip`/`abort` (Kommando an die wartende Phase), `status` (Einzeiler), `report` (`hwr`/`hwp` + `cfg1`), `restore` (Sicherung `hwb1`/`hwb2` zurückschreiben), `cleanup` (`hwc`/`hwb1`/`hwb2` löschen), `stop` (Not-Aus), **`zeitraffer [sek]`** (Praxistest im Zeitraffer, Takt 3 / Fenster 6: Vorprüfung inkl. `pctOk`, sicherer Moment außerhalb der Minuten 0–2 eines 6er-Zyklus, Start von `bw_zeitraffer`, Kontrolle von Zeitplan/cfg3/cfg4/auto_off, Fahrplan), **`normal [sek]`** (zurück zum Normalbetrieb bzw. Installer nach einem Update laufen lassen), **`mess [sek] [n] [beob]`** (Messlauf: `n` Pumpenpulse à `sek` s per `Switch.Set toggle_after`, Sensor alle 2 s per RPC; je Puls `tRise`, Spitze, Ruhewert, Gewinn %/s; Vorschläge für `effMax`/`tPmin`/`tMin`/`tDead`/`tSoak`/`tStab`; Rohdaten `docs/kal/<datum>-mess.json`), **`kal [sek]` / `kal report [datei] [log]` / `kal write [datei] [log]`** (Kalibrierlauf: Zeitraffer mit Rekorder alle 5 s über trocken → mittel feucht → nass, Bericht je Fenster und je Zustand; `write` setzt `lrn.effW`, `cfg4.tDead2`, `cfg3.tDead`, `cfg3.tMin` erst nach `normal`) | `node tools/hwtest.js 127.0.0.1:8010 start bw_hwtest 20` |
 
 **Ausführliches Debuggen:** In jedem Script steht oben `var DEBUG = 0;`. Mit `node tools/build.js --debug` erzeugst
 du `dist/`-Dateien mit `DEBUG = 1` – die schreiben dann jeden Schritt, jeden RPC-Aufruf und jeden KVS-Eintrag in die
@@ -113,7 +114,7 @@ ob der Messwert schon stabil ist; m2 läuft ohne `go` durch, sobald der Wert im 
   nebeneinander): `start bw_hwpump` → **Durchgang A:** nach `go` prüft das Script die Zeitwache (nur in der Lücke
   zum 15-min-Takt von `bw_main`, nicht ±25 min um 08:00/20:00/00:00) und die Vorbedingungen (`bw_pump` vorhanden,
   Ausgang aus, Wasserstand stabil und nicht LEER, keine Störung `noeff`), sichert `st`/`day` nach `hwb1` und
-  `job`/`err`/`lrn` nach `hwb2`, schreibt einen Testauftrag (`why:"hwtest"`, Dauer `hwt.pumpSec`) und startet
+  `job`/`err`/`lrn` nach `hwb2`, schreibt einen Testauftrag (`why:"hwtest"`, Dauer `hwt.pumpSec`, `pct:null` → Einzelportion ohne Messung) und startet
   `bw_pump` – dann beendet es sich, damit `bw_pump` allein pumpt. `watch` wartet auf das Ende von `bw_pump` und
   startet **Durchgang B** automatisch: Ergebnis vergleichen (p1 Gabe eingetragen, p2 Ausgang aus, p3 `st`/`job`
   passen), Ausgang notfalls aus, Rückbau aus `hwb1`/`hwb2`, Sicherung löschen, Bericht. Das Test-Script schaltet
@@ -136,7 +137,8 @@ ob der Messwert schon stabil ist; m2 läuft ohne `go` durch, sobald der Wert im 
 - **Sandbox blockt den Zugriff** → `127.0.0.1` in `.claude/settings.local.json` (siehe oben) freigeben.
 - **Upload „FEHLER, N Byte fehlen"** → `put-script.js` hat den Größenabgleich nicht bestanden; einfach erneut
   hochladen. Der Web-Editor verliert beim Einfügen manchmal Text – deshalb per RPC hochladen.
-- **`Script.PutCode` scheitert** → Script muss gestoppt sein; `put-script.js` stoppt es vorher automatisch.
+- **`Script.PutCode` scheitert** → Script muss gestoppt sein; `put-script.js` stoppt es vorher automatisch. Meldet es zu
+  wenig `fs_free` (Flash), erst `engine_probe`, `bw_hwtest`, `bw_hwpump` per `Script.Delete` löschen (~30 KB frei).
 - **Port 8010 belegt** → im Tunnel und in den Befehlen einen anderen Port nehmen (z. B. 8011).
 - **Debug-Websocket voller Firmware-Zeilen** (`shos_rpc_inst.c`, `shelly_ejs_rpc.cpp`, `y_notifications.cpp`,
   `shelly_debug.cpp`, `shelly_script.cpp`) → das ist Rauschen der Firmware, kein Script-Output. `hwtest.js watch`
@@ -145,7 +147,8 @@ ob der Messwert schon stabil ist; m2 läuft ohne `go` durch, sobald der Wert im 
   Scripts geteilt. Steht das dort, hielt ein zweites großes Script gleichzeitig zu viel Speicher (z. B. ein
   wartendes Test-Script neben `bw_main` oder `bw_pump`). `Script.GetStatus` liefert dazu `mem_used`, `mem_peak`,
   `mem_free`; der Eintrag in `errors` bleibt bis zum nächsten Lauf des Scripts stehen. Deshalb pumpt im Pumpentest
-  `bw_pump` allein, und Langläufer geben ihre KVS-Objekte in Wartephasen frei.
+  `bw_pump` allein, Langläufer geben ihre KVS-Objekte in Wartephasen frei, und `bw_pump` hält im Fenster die Frist bis
+  zum nächsten `bw_main`-Takt ein (`mem_peak` von `bw_pump` in der `watch`-Statuszeile beobachten).
 - **Sicherheit:** Der Tunnel bindet auf `127.0.0.1` des VPS – nur lokal auf dem VPS erreichbar, nicht öffentlich.
   Nutze SSH-Schlüssel statt Passwort und schließe den Tunnel, wenn du fertig bist.
 
@@ -222,11 +225,12 @@ writes it. Then `curl http://127.0.0.1:8010/rpc/Shelly.GetDeviceInfo` to test.
 
 | Tool | Purpose | Example |
 | --- | --- | --- |
-| `tools/put-script.js <ip> <id> <file>` | upload a script via RPC in chunks **and verify the byte count on the device** | `node tools/put-script.js 127.0.0.1:8010 1 dist/bw_install.js` |
-| `tools/console.js <ip> [sec] [id]` | watch the device console over the debug websocket, optionally start a script | `node tools/console.js 127.0.0.1:8010 15 4` |
+| `tools/put-script.js <ip> <id> <file>` | upload a script via RPC in chunks **and verify the code on the device byte for byte** | `node tools/put-script.js 127.0.0.1:8010 1 dist/bw_install.js` |
+| `tools/verify-scripts.js <ip>` | compare all scripts on the device with `dist/` (check after every upload; doc lines are counted) | `node tools/verify-scripts.js 127.0.0.1:8010` |
+| `tools/console.js <ip> [sec] [id]` | watch the device console over the debug websocket, optionally start a script | `node tools/console.js 127.0.0.1:8010 15 2` |
 | `tools/probe/engine_probe.js` | probe script to measure engine quirks on the device | upload via `put-script.js`, watch with `console.js` |
 | `tools/kvs_dump.sh <ip>` | dump a device's KVS | `tools/kvs_dump.sh 127.0.0.1:8010` |
-| `tools/hwtest.js <ip> <command>` | drive the hardware test (Node ≥ 22). Subcommands: `preflight` (check clock, seconds to the next cycle, window distance, scripts, input 1, switch 0, KVS, debug websocket; creates `bw_hwtest`/`bw_hwpump`), `input-on` (enable input 1 as switch), `cfg k=v …` (set `hwt` fields), `start bw_hwtest\|bw_hwpump [sec]` (reset command counter, start script, watch), `watch [sec]` (filtered console + status line every 5 s; starts pass B of the pump test automatically), `go`/`skip`/`abort` (command to the waiting phase), `status` (one-liner), `report` (`hwr`/`hwp` + `cfg1`), `restore` (write back backup `hwb1`/`hwb2`), `cleanup` (delete `hwc`/`hwb1`/`hwb2`), `stop` (emergency stop) | `node tools/hwtest.js 127.0.0.1:8010 start bw_hwtest 20` |
+| `tools/hwtest.js <ip> <command>` | drive the hardware test (Node ≥ 22). Subcommands: `preflight [hw]` (check clock, seconds to the next cycle, window distance, scripts, input 1, switch 0, KVS, debug websocket; creates `bw_zeitraffer`, with `hw` also `bw_hwtest`/`bw_hwpump`), `scripts` (scripts with size, `mem_peak`, `fs_free`), `delete <id\|name>` (delete a test script, never the production scripts), `input-on` (enable input 1 as switch), `cfg k=v …` (set `hwt` fields), `start bw_hwtest\|bw_hwpump [sec]` (reset command counter, start script, watch), `watch [sec]` (filtered console + status line every 5 s, at most 300 s, 1800 s in fast-forward; in normal operation it ends as soon as no test script is running; starts pass B of the pump test automatically; in fast-forward the status line shows `st`, `st.n` portions, `pctW`, `why`, `err` and the memory of `bw_main`/`bw_pump`), `go`/`skip`/`abort` (command to the waiting phase), `status` (one-liner), `report` (`hwr`/`hwp` + `cfg1`), `restore` (write back backup `hwb1`/`hwb2`), `cleanup` (delete `hwc`/`hwb1`/`hwb2`), `stop` (emergency stop), **`zeitraffer [sec]`** (fast-forward practice test, cycle 3 / windows every 6 min: pre-check incl. `pctOk`, safe moment outside minutes 0–2 of each 6-minute cycle, start `bw_zeitraffer`, verify schedule/cfg3/cfg4/auto_off, print the schedule of steps), **`normal [sec]`** (back to normal operation, or run the installer after an update), **`mess [sec] [n] [obs]`** (measurement run: `n` pump pulses of `sec` s via `Switch.Set toggle_after`, sensor every 2 s via RPC; per pulse `tRise`, peak, settled value, gain %/s; suggestions for `effMax`/`tPmin`/`tMin`/`tDead`/`tSoak`/`tStab`; raw data `docs/kal/<date>-mess.json`), **`kal [sec]` / `kal report [file] [log]` / `kal write [file] [log]`** (calibration run: fast-forward with a recorder every 5 s through dry → medium-moist → wet, report per window and per state; `write` sets `lrn.effW`, `cfg4.tDead2`, `cfg3.tDead`, `cfg3.tMin` only after `normal`) | `node tools/hwtest.js 127.0.0.1:8010 start bw_hwtest 20` |
 
 **Verbose debugging:** every script starts with `var DEBUG = 0;`. `node tools/build.js --debug` produces `dist/`
 files with `DEBUG = 1` – they log every step, every RPC call and every KVS entry to the console you watch with
@@ -250,7 +254,7 @@ reading is stable yet; m2 completes without `go` as soon as the value in water i
   `start bw_hwpump` → **pass A:** after `go` the script checks the time guard (only in the gap of `bw_main`'s
   15-minute cycle, not ±25 min around 08:00/20:00/00:00) and the preconditions (`bw_pump` present, output off,
   water level stable and not EMPTY, no `noeff` fault), backs up `st`/`day` to `hwb1` and `job`/`err`/`lrn` to
-  `hwb2`, writes a test job (`why:"hwtest"`, duration `hwt.pumpSec`) and starts `bw_pump` – then it exits so that
+  `hwb2`, writes a test job (`why:"hwtest"`, duration `hwt.pumpSec`, `pct:null` → single portion without measuring) and starts `bw_pump` – then it exits so that
   `bw_pump` pumps alone. `watch` waits for `bw_pump` to finish and starts **pass B** automatically: compare the
   result (p1 dose recorded, p2 output off, p3 `st`/`job` match), switch the output off if necessary, restore from
   `hwb1`/`hwb2`, delete the backup, report. The test script **never switches the pump on itself**; no test job
@@ -272,7 +276,8 @@ reading is stable yet; m2 completes without `go` as soon as the value in water i
 - **Sandbox blocks access** → allow `127.0.0.1` in `.claude/settings.local.json` (see above).
 - **Upload "FEHLER, N Byte fehlen"** → `put-script.js` failed the size check; just upload again. The web editor
   sometimes loses text on paste – hence uploading via RPC.
-- **`Script.PutCode` fails** → the script must be stopped; `put-script.js` stops it first automatically.
+- **`Script.PutCode` fails** → the script must be stopped; `put-script.js` stops it first automatically. If it reports
+  too little `fs_free` (flash), delete `engine_probe`, `bw_hwtest`, `bw_hwpump` via `Script.Delete` first (~30 KB freed).
 - **Port 8010 in use** → use a different port in the tunnel and commands (e.g. 8011).
 - **Debug websocket full of firmware lines** (`shos_rpc_inst.c`, `shelly_ejs_rpc.cpp`, `y_notifications.cpp`,
   `shelly_debug.cpp`, `shelly_script.cpp`) → that is firmware noise, not script output. `hwtest.js watch` filters
@@ -280,8 +285,9 @@ reading is stable yet; m2 completes without `go` as soon as the value in water i
 - **`out_of_memory` in `Script.GetStatus` → `errors`** → the script heap is only ~25 KB and is shared by **all**
   scripts. If it shows up, a second large script held too much memory at the same time (e.g. a waiting test script
   next to `bw_main` or `bw_pump`). `Script.GetStatus` also returns `mem_used`, `mem_peak`, `mem_free`; the entry in
-  `errors` stays until the script's next run. That is why `bw_pump` pumps alone in the pump test and long runners
-  release their KVS objects during waiting phases.
+  `errors` stays until the script's next run. That is why `bw_pump` pumps alone in the pump test, long runners
+  release their KVS objects during waiting phases, and `bw_pump` keeps the deadline before the next `bw_main` cycle
+  inside the window (watch `mem_peak` of `bw_pump` in the `watch` status line).
 - **Security:** the tunnel binds to the VPS's `127.0.0.1` – reachable only locally on the VPS, not publicly. Use an
   SSH key instead of a password and close the tunnel when done.
 

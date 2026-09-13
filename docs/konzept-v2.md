@@ -190,6 +190,17 @@ Das passt zur Taktbauweise von selbst: Eine Portion pro Takt, die nächste entsc
 
 Die dritte Zeile bleibt die wichtigste Regel des ganzen Konzepts: „keine Wirkung" darf nie zu „dann mehr Wasser" führen.
 
+### Nachtrag 13.09.2026 – Rückkopplung im Gießfenster (Etappe 10)
+
+Ersetzt in 4.3 „Einsickerzeit 30 Minuten, also zwei Takte" und in 4.4 „eine Portion pro Takt, die nächste entscheidet der nächste Takt" (Rückkopplung ein Tag). Dieser Nachtrag ist die Regelquelle; Design, Zahlen und Randfälle in `docs/PLAN.md` (Etappe 10, Entscheidungen 38–63).
+
+- **Portionen im Fenster:** Das Gießscript misst frisch, gibt eine Portion, wartet 30 s einsickern, misst alle 5 s, bis der Wert stabil ist (Spanne ≤ 1 % über vier Werte **und** kein Anstieg mehr, höchstens 90 s), und entscheidet: unter dem Ziel (50 %) eine weitere Portion aus der gerade gemessenen Wirkung, im Band fertig, über 60 % „zu viel" für den nächsten Tag merken. Höchstens sechs Portionen, zusammen höchstens 180 s, und das Fenster endet vor dem nächsten Arbeitstakt.
+- **Erste Portion unter dem Ziel:** Die gelernte Dosis wird mit dem Sicherheitsfaktor 0,7 gegeben; der Faktor sinkt bei „zu viel" und steigt wieder, wenn Korrekturportionen nötig waren. Lieber nachlegen als überschwemmen.
+- **Lernen aus dem Fenster:** Der Lernwert (Feuchteprozent je wirksamer Pumpensekunde) kommt aus den stabilisierten Messungen im Fenster, sanft nachgezogen wie in 4.3. Der Wert nach 30 Minuten ist nur Kontrolle („zu viel", „eingebrochen") und geht nie in den Lernwert.
+- **Keine Wirkung:** Bleibt die erste Portion wirkungslos, folgt genau eine volle Probeportion; bleibt auch sie ohne Wirkung, wird die Störung gesetzt und nur von Hand gelöscht. Die dritte Zeile aus 4.5 bleibt verbindlich: **„keine Wirkung" darf nie zu „dann mehr Wasser" führen** – die gedeckelte Probeportion ist die einzige Ausnahme.
+- **Wochen-Trockenphase (ersetzt Bedingung 1 in 4.6 „nach jeder Gabe"):** Normal gießen ohne Trockenphase; ab jedem Freitag keine Gabe, bis die Feuchte unter 28 % gefallen ist. Zeigt eine Messung außerhalb eines Fensters über 60 %, beginnt die Trockenphase sofort. Für die Kalibrierung ist sie abgeschaltet.
+- **Vorprüfung:** Liegt die Frischmessung im Fenster schon über 50 % (von Hand gegossen oder gedüngt), gibt es keine Gabe, keinen Lernwert und keine Pause.
+
 ### 4.6 Staunässe abbauen
 
 *Vorschlag:* Zwei Bedingungen müssen gemeinsam erfüllt sein, bevor wieder gegossen wird:

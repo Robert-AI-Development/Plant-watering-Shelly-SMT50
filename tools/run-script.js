@@ -38,7 +38,12 @@ if (args.includes('--hwdemo')) {
   if (name === 'bw_hwpump') driver(dev, { key: 'hwp' });
   dev.log.push('--- hwdemo: virtueller Bediener aktiv ---');
 }
+if (path.basename(file, '.js') === 'bw_zeitraffer') {
+  // bw_zeitraffer startet bw_install per Script.Start: Datei registrieren, nach dem Lauf den Installer zu Ende laufen lassen
+  opts.files = { bw_install: path.join(__dirname, '..', 'scripts', 'bw_install.js') };
+}
 const r = runScript(dev, path.resolve(file), opts);
+if (opts.files && opts.files.bw_install) dev.runUntil(dev.nowMs + 30000, () => !dev.script('bw_install').running);
 console.log('--- Konsole ---');
 for (const l of r.log) console.log(l);
 console.log('--- KVS (' + dev.kvsWrites + ' Schreibvorgänge im Lauf: ' + r.writes + ') ---');

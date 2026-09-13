@@ -1,4 +1,8 @@
 // bw_hwtest.js v0.1.0 – Hardware-Test Sensoren: Temperaturfühler, Bodenfeuchte, Wasserstand; wartet je Phase auf den physischen Zustand
+//! Hardware-Test Sensoren (nur von Hand, nie im Zeitplan): sechs Phasen mit dir am Aufbau – Fühler kalt/warm, Sensor trocken/nass,
+//! Schwimmer LEER/VOLL. Kommandos go/skip/abort über KVS hwc (node tools/hwtest.js <ip> go), Stand und Bericht in hwr.
+//! Schwellen und Zeiten in hwt: tLo/tHi °C, vDryMax/vWetMin V, tPhase s je Phase, tAll s gesamt; cal=1 schreibt vDry/vWet/lvlEmpty nach cfg1.
+//! Danach Sensoren zurück in den Topf, Schwimmer auf VOLL. Ablauf und Tabellen: README "Hardware-Test".
 //
 // Langläufer (10–30 min), nur von Hand gestartet, nie im Zeitplan. Ein Timer (Tick je hwt.msTick), ein offener RPC (busy-Flag).
 // Phasen: t1 Fühler ≤ tLo · t2 Fühler ≥ tHi · m1 Sensor trocken (nach go) · m2 Sensor im Wasser · l1 Schwimmer LEER (nach go) · l2 Schwimmer VOLL (nach go)

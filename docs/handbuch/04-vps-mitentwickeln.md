@@ -16,13 +16,13 @@ laufenden Claude Code – **Schritt für Schritt für Einsteiger**, mit einem **
 ```bash
 # Auf dem VPS (Ubuntu/Debian), als dein Benutzer:
 sudo apt update && sudo apt install -y git curl
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -   # Node 20 LTS
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -   # Node 22 LTS
 sudo apt install -y nodejs
-node -v && npm -v                                                   # Node ≥ 20 prüfen
+node -v && npm -v                                                   # Node ≥ 22 prüfen
 
 git clone https://github.com/Robert-AI-Development/Plant-watering-Shelly-SMT50.git
 cd Plant-watering-Shelly-SMT50
-npm install && npm test                                             # 89 Tests grün?
+npm install && npm test                                             # 144 Tests grün?
 
 npm install -g @anthropic-ai/claude-code                            # Claude Code
 claude                                                              # startet den KI-Editor, folge dem Login
@@ -57,13 +57,13 @@ Beim ersten Mal fragt SSH, ob der Server-Fingerabdruck vertrauenswürdig ist –
 
 ```bash
 sudo apt update && sudo apt install -y git curl
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
 sudo apt install -y nodejs
-node -v            # muss v20 oder höher zeigen
+node -v            # muss v22 oder höher zeigen
 ```
 
-> **Warum Node ≥ 20?** Die Tests und die Geräte-Werkzeuge (`put-script.js`, `console.js`) nutzen das eingebaute
-> `fetch`/`WebSocket` neuerer Node-Versionen. Das Projekt hat **keine weiteren Abhängigkeiten**.
+> **Warum Node ≥ 22?** Die Tests laufen ab Node 20; die Geräte-Werkzeuge `console.js` und `hwtest.js` brauchen das
+> eingebaute `fetch`/`WebSocket` ab Node 22. Das Projekt hat **keine weiteren Abhängigkeiten**.
 
 ### 4 · Projekt holen (git clone)
 
@@ -78,8 +78,8 @@ Prüfe, dass alles funktioniert:
 
 ```bash
 npm install        # richtet die Test-Umgebung ein (keine externen Pakete)
-npm test           # sollte "# pass 58" zeigen
-npm run check      # Syntaxprüfung der drei Geräte-Scripts
+npm test           # sollte "# pass 144" zeigen
+npm run check      # Syntaxprüfung der sechs Geräte-Scripts
 ```
 
 > **Später eigenen Fork nutzen:** Wenn du eigene Änderungen dauerhaft speichern und teilen willst, erstelle auf
@@ -117,13 +117,13 @@ your Shelly at home** (chapter 6). This chapter takes you from an empty server t
 ```bash
 # On the VPS (Ubuntu/Debian), as your user:
 sudo apt update && sudo apt install -y git curl
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -   # Node 20 LTS
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -   # Node 22 LTS
 sudo apt install -y nodejs
-node -v && npm -v                                                   # check Node ≥ 20
+node -v && npm -v                                                   # check Node ≥ 22
 
 git clone https://github.com/Robert-AI-Development/Plant-watering-Shelly-SMT50.git
 cd Plant-watering-Shelly-SMT50
-npm install && npm test                                             # 89 tests green?
+npm install && npm test                                             # 144 tests green?
 
 npm install -g @anthropic-ai/claude-code                            # Claude Code
 claude                                                              # starts the AI editor, follow the login
@@ -158,13 +158,13 @@ The first time, SSH asks whether the server fingerprint is trusted – confirm w
 
 ```bash
 sudo apt update && sudo apt install -y git curl
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
 sudo apt install -y nodejs
-node -v            # must show v20 or higher
+node -v            # must show v22 or higher
 ```
 
-> **Why Node ≥ 20?** The tests and device tools (`put-script.js`, `console.js`) use the built-in `fetch`/`WebSocket`
-> of newer Node versions. The project has **no other dependencies**.
+> **Why Node ≥ 22?** The tests run from Node 20; the device tools `console.js` and `hwtest.js` need the built-in
+> `fetch`/`WebSocket` of Node 22 or newer. The project has **no other dependencies**.
 
 ### 4 · Get the project (git clone)
 
@@ -179,8 +179,8 @@ Check that everything works:
 
 ```bash
 npm install        # sets up the test environment (no external packages)
-npm test           # should show "# pass 58"
-npm run check      # syntax check of the three device scripts
+npm test           # should show "# pass 144"
+npm run check      # syntax check of the six device scripts
 ```
 
 > **Use your own fork later:** if you want to keep and share your own changes, create a **fork** on GitHub and

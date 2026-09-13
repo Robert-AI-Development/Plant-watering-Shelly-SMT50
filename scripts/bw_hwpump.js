@@ -1,4 +1,8 @@
 // bw_hwpump.js v0.1.0 – Hardware-Test Pumpe in zwei Durchgängen: A Auftrag vorbereiten und bw_pump starten, B Ergebnis prüfen und Zustände zurückbauen
+//! Hardware-Test Pumpe (nur von Hand, nie im Zeitplan) in zwei Durchgängen: A sichert st/day/job/err/lrn nach hwb1/hwb2, schreibt
+//! einen Testauftrag (hwt.pumpSec Sekunden, ohne Lernwert) und startet bw_pump; B prüft das Ergebnis, baut zurück und berichtet in hwp.
+//! Startet nur nach go, nicht in den ersten/letzten guardS Sekunden eines Takts und nicht ± winMin Minuten um Gießfenster/Mitternacht.
+//! Schaltet die Pumpe nie selbst ein. Steuerung: node tools/hwtest.js <ip> start bw_hwpump → go → watch (startet B). README "Hardware-Test".
 //
 // Nur von Hand gestartet, nie im Zeitplan. Ein Timer (Tick je hwt.msTick), ein offener RPC (busy-Flag). Sensorphasen: bw_hwtest.js.
 // Der Script-Heap des Geräts (~25 KB) ist von allen Scripts geteilt (LEARNING.md): während bw_pump läuft, darf kein zweites großes

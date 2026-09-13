@@ -70,12 +70,14 @@ Kontext/Kosten). Details: [`.claude/skills/graft/SKILL.md`](../../.claude/skills
 ### Repo-Aufbau auf einen Blick
 
 ```
-scripts/     bw_install.js, bw_main.js, bw_pump.js  ← laufen auf dem Shelly
+scripts/     bw_install.js, bw_main.js, bw_pump.js, bw_hwtest.js, bw_hwpump.js,
+             bw_zeitraffer.js  ← laufen auf dem Shelly
              lib_notes.md  ← jede genutzte Shelly-RPC dokumentiert
 tools/       mock/ (Gerät in Node), run-script.js, build.js, put-script.js,
-             console.js, probe/  ← Entwicklung & Geräte-Debug
-tools/test/  node --test (89 Tests, inkl. 7-Tage-Simulation)
-docs/        PLAN.md (Entscheidungen), handbuch/ (dieses Handbuch), seo-keywords.md
+             verify-scripts.js, console.js, hwtest.js, lib/kal.js, probe/  ← Entwicklung & Geräte-Debug
+tools/test/  node --test (144 Tests, inkl. Fenster-Regelkreis, 7-Tage-Simulation, Zeitraffer)
+docs/        PLAN.md (Entscheidungen), kurzanleitung.md, pruefprotokoll-etappe6.md, kal/ (Rohdaten),
+             handbuch/ (dieses Handbuch), seo-keywords.md
 hardware/    Stückliste, Verdrahtung
 README.md · CLAUDE.md · AGENTS.md · LEARNING.md
 ```
