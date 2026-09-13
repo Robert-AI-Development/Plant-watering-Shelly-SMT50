@@ -1,0 +1,16 @@
+# GitHub Pages: Quelle main:/docs, Jekyll-Standard (kein Build, keine Action)
+title: Pflanzenbewässerung mit dem Shelly Plus Uni
+description: Selbstlernende Bewässerung mit SMT50 und DS18B20 – lokal, ohne Cloud. Handbuch Deutsch / English handbook.
+lang: de
+theme: jekyll-theme-primer
+markdown: kramdown
+kramdown:
+  input: GFM
+plugins:
+  - jekyll-redirect-from
+exclude:
+  - diagramme/src
+  - diagramme/receipts
+  - _vorlage-kapitel.md
+  - _template-chapter.md
+  - "*.log"

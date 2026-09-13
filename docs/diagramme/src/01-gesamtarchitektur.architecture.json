@@ -1,0 +1,214 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Gesamtarchitektur: Sensoren, Scripts, Zeitplan, KVS",
+    "quality_profile": "showcase",
+    "visual_preset": "blueprint",
+    "views": [
+      {
+        "id": "messen",
+        "label": "Messen und entscheiden",
+        "focus": [
+          "sensoren",
+          "bw_main",
+          "kvs"
+        ],
+        "note": "bw_main misst alle 15 Minuten, bewertet gegen das Zielband und schreibt den Auftrag ins KVS."
+      },
+      {
+        "id": "giessen",
+        "label": "Gießen im Fenster",
+        "focus": [
+          "zeitplan",
+          "kvs",
+          "bw_pump",
+          "switch",
+          "pumpe"
+        ],
+        "note": "bw_pump liest den Auftrag, misst frisch, prüft den Schwimmer, gießt in Portionen und lernt die Wirkung je Pumpensekunde."
+      },
+      {
+        "id": "sicherheit",
+        "label": "Sicherheit ohne Script",
+        "focus": [
+          "zeitplan",
+          "switch",
+          "pumpe"
+        ],
+        "note": "toggle_after je Portion, auto_off 190 s und der Sicherheits-Aus im Zeitplan (+8 min) stoppen die Pumpe auch ohne laufendes Script."
+      },
+      {
+        "id": "aussen",
+        "label": "Von außen",
+        "focus": [
+          "ntp",
+          "werkzeuge",
+          "bw_install"
+        ],
+        "note": "Nur die Uhrzeit kommt aus dem Internet. Werkzeuge und Web-UI nutzen HTTP-RPC: Scripts starten, KVS lesen und schreiben, Konsole mitlesen."
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "ntp",
+      "type": "cloud",
+      "label": "NTP",
+      "sublabel": "Uhrzeit aus dem Internet",
+      "pos": [30, 40],
+      "size": [160, 64]
+    },
+    {
+      "id": "zeitplan",
+      "type": "messagebus",
+      "label": "Zeitplan",
+      "sublabel": "Schedule, Taktgeber",
+      "pos": [280, 40],
+      "size": [160, 64]
+    },
+    {
+      "id": "bw_pump",
+      "type": "backend",
+      "label": "bw_pump",
+      "sublabel": "Regler im Fenster",
+      "pos": [530, 40],
+      "size": [160, 64]
+    },
+    {
+      "id": "switch",
+      "type": "security",
+      "label": "switch:0 (OUT1)",
+      "sublabel": "auto_off, Zeitplan-Aus",
+      "pos": [780, 40],
+      "size": [160, 64]
+    },
+    {
+      "id": "pumpe",
+      "type": "external",
+      "label": "Relais und Pumpe",
+      "sublabel": "Kontakt ≤ 30 V / 300 mA",
+      "pos": [1030, 40],
+      "size": [160, 64]
+    },
+    {
+      "id": "sensoren",
+      "type": "external",
+      "label": "Sensoren",
+      "sublabel": "SMT50, DS18B20, Schwimmer",
+      "pos": [30, 190],
+      "size": [160, 64]
+    },
+    {
+      "id": "bw_main",
+      "type": "backend",
+      "label": "bw_main",
+      "sublabel": "Takt alle 15 min",
+      "pos": [280, 190],
+      "size": [160, 64]
+    },
+    {
+      "id": "kvs",
+      "type": "database",
+      "label": "KVS",
+      "sublabel": "cfg lrn st job day err",
+      "pos": [530, 190],
+      "size": [160, 64]
+    },
+    {
+      "id": "werkzeuge",
+      "type": "frontend",
+      "label": "tools/ und Web-UI",
+      "sublabel": "HTTP-RPC, Websocket",
+      "pos": [30, 340],
+      "size": [160, 64]
+    },
+    {
+      "id": "bw_install",
+      "type": "backend",
+      "label": "bw_install",
+      "sublabel": "Zeitplan und Startwerte",
+      "pos": [530, 340],
+      "size": [160, 64]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Shelly Plus Uni",
+      "wraps": [
+        "zeitplan",
+        "bw_main",
+        "bw_pump",
+        "kvs",
+        "bw_install",
+        "switch"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "ntp_zeitplan",
+      "from": "ntp",
+      "to": "zeitplan",
+      "label": "Uhrzeit"
+    },
+    {
+      "id": "takt",
+      "from": "zeitplan",
+      "to": "bw_main",
+      "label": "alle 15 min",
+      "labelDy": 24
+    },
+    {
+      "id": "fenster",
+      "from": "zeitplan",
+      "to": "bw_pump",
+      "label": "08:00, 20:00"
+    },
+    {
+      "id": "pump_switch",
+      "from": "bw_pump",
+      "to": "switch",
+      "label": "toggle_after",
+      "variant": "emphasis"
+    },
+    {
+      "id": "switch_pumpe",
+      "from": "switch",
+      "to": "pumpe",
+      "label": "Relaisspule"
+    },
+    {
+      "id": "messen",
+      "from": "sensoren",
+      "to": "bw_main",
+      "label": "misst"
+    },
+    {
+      "id": "main_kvs",
+      "from": "bw_main",
+      "to": "kvs",
+      "label": "job, st"
+    },
+    {
+      "id": "kvs_pump",
+      "from": "kvs",
+      "to": "bw_pump",
+      "label": "9 Schlüssel"
+    },
+    {
+      "id": "install_kvs",
+      "from": "bw_install",
+      "to": "kvs",
+      "label": "Startwerte"
+    },
+    {
+      "id": "tools_install",
+      "from": "werkzeuge",
+      "to": "bw_install",
+      "label": "Script.Start",
+      "variant": "dashed"
+    }
+  ]
+}

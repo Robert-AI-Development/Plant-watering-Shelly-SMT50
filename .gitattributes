@@ -1,0 +1,6 @@
+# Generierte Diagramm-Artefakte (tools/docs/build-diagramme.mjs): nicht diffen, als generiert markieren
+docs/diagramme/**/*.html linguist-generated=true -diff
+docs/diagramme/**/*.svg linguist-generated=true
+docs/diagramme/receipts/*.json linguist-generated=true
+# Kompakt-Ausgabe der Scripts (npm run build)
+dist/*.js linguist-generated=true

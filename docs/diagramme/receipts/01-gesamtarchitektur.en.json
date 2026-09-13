@@ -1,0 +1,27 @@
+{
+ "schemaVersion": 1,
+ "diagramm": "01-gesamtarchitektur",
+ "sprache": "en",
+ "typ": "architecture",
+ "archify": "2.16.0",
+ "quelle": {
+  "spec": "b8e7fe8233dee14e780ab145306f37cfc8b97d7cff652d029a53e13f46d9b32d",
+  "dict": "447c52648eaadd4baac8b268f8968213a470f8d0a20a65800af44afb2ccdc926",
+  "pfad": "docs/diagramme/src/01-gesamtarchitektur.architecture.json"
+ },
+ "html": {
+  "sha256": "b61e23a2aded2bdf95d4f4098d2ae93ea8153ccb864973842282e0f1e48e1209",
+  "bytes": 716084
+ },
+ "svg": {
+  "sha256": "ddcb287b27f919ab8686995d93896324439476c76c57dfdb3ce15a7ea239b6f4",
+  "bytes": 58049
+ },
+ "validierung": {
+  "profile": "showcase",
+  "errors": 0,
+  "warnings": 0,
+  "checksPassed": 9,
+  "checkCount": 9
+ }
+}

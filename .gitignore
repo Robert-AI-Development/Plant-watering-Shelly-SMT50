@@ -8,5 +8,7 @@ node_modules/
 # persönliche Claude-Code-Einstellungen
 .claude/settings.local.json
 
-# Kompakt-Ausgabe für den Upload (npm run build)
-/dist/
+# Kompakt-Ausgabe (npm run build) ist eingecheckt: Copy-&-Paste-Installation ohne Node; tools/test/dist.test.js prüft Drift
+
+# Zwischendateien des Diagramm-Builds (tools/docs/build-diagramme.mjs)
+docs/diagramme/receipts/.tmp/
