@@ -22,7 +22,7 @@
     { "nr": "04", "slug": "sicherheit-und-grenzen", "teil": "A", "typ": "sequence", "status": "fertig",
       "de": { "titel": "Sicherheit und Grenzen", "wer": "Alle vor dem Aufbau", "ergebnis": "Warum die Pumpe nie durchläuft und wo Shelly und SMT50 an Grenzen stoßen" },
       "en": { "titel": "Safety and limits", "wer": "Everyone before building", "ergebnis": "Why the pump never runs away and where the Shelly and the SMT50 hit their limits" } },
-    { "nr": "05", "slug": "verkabelung-und-aufbau", "teil": "B", "typ": "architecture", "status": "aufbau",
+    { "nr": "05", "slug": "verkabelung-und-aufbau", "teil": "B", "typ": "architecture", "status": "fertig",
       "de": { "titel": "Verkabelung und Hardware-Aufbau", "wer": "Bastler mit Lötkolben", "ergebnis": "Web-UI zeigt Spannung, Temperatur und Eingangswechsel" },
       "en": { "titel": "Wiring and hardware build", "wer": "Makers with a soldering iron", "ergebnis": "The web UI shows voltage, temperature and input changes" } },
     { "nr": "06", "slug": "startanleitung", "teil": "C", "typ": "workflow", "status": "aufbau",

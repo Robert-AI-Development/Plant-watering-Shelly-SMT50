@@ -1,0 +1,296 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Klemmenplan Shelly Plus Uni",
+    "quality_profile": "showcase",
+    "visual_preset": "blueprint",
+    "views": [
+      {
+        "id": "versorgung",
+        "label": "Versorgung",
+        "focus": [
+          "netzteil",
+          "vac",
+          "gnd",
+          "smt50",
+          "relais"
+        ],
+        "note": "Netzteil + an VAC1 (rot), − an VAC2 (schwarz) und zusätzlich an GND (grün), die Sensormasse. 12 V versorgen auch SMT50 und Relaisspule."
+      },
+      {
+        "id": "sensoren",
+        "label": "Sensoren",
+        "focus": [
+          "smt50",
+          "analog",
+          "ds18b20",
+          "onewire",
+          "schwimmer",
+          "in2",
+          "gnd"
+        ],
+        "note": "SMT50 gelb an ANALOG IN, DS18B20 an SENSOR VCC/DATA, Schwimmer zwischen IN2 und GND. Jede Sensormasse liegt an GND grün."
+      },
+      {
+        "id": "pumpe",
+        "label": "Pumpe schalten (230 V)",
+        "focus": [
+          "out1",
+          "relais",
+          "pumpe"
+        ],
+        "note": "OUT1 trägt nur die Relaisspule (≤ 30 V / 300 mA). Der Relaiskontakt schaltet die Pumpe; 230 V nur durch eine Elektrofachkraft."
+      },
+      {
+        "id": "ids",
+        "label": "Komponenten-IDs",
+        "focus": [
+          "analog",
+          "onewire",
+          "in2",
+          "out1"
+        ],
+        "note": "So heißen die Klemmen in der Software: voltmeter:100, temperature:100, input:1, switch:0 (cfg1: idV, idT, idLvl, idSw)."
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "netzteil",
+      "type": "external",
+      "label": "Netzteil 12 V DC",
+      "sublabel": "≥ 1 A, versorgt alles",
+      "pos": [
+        30,
+        40
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "smt50",
+      "type": "external",
+      "label": "SMT50 Bodenfeuchte",
+      "sublabel": "gelb 0–3 V, grün frei",
+      "pos": [
+        30,
+        190
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "ds18b20",
+      "type": "external",
+      "label": "DS18B20 Fühler",
+      "sublabel": "rot, Daten, schwarz",
+      "pos": [
+        30,
+        340
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "schwimmer",
+      "type": "external",
+      "label": "Schwimmerschalter",
+      "sublabel": "über dem Pumpeneinlauf",
+      "pos": [
+        30,
+        490
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "vac",
+      "type": "security",
+      "label": "VAC1 / VAC2",
+      "sublabel": "rot +12 V · schwarz −",
+      "pos": [
+        530,
+        40
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "gnd",
+      "type": "backend",
+      "label": "GND grün",
+      "sublabel": "Sensormasse = Netzteil −",
+      "pos": [
+        780,
+        40
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "analog",
+      "type": "backend",
+      "label": "ANALOG IN weiß",
+      "sublabel": "voltmeter:100",
+      "pos": [
+        530,
+        190
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "onewire",
+      "type": "backend",
+      "label": "VCC gelb, DATA blau",
+      "sublabel": "temperature:100",
+      "pos": [
+        530,
+        340
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "in2",
+      "type": "backend",
+      "label": "IN2 braun",
+      "sublabel": "input:1, Typ Switch",
+      "pos": [
+        530,
+        490
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "out1",
+      "type": "security",
+      "label": "OUT1 schwarz ×2",
+      "sublabel": "switch:0, ≤ 30 V/300 mA",
+      "pos": [
+        530,
+        640
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "relais",
+      "type": "external",
+      "label": "Relais 12 V",
+      "sublabel": "Spule < 300 mA",
+      "pos": [
+        1030,
+        640
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "pumpe",
+      "type": "external",
+      "label": "Pumpe (Gardena)",
+      "sublabel": "230 V: Elektrofachkraft",
+      "pos": [
+        1030,
+        790
+      ],
+      "size": [
+        160,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Shelly Plus Uni",
+      "wraps": [
+        "vac",
+        "gnd",
+        "analog",
+        "onewire",
+        "in2",
+        "out1"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "netz_vac",
+      "from": "netzteil",
+      "to": "vac",
+      "label": "rot +, schwarz −",
+      "variant": "emphasis"
+    },
+    {
+      "id": "vac_gnd",
+      "from": "vac",
+      "to": "gnd",
+      "label": "Netzteil −"
+    },
+    {
+      "id": "netz_smt50",
+      "from": "netzteil",
+      "to": "smt50",
+      "label": "+12 V",
+      "labelDy": 24
+    },
+    {
+      "id": "smt50_analog",
+      "from": "smt50",
+      "to": "analog",
+      "label": "gelb, 0–3 V"
+    },
+    {
+      "id": "ds_onewire",
+      "from": "ds18b20",
+      "to": "onewire",
+      "label": "1-Wire"
+    },
+    {
+      "id": "schwimmer_in2",
+      "from": "schwimmer",
+      "to": "in2",
+      "label": "gegen GND grün"
+    },
+    {
+      "id": "out1_relais",
+      "from": "out1",
+      "to": "relais",
+      "label": "+12 V → Spule → GND",
+      "variant": "emphasis"
+    },
+    {
+      "id": "relais_pumpe",
+      "from": "relais",
+      "to": "pumpe",
+      "label": "Kontakt",
+      "labelDy": 24
+    }
+  ]
+}

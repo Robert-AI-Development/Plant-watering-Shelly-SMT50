@@ -1,0 +1,27 @@
+{
+ "schemaVersion": 1,
+ "diagramm": "05-verkabelung-und-aufbau",
+ "sprache": "de",
+ "typ": "architecture",
+ "archify": "2.16.0",
+ "quelle": {
+  "spec": "7649077dbdc0fe2496b606290804dc12938cb1230965518b71bf90381853c783",
+  "dict": "7fa49bd4098b0fa020e95cebca27f892f88b3b98e0ede51130c64fa761db39dd",
+  "pfad": "docs/diagramme/src/05-verkabelung-und-aufbau.architecture.json"
+ },
+ "html": {
+  "sha256": "c04e5a912ebbea35efe9980396e1c58b5257d07af6ab65c36e0bd93773608a11",
+  "bytes": 715547
+ },
+ "svg": {
+  "sha256": "3a6fa1451e0cdf90e83fad3072326d38a997e80fa302a066ce6b9f27e7261794",
+  "bytes": 58036
+ },
+ "validierung": {
+  "profile": "showcase",
+  "errors": 0,
+  "warnings": 0,
+  "checksPassed": 9,
+  "checkCount": 9
+ }
+}

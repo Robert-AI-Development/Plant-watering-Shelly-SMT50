@@ -32,7 +32,7 @@ Diagrams: every chapter shows a static image and links the interactive version (
 
 | No. | Chapter | For whom | Outcome | Diagram |
 | --- | --- | --- | --- | --- |
-| 05 | [Wiring and hardware build](05-verkabelung-und-aufbau.md) *(in progress)* | Makers with a soldering iron | The web UI shows voltage, temperature and input changes | – |
+| 05 | [Wiring and hardware build](05-verkabelung-und-aufbau.md) | Makers with a soldering iron | The web UI shows voltage, temperature and input changes | [interactive](https://robert-ai-development.github.io/Plant-watering-Shelly-SMT50/diagramme/en/05-verkabelung-und-aufbau.html) |
 
 ### Part C – Install
 

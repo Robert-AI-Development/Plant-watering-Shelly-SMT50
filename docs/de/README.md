@@ -32,7 +32,7 @@ Diagramme: jedes Kapitel zeigt ein statisches Bild und verlinkt die interaktive 
 
 | Nr | Kapitel | Für wen | Ergebnis | Diagramm |
 | --- | --- | --- | --- | --- |
-| 05 | [Verkabelung und Hardware-Aufbau](05-verkabelung-und-aufbau.md) *(im Aufbau)* | Bastler mit Lötkolben | Web-UI zeigt Spannung, Temperatur und Eingangswechsel | – |
+| 05 | [Verkabelung und Hardware-Aufbau](05-verkabelung-und-aufbau.md) | Bastler mit Lötkolben | Web-UI zeigt Spannung, Temperatur und Eingangswechsel | [interaktiv](https://robert-ai-development.github.io/Plant-watering-Shelly-SMT50/diagramme/de/05-verkabelung-und-aufbau.html) |
 
 ### Teil C – Installieren
 
