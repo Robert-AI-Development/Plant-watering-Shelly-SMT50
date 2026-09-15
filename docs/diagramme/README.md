@@ -14,5 +14,6 @@ Interaktive Diagramme der Kapitel (Archify): Zoom, Suche, Fokus, Beziehungs-Trac
 | 08 | [Installation mit lokalem Server (PC oder Raspberry im LAN)](de/08-installation-lokaler-server.html) · [Kapitel](../de/08-installation-lokaler-server.md) | [Installation with a local server (PC or Raspberry Pi on the LAN)](en/08-installation-lokaler-server.html) · [chapter](../en/08-installation-lokaler-server.md) | sequence |
 | 09 | [Installation mit VPS-Server (SSH-Rückwärtstunnel)](de/09-installation-vps.html) · [Kapitel](../de/09-installation-vps.md) | [Installation with a VPS (reverse SSH tunnel)](en/09-installation-vps.html) · [chapter](../en/09-installation-vps.md) | architecture |
 | 10 | [Installation mittels Claude Code](de/10-installation-claude-code.html) · [Kapitel](../de/10-installation-claude-code.md) | [Installation with Claude Code](en/10-installation-claude-code.html) · [chapter](../en/10-installation-claude-code.md) | workflow |
+| 11 | [Hardware-Check (bw_hwtest, bw_hwpump)](de/11-hardware-check.html) · [Kapitel](../de/11-hardware-check.md) | [Hardware check (bw_hwtest, bw_hwpump)](en/11-hardware-check.html) · [chapter](../en/11-hardware-check.md) | workflow |
 
 Quellen: `docs/diagramme/src/` (JSON-Spezifikation + Wörterbuch), Build: `npm run docs:diagramme`.

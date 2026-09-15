@@ -1,0 +1,70 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Hardware-Check im Interview: Sensortest, Pumpentest, Not-Aus",
+    "quality_profile": "showcase",
+    "visual_preset": "blueprint",
+    "views": [
+      {
+        "id": "sensortest",
+        "label": "Sensortest in sechs Phasen",
+        "focus": ["preflight", "start_t", "t12", "handgriff", "m12", "l12", "cfg1"],
+        "note": "Jede Phase wartet auf den physischen Zustand; m1, l1 und l2 zusätzlich auf go. Plausible Werte landen in cfg1."
+      },
+      {
+        "id": "pumpentest",
+        "label": "Pumpentest in zwei Durchgängen",
+        "focus": ["eimer", "start_p", "a", "pump", "b", "cleanup"],
+        "note": "A sichert st/day/job/err/lrn, schreibt den Auftrag und startet bw_pump; bw_pump pumpt allein; watch startet B."
+      },
+      {
+        "id": "notaus",
+        "label": "Not-Aus und Wiederanlauf",
+        "focus": ["pump", "notaus", "b"],
+        "note": "stop schaltet den Ausgang aus. Steht hwb1/hwb2 noch, ist der nächste Start von bw_hwpump automatisch Durchgang B."
+      }
+    ]
+  },
+  "lanes": [
+    { "id": "rechner", "label": "hwtest.js (Rechner)" },
+    { "id": "hwtest", "label": "bw_hwtest (Gerät)" },
+    { "id": "mensch", "label": "Mensch am Aufbau" },
+    { "id": "hwpump", "label": "bw_hwpump → bw_pump (Gerät)" },
+    { "id": "notaus_lane", "label": "Not-Aus", "variant": "exception" }
+  ],
+  "mainPath": ["preflight", "start_t", "t12", "m12", "l12", "cfg1"],
+  "nodes": [
+    { "id": "preflight", "lane": "rechner", "col": 0, "type": "frontend", "width": 132, "label": "preflight hw", "sublabel": "Upload, input-on" },
+    { "id": "start_t", "lane": "rechner", "col": 1, "type": "frontend", "width": 132, "label": "start bw_hwtest", "sublabel": "watch 120, go" },
+    { "id": "cleanup", "lane": "rechner", "col": 5, "type": "frontend", "width": 132, "label": "report, cleanup", "sublabel": "delete bw_hwtest" },
+    { "id": "t12", "lane": "hwtest", "col": 1, "type": "backend", "width": 132, "label": "t1, t2 Fühler", "sublabel": "≤ 20 °C, ≥ 30 °C" },
+    { "id": "m12", "lane": "hwtest", "col": 2, "type": "backend", "width": 132, "label": "m1, m2 Sensor", "sublabel": "trocken, nass" },
+    { "id": "l12", "lane": "hwtest", "col": 3, "type": "backend", "width": 132, "label": "l1, l2 Schwimmer", "sublabel": "LEER, VOLL" },
+    { "id": "cfg1", "lane": "hwtest", "col": 4, "type": "database", "width": 132, "label": "cfg1 und hwr", "sublabel": "vDry, vWet, lvlEmpty" },
+    { "id": "handgriff", "lane": "mensch", "col": 1, "type": "external", "width": 132, "label": "Handgriff je Phase", "sublabel": "Wasser, Tuch, Schwimmer" },
+    { "id": "eimer", "lane": "mensch", "col": 2, "type": "external", "width": 132, "label": "Behälter voll", "sublabel": "Schlauch im Eimer" },
+    { "id": "start_p", "lane": "hwpump", "col": 2, "type": "backend", "width": 132, "label": "start bw_hwpump", "sublabel": "p0 wartet auf go" },
+    { "id": "a", "lane": "hwpump", "col": 3, "type": "backend", "width": 132, "label": "Durchgang A", "sublabel": "Zeitwache, Sicherung" },
+    { "id": "pump", "lane": "hwpump", "col": 4, "type": "backend", "width": 132, "label": "bw_pump allein", "sublabel": "Einzelportion pumpSec" },
+    { "id": "b", "lane": "hwpump", "col": 5, "type": "backend", "width": 132, "label": "Durchgang B", "sublabel": "Vergleich, Rückbau" },
+    { "id": "notaus", "lane": "notaus_lane", "col": 4, "type": "security", "width": 132, "label": "stop, restore", "sublabel": "Ausgang aus, Rückbau" }
+  ],
+  "edges": [
+    { "from": "preflight", "to": "start_t" },
+    { "from": "start_t", "to": "t12", "label": "Script.Start", "variant": "emphasis" },
+    { "from": "t12", "to": "m12", "label": "5 Lesungen" },
+    { "from": "m12", "to": "l12", "label": "stabil" },
+    { "from": "l12", "to": "cfg1", "label": "plausibel", "variant": "emphasis" },
+    { "from": "t12", "to": "handgriff", "label": "Anweisung", "variant": "dashed" },
+    { "from": "handgriff", "to": "m12", "label": "go" },
+    { "from": "handgriff", "to": "eimer", "label": "Sensoren zurück", "variant": "dashed" },
+    { "from": "eimer", "to": "start_p", "label": "go" },
+    { "from": "start_p", "to": "a", "label": "p0 ok" },
+    { "from": "a", "to": "pump", "label": "Script.Start", "variant": "emphasis" },
+    { "from": "pump", "to": "b", "label": "watch startet B" },
+    { "from": "b", "to": "cleanup", "label": "Bericht hwp", "role": "return" },
+    { "from": "pump", "to": "notaus", "label": "stop", "variant": "security", "role": "error" },
+    { "from": "notaus", "to": "b", "label": "rec 1", "variant": "dashed", "role": "return" }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+ "schemaVersion": 1,
+ "diagramm": "11-hardware-check",
+ "sprache": "de",
+ "typ": "workflow",
+ "archify": "2.16.0",
+ "quelle": {
+  "spec": "663c313c26102d6e5eeea2ff24e1c52fdaf56d38ffe118fa602f436a20329ab3",
+  "dict": "f5e503c370cc55a1d77637612dcda82218b2f51d29165fcfc284864c495ccc5b",
+  "pfad": "docs/diagramme/src/11-hardware-check.workflow.json"
+ },
+ "html": {
+  "sha256": "656bbb58a8854f644237a91815c33063d9c75c09f3010b4b1b981c24f6fc0d37",
+  "bytes": 723298
+ },
+ "svg": {
+  "sha256": "c7cb2381deb0a4190356348c4834fefb48722888443b2aa0d45156c030a1f806",
+  "bytes": 65284
+ },
+ "validierung": {
+  "profile": "showcase",
+  "errors": 0,
+  "warnings": 0,
+  "checksPassed": 9,
+  "checkCount": 9
+ }
+}

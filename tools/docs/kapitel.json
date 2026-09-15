@@ -40,7 +40,7 @@
     { "nr": "10", "slug": "installation-claude-code", "teil": "C", "typ": "workflow", "status": "fertig",
       "de": { "titel": "Installation mittels Claude Code", "wer": "KI soll führen", "ergebnis": "Installation im Interview: was Claude tut, was der Mensch entscheidet" },
       "en": { "titel": "Installation with Claude Code", "wer": "Let the AI lead", "ergebnis": "Installation as an interview: what Claude does, what the human decides" } },
-    { "nr": "11", "slug": "hardware-check", "teil": "D", "typ": "workflow", "status": "aufbau",
+    { "nr": "11", "slug": "hardware-check", "teil": "D", "typ": "workflow", "status": "fertig",
       "de": { "titel": "Hardware-Check (bw_hwtest, bw_hwpump)", "wer": "Nach der Installation", "ergebnis": "Sensoren, Schwimmer und Pumpe geprüft, cfg1 gemessen" },
       "en": { "titel": "Hardware check (bw_hwtest, bw_hwpump)", "wer": "After installation", "ergebnis": "Sensors, float switch and pump verified, cfg1 measured" } },
     { "nr": "12", "slug": "erstinbetriebnahme", "teil": "D", "typ": "workflow", "status": "aufbau",
