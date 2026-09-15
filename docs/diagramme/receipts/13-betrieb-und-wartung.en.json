@@ -1,0 +1,27 @@
+{
+ "schemaVersion": 1,
+ "diagramm": "13-betrieb-und-wartung",
+ "sprache": "en",
+ "typ": "lifecycle",
+ "archify": "2.16.0",
+ "quelle": {
+  "spec": "6d9ed3e416a656cb185afe9c080165207538574ccd2ccfa5c63fea9896dc1e57",
+  "dict": "32114b295693595c2c1ca5364045c24135a472f2207605f4cd1d32dcc3638484",
+  "pfad": "docs/diagramme/src/13-betrieb-und-wartung.lifecycle.json"
+ },
+ "html": {
+  "sha256": "088171fc1d22a5f2179b4dab312db3501708de642ef52bd3515dae03b3c3a14c",
+  "bytes": 715149
+ },
+ "svg": {
+  "sha256": "a9cf8f187efea99341d689e86cb02310205e326e139838cce486989015454bc7",
+  "bytes": 57511
+ },
+ "validierung": {
+  "profile": "showcase",
+  "errors": 0,
+  "warnings": 0,
+  "checksPassed": 9,
+  "checkCount": 9
+ }
+}

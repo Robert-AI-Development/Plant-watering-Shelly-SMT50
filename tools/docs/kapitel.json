@@ -46,7 +46,7 @@
     { "nr": "12", "slug": "erstinbetriebnahme", "teil": "D", "typ": "workflow", "status": "fertig",
       "de": { "titel": "Erstinbetriebnahme: Kalibrierung, Zielband, Zeitraffer, erstes Fenster", "wer": "Nach dem Hardware-Check", "ergebnis": "Werte, mit denen das Gerät richtig gießt; einmal alles in 45 Minuten gesehen" },
       "en": { "titel": "First commissioning: calibration, target band, fast-forward, first window", "wer": "After the hardware check", "ergebnis": "Values that make the device water correctly; the whole cycle seen once in 45 minutes" } },
-    { "nr": "13", "slug": "betrieb-und-wartung", "teil": "D", "typ": "lifecycle", "status": "aufbau",
+    { "nr": "13", "slug": "betrieb-und-wartung", "teil": "D", "typ": "lifecycle", "status": "fertig",
       "de": { "titel": "Betrieb und Wartung", "wer": "Betreiber im Alltag", "ergebnis": "Ablesen, Codes deuten, Störung beheben, aktualisieren, warten, verreisen" },
       "en": { "titel": "Operation and maintenance", "wer": "Day-to-day operators", "ergebnis": "Read the console, decode states, fix faults, update, maintain, travel" } },
     { "nr": "14", "slug": "debuggen-und-testen", "teil": "E", "typ": "dataflow", "status": "aufbau",

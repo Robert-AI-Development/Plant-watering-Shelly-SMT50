@@ -1,0 +1,352 @@
+{
+  "schema_version": 1,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "Zustände im Betrieb: st.state, Sperren, Störungen",
+    "quality_profile": "showcase",
+    "visual_preset": "blueprint",
+    "views": [
+      {
+        "id": "zyklus",
+        "label": "Normaler Zyklus",
+        "focus": [
+          "beob",
+          "laeuft",
+          "gegossen",
+          "sperre"
+        ],
+        "note": "beob → Claim laeuft im Fenster → gegossen bis zur Kontrolle soak min später → sperre; Pause vorbei und dryOk → wieder beob."
+      },
+      {
+        "id": "bremsen",
+        "label": "Bremsen",
+        "focus": [
+          "laeuft",
+          "sperre",
+          "pause",
+          "trocken",
+          "beob"
+        ],
+        "note": "In sperre meldet der Takt erst why=pause (24/12/48 h), danach why=trocken, solange die Trockenphase offen ist. Kein Fehler, nur Warten."
+      },
+      {
+        "id": "stoerungen",
+        "label": "Störungen und Rückweg",
+        "focus": [
+          "beob",
+          "block",
+          "laeuft"
+        ],
+        "note": "cfg, uhr, sensor, wasser blockieren und löschen sich, sobald die Ursache weg ist; temp, zuviel, sink, alt, limit sind Hinweise ohne Sperre."
+      },
+      {
+        "id": "noeff",
+        "label": "noeff: nur von Hand",
+        "focus": [
+          "laeuft",
+          "noeff",
+          "sperre"
+        ],
+        "note": "Zwei volle Portionen ohne messbare Wirkung sperren das Gießen, bis ein Mensch Pumpe, Schlauch und Sensorlage geprüft und err gelöscht hat."
+      }
+    ]
+  },
+  "lanes": [
+    {
+      "id": "main",
+      "label": "Zustand st.state"
+    },
+    {
+      "id": "waiting",
+      "label": "Sperren"
+    },
+    {
+      "id": "exceptions",
+      "label": "Störungen"
+    },
+    {
+      "id": "terminal",
+      "label": "nur von Hand"
+    }
+  ],
+  "states": [
+    {
+      "id": "beob",
+      "type": "start",
+      "label": "beob",
+      "sublabel": "messen, Auftrag",
+      "lane": "main",
+      "col": 1,
+      "step": "01",
+      "tag": "Takt"
+    },
+    {
+      "id": "laeuft",
+      "type": "active",
+      "label": "laeuft",
+      "sublabel": "Claim im Fenster",
+      "lane": "main",
+      "col": 2,
+      "step": "02",
+      "tag": "bw_pump"
+    },
+    {
+      "id": "gegossen",
+      "type": "active",
+      "label": "gegossen",
+      "sublabel": "wartet auf Kontrolle",
+      "lane": "main",
+      "col": 3,
+      "step": "03",
+      "tag": "why=soak"
+    },
+    {
+      "id": "sperre",
+      "type": "waiting",
+      "label": "sperre",
+      "sublabel": "Pause / Trockenphase",
+      "lane": "main",
+      "col": 4,
+      "step": "04",
+      "tag": "rated"
+    },
+    {
+      "id": "block",
+      "type": "failure",
+      "label": "Störung blockiert",
+      "sublabel": "cfg uhr sensor wasser",
+      "lane": "exceptions",
+      "col": 1,
+      "tag": "err.code"
+    },
+    {
+      "id": "pause",
+      "type": "waiting",
+      "label": "pause",
+      "sublabel": "24 / 12 / 48 h",
+      "lane": "waiting",
+      "col": 2,
+      "tag": "why=pause"
+    },
+    {
+      "id": "trocken",
+      "type": "waiting",
+      "label": "Trockenphase",
+      "sublabel": "bis < pctDry",
+      "lane": "waiting",
+      "col": 2,
+      "yOffset": 92,
+      "tag": "why=trocken"
+    },
+    {
+      "id": "noeff",
+      "type": "failure",
+      "label": "noeff",
+      "sublabel": "err löschen (Mensch)",
+      "lane": "terminal",
+      "col": 2,
+      "tag": "err bleibt"
+    }
+  ],
+  "transitions": [
+    {
+      "id": "t_beob_laeuft",
+      "from": "beob",
+      "to": "laeuft",
+      "label": "Fenster: Claim",
+      "variant": "emphasis",
+      "labelDy": 62
+    },
+    {
+      "id": "t_laeuft_gegossen",
+      "from": "laeuft",
+      "to": "gegossen",
+      "label": "ok · over · max · zeit · stall · unstab",
+      "variant": "emphasis",
+      "labelDy": 58,
+      "labelDx": 41
+    },
+    {
+      "id": "t_laeuft_sperre",
+      "from": "laeuft",
+      "to": "sperre",
+      "label": "nass · abbruch · extern",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "right",
+      "via": [
+        [
+          402,
+          78
+        ],
+        [
+          870,
+          78
+        ],
+        [
+          870,
+          157
+        ]
+      ],
+      "labelAt": [
+        636,
+        78
+      ]
+    },
+    {
+      "id": "t_gegossen_sperre",
+      "from": "gegossen",
+      "to": "sperre",
+      "label": "Kontrolle",
+      "variant": "emphasis",
+      "labelDy": 74
+    },
+    {
+      "id": "t_sperre_beob",
+      "from": "sperre",
+      "to": "beob",
+      "label": "Pause vorbei, dryOk",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "top",
+      "via": [
+        [
+          710,
+          100
+        ],
+        [
+          248,
+          100
+        ]
+      ],
+      "labelAt": [
+        479,
+        100
+      ]
+    },
+    {
+      "id": "t_sperre_pause",
+      "from": "sperre",
+      "to": "pause",
+      "label": "why=pause",
+      "variant": "default",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "straight",
+      "labelAt": [
+        710,
+        233
+      ]
+    },
+    {
+      "id": "t_pause_trocken",
+      "from": "pause",
+      "to": "trocken",
+      "label": "dryOk=0: why=trocken",
+      "variant": "default",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "straight",
+      "labelAt": [
+        710,
+        353
+      ]
+    },
+    {
+      "id": "t_beob_block",
+      "from": "beob",
+      "to": "block",
+      "label": "err gesetzt",
+      "variant": "security",
+      "fromSide": "bottom",
+      "toSide": "left",
+      "via": [
+        [
+          248,
+          307
+        ]
+      ],
+      "labelAt": [
+        370,
+        307
+      ]
+    },
+    {
+      "id": "t_block_beob",
+      "from": "block",
+      "to": "beob",
+      "label": "Ursache weg",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "left",
+      "via": [
+        [
+          556,
+          540
+        ],
+        [
+          40,
+          540
+        ],
+        [
+          40,
+          157
+        ]
+      ],
+      "labelAt": [
+        300,
+        540
+      ]
+    },
+    {
+      "id": "t_laeuft_noeff",
+      "from": "laeuft",
+      "to": "noeff",
+      "label": "2 Portionen ohne Wirkung",
+      "variant": "security",
+      "fromSide": "bottom",
+      "toSide": "left",
+      "via": [
+        [
+          402,
+          240
+        ],
+        [
+          633,
+          240
+        ],
+        [
+          633,
+          479
+        ]
+      ],
+      "labelAt": [
+        517,
+        240
+      ]
+    },
+    {
+      "id": "t_noeff_sperre",
+      "from": "noeff",
+      "to": "sperre",
+      "label": "Mensch löscht err",
+      "variant": "dashed",
+      "fromSide": "right",
+      "toSide": "right",
+      "via": [
+        [
+          870,
+          479
+        ],
+        [
+          870,
+          157
+        ]
+      ],
+      "labelAt": [
+        870,
+        318
+      ]
+    }
+  ]
+}
