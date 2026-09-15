@@ -63,7 +63,7 @@ Diagrams: every chapter shows a static image and links the interactive version (
 
 | No. | Chapter | For whom | Outcome | Diagram |
 | --- | --- | --- | --- | --- |
-| 16 | [Concept and decisions (as of 0.2.0)](16-konzept-und-entscheidungen.md) *(in progress)* | Anyone asking why | Design principles, control core, rejected alternatives, next stages | – |
+| 16 | [Concept and decisions (as of 0.2.0)](16-konzept-und-entscheidungen.md) | Anyone asking why | Design principles, control core, rejected alternatives, next stages | [interactive](https://robert-ai-development.github.io/Plant-watering-Shelly-SMT50/diagramme/en/16-konzept-und-entscheidungen.html) |
 | 17 | [Stage and decision log](17-etappen-und-entscheidungslog.md) *(in progress)* | Agents, developers | What was decided when and why; numbers 1–63 stay stable; open items | – |
 | 18 | [Lessons from the device](18-lernlog-geraet.md) *(in progress)* | Anyone hit by a surprise | Every device finding with symptom, cause, fix and the rule in the tests | – |
 | 19 | [Device test protocol](19-pruefprotokoll.md) *(in progress)* | Anyone needing measurements | What was measured on the real setup; template for the next run | – |

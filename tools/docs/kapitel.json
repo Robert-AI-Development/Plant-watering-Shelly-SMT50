@@ -55,7 +55,7 @@
     { "nr": "15", "slug": "ausbau-mit-claude-code", "teil": "E", "typ": "workflow", "status": "fertig",
       "de": { "titel": "Ausbau der Steuerung mit Claude Code", "wer": "Wer erweitern will", "ergebnis": "Plan, Interview, Prüfkriterien, Debug-Umgebung, Coding, Prüfung, Commit" },
       "en": { "titel": "Extending the controller with Claude Code", "wer": "Anyone extending it", "ergebnis": "Plan, interview, acceptance criteria, debug environment, coding, verification, commit" } },
-    { "nr": "16", "slug": "konzept-und-entscheidungen", "teil": "F", "typ": "architecture", "status": "aufbau",
+    { "nr": "16", "slug": "konzept-und-entscheidungen", "teil": "F", "typ": "architecture", "status": "fertig",
       "de": { "titel": "Konzept und Entscheidungen (Stand 0.2.0)", "wer": "Wer das Warum sucht", "ergebnis": "Bauprinzipien, Regelungskern, verworfene Alternativen, Ausbaustufen" },
       "en": { "titel": "Concept and decisions (as of 0.2.0)", "wer": "Anyone asking why", "ergebnis": "Design principles, control core, rejected alternatives, next stages" } },
     { "nr": "17", "slug": "etappen-und-entscheidungslog", "teil": "F", "typ": "lifecycle", "status": "aufbau",

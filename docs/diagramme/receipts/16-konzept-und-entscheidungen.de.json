@@ -1,0 +1,27 @@
+{
+ "schemaVersion": 1,
+ "diagramm": "16-konzept-und-entscheidungen",
+ "sprache": "de",
+ "typ": "architecture",
+ "archify": "2.16.0",
+ "quelle": {
+  "spec": "ea1c51718d1e48b3817724ec0d43bc2cb0c1d7ade9783b7091df618592ad7379",
+  "dict": "00a801e9a82c310c42bfedb486b12a4badaa5fa8907005d6e12fa02cb83ab1ef",
+  "pfad": "docs/diagramme/src/16-konzept-und-entscheidungen.architecture.json"
+ },
+ "html": {
+  "sha256": "206a26387180c1cf02410c28ce359be4e8e84fec543508fe2a29ecd1686b7565",
+  "bytes": 718393
+ },
+ "svg": {
+  "sha256": "5ecefcbd4cf40ec7b89118e544d66a1d27a7481fd0b8e0c7e17085e327d15de3",
+  "bytes": 60465
+ },
+ "validierung": {
+  "profile": "showcase",
+  "errors": 0,
+  "warnings": 0,
+  "checksPassed": 9,
+  "checkCount": 9
+ }
+}

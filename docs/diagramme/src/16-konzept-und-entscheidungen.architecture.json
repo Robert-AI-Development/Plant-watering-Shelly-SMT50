@@ -1,0 +1,309 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Prinzipien-Karte 0.2.0: Bauweise, Regelung, Sicherheit, Verworfenes",
+    "quality_profile": "showcase",
+    "visual_preset": "blueprint",
+    "views": [
+      {
+        "id": "bauweise",
+        "label": "Bauweise",
+        "focus": [
+          "geraet",
+          "zeitplan",
+          "kvs",
+          "nocfg",
+          "dreiscripts"
+        ],
+        "note": "Zeitplan startet Einmal-Läufer, alles Wissen im KVS, jede Zahl in cfg1..4; bw_main entscheidet, bw_pump gießt; Gerätetests schärften nach."
+      },
+      {
+        "id": "regelung",
+        "label": "Regelung",
+        "focus": [
+          "messgefuehrt",
+          "dreiscripts",
+          "regelkreis",
+          "lernen",
+          "trocken"
+        ],
+        "note": "Gegossen wird, wenn die Messung es verlangt. Im Fenster regelt bw_pump in Portionen und lernt effW; die Trockenphase baut Staunässe ab."
+      },
+      {
+        "id": "sicherheit",
+        "label": "Sicherheit",
+        "focus": [
+          "zeitplan",
+          "abschaltung",
+          "dreiscripts",
+          "noeff",
+          "regelkreis"
+        ],
+        "note": "Drei Abschaltungen und die Frist wirken ohne Lernwert; bleibt auch die Probeportion ohne Wirkung, gibt es nie mehr Wasser, sondern noeff."
+      },
+      {
+        "id": "verworfen",
+        "label": "Verworfen",
+        "focus": [
+          "regelkreis",
+          "verworfen",
+          "lernen",
+          "abschaltung"
+        ],
+        "note": "Vorhaltschwelle, Klassenlernen sofort, Claim in job und Smith-Prädiktor wurden geprüft und verworfen (Entscheidungen 60 bis 63)."
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "geraet",
+      "type": "external",
+      "label": "Gerätebefunde",
+      "sublabel": "→ Regeln (13/14/28/37)",
+      "pos": [
+        30,
+        40
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "zeitplan",
+      "type": "backend",
+      "label": "Zeitplan steuert",
+      "sublabel": "Script rechnet kurz",
+      "pos": [
+        280,
+        40
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "kvs",
+      "type": "database",
+      "label": "Kein Zustand im RAM",
+      "sublabel": "alles im KVS (15/16)",
+      "pos": [
+        530,
+        40
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "nocfg",
+      "type": "database",
+      "label": "Keine Zahl im Code",
+      "sublabel": "cfg1..4 im KVS (29/53)",
+      "pos": [
+        780,
+        40
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "abschaltung",
+      "type": "security",
+      "label": "Dreifach abschalten",
+      "sublabel": "+ Frist (41/44/54)",
+      "pos": [
+        280,
+        190
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "dreiscripts",
+      "type": "backend",
+      "label": "Drei Scripts",
+      "sublabel": "bw_main → job → bw_pump",
+      "pos": [
+        530,
+        190
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "messgefuehrt",
+      "type": "backend",
+      "label": "Messgeführt",
+      "sublabel": "Band gemessen (39/47)",
+      "pos": [
+        780,
+        190
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "trocken",
+      "type": "backend",
+      "label": "Wochen-Trockenphase",
+      "sublabel": "Freitag, Nässe (58)",
+      "pos": [
+        1030,
+        190
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "noeff",
+      "type": "security",
+      "label": "Keine Wirkung",
+      "sublabel": "nie mehr Wasser (46)",
+      "pos": [
+        280,
+        340
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "regelkreis",
+      "type": "backend",
+      "label": "Regelkreis Fenster",
+      "sublabel": "Portion → messen (38–46)",
+      "pos": [
+        530,
+        340
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "lernen",
+      "type": "backend",
+      "label": "Lernwert, sf 0,7",
+      "sublabel": "% je wirksame s (43)",
+      "pos": [
+        780,
+        340
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "verworfen",
+      "type": "external",
+      "label": "Verworfen",
+      "sublabel": "Entscheidungen 60–63",
+      "pos": [
+        530,
+        490
+      ],
+      "size": [
+        160,
+        64
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "geraet_zeitplan",
+      "from": "geraet",
+      "to": "zeitplan",
+      "label": "erzwingt",
+      "variant": "dashed"
+    },
+    {
+      "id": "zeitplan_kvs",
+      "from": "zeitplan",
+      "to": "kvs",
+      "label": "begründet"
+    },
+    {
+      "id": "nocfg_kvs",
+      "from": "nocfg",
+      "to": "kvs",
+      "label": "cfg1..4"
+    },
+    {
+      "id": "kvs_dreiscripts",
+      "from": "kvs",
+      "to": "dreiscripts",
+      "label": "job-Übergabe",
+      "labelDy": 24
+    },
+    {
+      "id": "zeitplan_abschaltung",
+      "from": "zeitplan",
+      "to": "abschaltung",
+      "label": "Zeitplan-Aus",
+      "labelDy": 24
+    },
+    {
+      "id": "abschaltung_dreiscripts",
+      "from": "abschaltung",
+      "to": "dreiscripts",
+      "label": "Frist (44)"
+    },
+    {
+      "id": "messgefuehrt_dreiscripts",
+      "from": "messgefuehrt",
+      "to": "dreiscripts",
+      "label": "pctLo → job"
+    },
+    {
+      "id": "messgefuehrt_trocken",
+      "from": "messgefuehrt",
+      "to": "trocken",
+      "label": "pctDry, pctHi"
+    },
+    {
+      "id": "dreiscripts_regelkreis",
+      "from": "dreiscripts",
+      "to": "regelkreis",
+      "label": "bw_pump (38)",
+      "variant": "emphasis",
+      "labelDy": 24
+    },
+    {
+      "id": "noeff_regelkreis",
+      "from": "noeff",
+      "to": "regelkreis",
+      "label": "begrenzt"
+    },
+    {
+      "id": "regelkreis_lernen",
+      "from": "regelkreis",
+      "to": "lernen",
+      "label": "liefert effW"
+    },
+    {
+      "id": "regelkreis_verworfen",
+      "from": "regelkreis",
+      "to": "verworfen",
+      "label": "ersetzt",
+      "variant": "dashed",
+      "labelDy": 24
+    }
+  ]
+}
