@@ -1,0 +1,258 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Installation im Interview: Mensch, Claude, Werkzeuge, Gerät",
+    "quality_profile": "showcase",
+    "visual_preset": "blueprint",
+    "views": [
+      {
+        "id": "rollen",
+        "label": "Rollen",
+        "focus": [
+          "auftrag",
+          "preflight",
+          "frage_ids",
+          "build",
+          "upload",
+          "verify",
+          "installer"
+        ],
+        "note": "Der Mensch gibt den Auftrag, Claude Code bedient die Werkzeuge in tools/ und liest ihre Ausgaben – der Shelly bleibt das Ziel."
+      },
+      {
+        "id": "freigaben",
+        "label": "Freigaben",
+        "focus": [
+          "frage_ids",
+          "frage_band",
+          "kvs",
+          "freigabe"
+        ],
+        "note": "Drei Fragen bleiben beim Menschen: Script-Namen bestätigen, das Zielband nennen, Commit und Push freigeben."
+      },
+      {
+        "id": "ergebnis",
+        "label": "Ergebnis prüfen",
+        "focus": [
+          "verify",
+          "installer",
+          "bwinst",
+          "zeile"
+        ],
+        "note": "verify-scripts meldet byteidentisch, normal 60 prüft Zeitplan und auto_off, die erste Konsolenzeile zeigt alle drei Sensoren."
+      }
+    ]
+  },
+  "lanes": [
+    {
+      "id": "mensch",
+      "label": "Mensch"
+    },
+    {
+      "id": "claude",
+      "label": "Claude Code"
+    },
+    {
+      "id": "tools",
+      "label": "tools/ (Node ≥ 22)"
+    },
+    {
+      "id": "shelly",
+      "label": "Shelly"
+    }
+  ],
+  "mainPath": [
+    "auftrag",
+    "preflight",
+    "build",
+    "frage_ids",
+    "upload",
+    "verify",
+    "frage_band",
+    "kvs",
+    "installer",
+    "bwinst",
+    "zeile"
+  ],
+  "nodes": [
+    {
+      "id": "auftrag",
+      "lane": "mensch",
+      "col": 0,
+      "type": "external",
+      "label": "Auftrag",
+      "sublabel": "installiere auf <ip>",
+      "width": 132
+    },
+    {
+      "id": "frage_ids",
+      "lane": "mensch",
+      "col": 2,
+      "type": "security",
+      "label": "Namen bestätigen",
+      "sublabel": "IDs vergibt das Gerät",
+      "width": 132
+    },
+    {
+      "id": "frage_band",
+      "lane": "mensch",
+      "col": 3,
+      "type": "security",
+      "label": "Zielband?",
+      "sublabel": "Mensch entscheidet",
+      "width": 132
+    },
+    {
+      "id": "freigabe",
+      "lane": "mensch",
+      "col": 5,
+      "type": "security",
+      "label": "Freigabe: Commit",
+      "sublabel": "nur mit Zustimmung",
+      "width": 132
+    },
+    {
+      "id": "build",
+      "lane": "claude",
+      "col": 1,
+      "type": "backend",
+      "label": "npm run build",
+      "sublabel": "dist/, sechs Scripts",
+      "width": 132
+    },
+    {
+      "id": "kvs",
+      "lane": "claude",
+      "col": 4,
+      "type": "database",
+      "label": "KVS.Set cfg2",
+      "sublabel": "Teilobjekt reicht",
+      "width": 132
+    },
+    {
+      "id": "preflight",
+      "lane": "tools",
+      "col": 1,
+      "type": "backend",
+      "label": "preflight",
+      "sublabel": "Uhr, Scripts, Input",
+      "width": 132
+    },
+    {
+      "id": "upload",
+      "lane": "tools",
+      "col": 2,
+      "type": "backend",
+      "label": "put-script ×4",
+      "sublabel": "PutCode in Stücken",
+      "width": 132
+    },
+    {
+      "id": "verify",
+      "lane": "tools",
+      "col": 3,
+      "type": "security",
+      "label": "verify-scripts",
+      "sublabel": "GetCode = dist/",
+      "width": 132
+    },
+    {
+      "id": "installer",
+      "lane": "tools",
+      "col": 4,
+      "type": "backend",
+      "label": "normal 60",
+      "sublabel": "sicherer Moment",
+      "width": 132
+    },
+    {
+      "id": "bwinst",
+      "lane": "shelly",
+      "col": 4,
+      "type": "backend",
+      "label": "bw_install",
+      "sublabel": "KVS, Zeitplan, auto_off",
+      "width": 132
+    },
+    {
+      "id": "zeile",
+      "lane": "shelly",
+      "col": 5,
+      "type": "frontend",
+      "label": "erste Konsolenzeile",
+      "sublabel": "bw_main, nächster Takt",
+      "width": 132
+    }
+  ],
+  "edges": [
+    {
+      "id": "e_auftrag",
+      "from": "auftrag",
+      "to": "preflight",
+      "label": "Prompt"
+    },
+    {
+      "id": "e_preflight",
+      "from": "preflight",
+      "to": "build",
+      "label": "Scripts, IDs"
+    },
+    {
+      "id": "e_build",
+      "from": "build",
+      "to": "frage_ids",
+      "label": "dist/"
+    },
+    {
+      "id": "e_ids",
+      "from": "frage_ids",
+      "to": "upload",
+      "label": "bestätigt"
+    },
+    {
+      "id": "e_upload",
+      "from": "upload",
+      "to": "verify",
+      "label": "4 Scripts"
+    },
+    {
+      "id": "e_verify",
+      "from": "verify",
+      "to": "frage_band",
+      "label": "alle OK"
+    },
+    {
+      "id": "e_band",
+      "from": "frage_band",
+      "to": "kvs",
+      "label": "Werte"
+    },
+    {
+      "id": "e_kvs",
+      "from": "kvs",
+      "to": "installer",
+      "label": "cfg2"
+    },
+    {
+      "id": "e_installer",
+      "from": "installer",
+      "to": "bwinst",
+      "label": "Script.Start"
+    },
+    {
+      "id": "e_bwinst",
+      "from": "bwinst",
+      "to": "zeile",
+      "label": "nächster Takt"
+    },
+    {
+      "id": "e_zeile",
+      "from": "zeile",
+      "to": "freigabe",
+      "label": "Protokoll",
+      "variant": "dashed",
+      "role": "return"
+    }
+  ]
+}

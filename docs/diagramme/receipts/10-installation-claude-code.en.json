@@ -1,0 +1,27 @@
+{
+ "schemaVersion": 1,
+ "diagramm": "10-installation-claude-code",
+ "sprache": "en",
+ "typ": "workflow",
+ "archify": "2.16.0",
+ "quelle": {
+  "spec": "3d0aa1007b613a8aaa6d875f1d1957aefc1195d31e1d8e259c0fb3e8223af24b",
+  "dict": "59fc54c5161071a0d81645f778b8c68a10eb50b51009aa550022319e68b04fa0",
+  "pfad": "docs/diagramme/src/10-installation-claude-code.workflow.json"
+ },
+ "html": {
+  "sha256": "f9e4b905372c495ae70e3643ed0aec4d6092856bedbc4229d2bc987b91cd9ce7",
+  "bytes": 718755
+ },
+ "svg": {
+  "sha256": "5d44fbef5af3a385b6962f9f2a53dac7d042076951286ecde7b1735b26f7cb45",
+  "bytes": 60999
+ },
+ "validierung": {
+  "profile": "showcase",
+  "errors": 0,
+  "warnings": 0,
+  "checksPassed": 9,
+  "checkCount": 9
+ }
+}

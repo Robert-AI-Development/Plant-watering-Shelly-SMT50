@@ -37,7 +37,7 @@
     { "nr": "09", "slug": "installation-vps", "teil": "C", "typ": "architecture", "status": "fertig",
       "de": { "titel": "Installation mit VPS-Server (SSH-Rückwärtstunnel)", "wer": "Arbeit auf einem Server", "ergebnis": "Shelly zuhause über 127.0.0.1:8010 erreichbar, Werkzeuge und Claude Code auf dem VPS" },
       "en": { "titel": "Installation with a VPS (reverse SSH tunnel)", "wer": "Working on a server", "ergebnis": "The Shelly at home reachable via 127.0.0.1:8010, tools and Claude Code on the VPS" } },
-    { "nr": "10", "slug": "installation-claude-code", "teil": "C", "typ": "workflow", "status": "aufbau",
+    { "nr": "10", "slug": "installation-claude-code", "teil": "C", "typ": "workflow", "status": "fertig",
       "de": { "titel": "Installation mittels Claude Code", "wer": "KI soll führen", "ergebnis": "Installation im Interview: was Claude tut, was der Mensch entscheidet" },
       "en": { "titel": "Installation with Claude Code", "wer": "Let the AI lead", "ergebnis": "Installation as an interview: what Claude does, what the human decides" } },
     { "nr": "11", "slug": "hardware-check", "teil": "D", "typ": "workflow", "status": "aufbau",
