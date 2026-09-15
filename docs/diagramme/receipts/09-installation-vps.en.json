@@ -1,0 +1,27 @@
+{
+ "schemaVersion": 1,
+ "diagramm": "09-installation-vps",
+ "sprache": "en",
+ "typ": "architecture",
+ "archify": "2.16.0",
+ "quelle": {
+  "spec": "f2e3745c98e41153dd2fffbf8be4bd686350ffd712a7f4fa5653787225cd3ad5",
+  "dict": "8b1462fdc6f315eb76ed875701a03712440ed291db6d6dcdc351756ac0cfca92",
+  "pfad": "docs/diagramme/src/09-installation-vps.architecture.json"
+ },
+ "html": {
+  "sha256": "d0f90d06358739c540e78d57e12c10a573b92079f07756d49f028704af7e70f5",
+  "bytes": 708015
+ },
+ "svg": {
+  "sha256": "ac14e80a36438a1fcdc3766613df5fd3fcafcab0c788cf0f38a62f18f3f83d80",
+  "bytes": 50957
+ },
+ "validierung": {
+  "profile": "showcase",
+  "errors": 0,
+  "warnings": 0,
+  "checksPassed": 9,
+  "checkCount": 9
+ }
+}

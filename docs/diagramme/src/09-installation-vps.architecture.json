@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Rückwärtstunnel: PC – VPS – Shelly",
+    "quality_profile": "showcase",
+    "visual_preset": "blueprint",
+    "views": [
+      {
+        "id": "tunnel",
+        "label": "Der Tunnel",
+        "focus": [
+          "pc",
+          "vps",
+          "shelly"
+        ],
+        "note": "Dein PC baut die SSH-Verbindung zum VPS auf und leiht ihm Port 8010: Anfragen dort landen beim Shelly im LAN."
+      },
+      {
+        "id": "werkzeuge",
+        "label": "Werkzeuge über den Tunnel",
+        "focus": [
+          "claude",
+          "vps"
+        ],
+        "note": "put-script, verify-scripts, console und hwtest nehmen 127.0.0.1:8010 als Adresse – sonst ändert sich nichts."
+      },
+      {
+        "id": "sicherheit",
+        "label": "Sicherheit",
+        "focus": [
+          "sandbox",
+          "claude",
+          "vps"
+        ],
+        "note": "Port 8010 ist nur auf dem VPS selbst erreichbar; die Sandbox von Claude Code muss 127.0.0.1 freigeben."
+      },
+      {
+        "id": "code",
+        "label": "Code holen und zurückschreiben",
+        "focus": [
+          "github",
+          "claude"
+        ],
+        "note": "git clone vom Repository; zum Zurückschreiben ein eigener Fork mit Deploy-Key oder Token."
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "shelly",
+      "type": "external",
+      "label": "Shelly Plus Uni",
+      "sublabel": "192.168.88.10:80",
+      "pos": [
+        30,
+        40
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "pc",
+      "type": "frontend",
+      "label": "Dein PC",
+      "sublabel": "MobaXterm oder ssh -R",
+      "pos": [
+        30,
+        190
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "vps",
+      "type": "cloud",
+      "label": "Tunnel-Endpunkt",
+      "sublabel": "sshd · 127.0.0.1:8010",
+      "pos": [
+        530,
+        190
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "claude",
+      "type": "backend",
+      "label": "Claude Code + tools/",
+      "sublabel": "hwtest, put-script …",
+      "pos": [
+        780,
+        190
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "sandbox",
+      "type": "security",
+      "label": "Sandbox-Freigabe",
+      "sublabel": "settings.local.json",
+      "pos": [
+        780,
+        40
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "github",
+      "type": "external",
+      "label": "GitHub",
+      "sublabel": "Repository oder Fork",
+      "pos": [
+        780,
+        340
+      ],
+      "size": [
+        160,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Heimnetz (LAN)",
+      "wraps": [
+        "shelly",
+        "pc"
+      ]
+    },
+    {
+      "kind": "region",
+      "label": "VPS",
+      "wraps": [
+        "vps",
+        "claude",
+        "sandbox"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "pc_shelly",
+      "from": "pc",
+      "to": "shelly",
+      "label": "HTTP :80 im LAN"
+    },
+    {
+      "id": "pc_vps",
+      "from": "pc",
+      "to": "vps",
+      "label": "ssh -R 8010",
+      "variant": "emphasis"
+    },
+    {
+      "id": "claude_vps",
+      "from": "claude",
+      "to": "vps",
+      "label": "127.0.0.1:8010"
+    },
+    {
+      "id": "sandbox_claude",
+      "from": "sandbox",
+      "to": "claude",
+      "label": "erlaubt 127.0.0.1",
+      "variant": "dashed",
+      "labelDy": 24
+    },
+    {
+      "id": "github_claude",
+      "from": "github",
+      "to": "claude",
+      "label": "git clone, push"
+    }
+  ]
+}

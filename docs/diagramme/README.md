@@ -12,5 +12,6 @@ Interaktive Diagramme der Kapitel (Archify): Zoom, Suche, Fokus, Beziehungs-Trac
 | 06 | [Schritt-für-Schritt-Startanleitung](de/06-startanleitung.html) · [Kapitel](../de/06-startanleitung.md) | [Step-by-step start guide](en/06-startanleitung.html) · [chapter](../en/06-startanleitung.md) | workflow |
 | 07 | [Installation per Hand (Web-UI, Copy & Paste)](de/07-installation-per-hand.html) · [Kapitel](../de/07-installation-per-hand.md) | [Installation by hand (web UI, copy & paste)](en/07-installation-per-hand.html) · [chapter](../en/07-installation-per-hand.md) | workflow |
 | 08 | [Installation mit lokalem Server (PC oder Raspberry im LAN)](de/08-installation-lokaler-server.html) · [Kapitel](../de/08-installation-lokaler-server.md) | [Installation with a local server (PC or Raspberry Pi on the LAN)](en/08-installation-lokaler-server.html) · [chapter](../en/08-installation-lokaler-server.md) | sequence |
+| 09 | [Installation mit VPS-Server (SSH-Rückwärtstunnel)](de/09-installation-vps.html) · [Kapitel](../de/09-installation-vps.md) | [Installation with a VPS (reverse SSH tunnel)](en/09-installation-vps.html) · [chapter](../en/09-installation-vps.md) | architecture |
 
 Quellen: `docs/diagramme/src/` (JSON-Spezifikation + Wörterbuch), Build: `npm run docs:diagramme`.
