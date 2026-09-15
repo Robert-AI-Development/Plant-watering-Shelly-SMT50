@@ -48,7 +48,7 @@ Jede Zahl im Log braucht eine Quelle: Startwerte aus `DEF` in `bw_install.js` bz
 | 8 | 13.09.2026 | Hardware-Test | `bw_hwtest.js`, `bw_hwpump.js` v0.1.0, `hwtest.js` v0.1.0 | 89 Tests (13.09.); Gerät 13.09. |
 | 9 | 13.09.2026 | Zeitraffer, Takt aus `cfg3`, Geräte-Doku | `bw_zeitraffer.js` v0.1.0, `bw_main`/`bw_install` v0.1.2, `build.js` v0.1.1, `verify-scripts.js` | 102 Tests (13.09.); Gerät 13.09. |
 | 10 | 13.09.2026 | Regelkreis im Gießfenster, `cfg4`, Wochen-Trockenphase, Kalibrierlauf | `bw_pump`/`bw_main`/`bw_zeitraffer` v0.2.0, `bw_install` v0.1.3, `hwtest.js` v0.1.2, `kal.js` | 144 Tests (13.09.); Gerät 13.09.: Fenster 1 |
-| 11 | seit 13.09.2026 | Doku-Neufassung: Handbuch DE/EN, Diagramme, Doku-Prüfung | `docs/de`, `docs/en`, `tools/check-docs.js`, `tools/docs/` | <!-- fact:tests -->146<!-- /fact --> Tests (13.09.) |
+| 11 | 13.–16.09.2026 | Doku-Neufassung: Handbuch DE/EN, Diagramme, Doku-Prüfung, Landingpage, Stubs | `docs/de`, `docs/en`, `tools/check-docs.js`, `tools/docs/` | <!-- fact:tests -->146<!-- /fact --> Tests (13.09.) |
 
 Die Etappen 0–5 wurden in einer Sitzung ohne Gerät gebaut und gegen den Mock geprüft; die Spalte „Prüfung“ der Tabellen unten nennt den Prüfschritt am Gerät, den der Projektleiter ausführt. Alle Testzahlen sind der Stand von `npm test` am genannten Tag.
 
@@ -167,7 +167,7 @@ Design, Formeln und Randfälle: Entscheidungen 38–63 und die Nachträge vom 13
 | Doku: README (Regelkreis, Trockentag, `cfg4`-Tabelle, `job.why`, `st`-Felder, Von Hand gießen, Update mit Handwerten, Störungen `noeff`/`sink`, Sicherheit 8 min/190 s/`maxDay × tMax`, Zeitraffer 3/6, Grenzen), CLAUDE.md, AGENTS.md, Handbuch, `lib_notes.md`, Prüfprotokoll, Kurzanleitung | alle Dateien nachgezogen (13.09.2026); seit Etappe 11 in diesem Handbuch | Abnahme: eine unbeteiligte Person versteht Fenster, Portion und Trockentag aus der Doku; `[TODO am Gerät]`-Stellen bleiben bis zum Gerätelauf offen |
 | Gerätelauf (nie in den 25 min um 08:00/20:00/Mitternacht): Test-Scripts löschen mit `fs_free` vorher/nachher, Upload `bw_pump`, `bw_main`, `bw_install`, `bw_zeitraffer`, `verify-scripts`, Handwerte `cfg2 {pctOk 50, pctHi 60, pctDry 28, effMax 30}` und `cfg3 {tMax 180, tMin 25}`, `hwtest.js normal` → `verifyState`, Zeitraffer-Fahrplan, `normal`, `kal`, erstes echtes Fenster | Prüfprotokoll Etappe 10 ([19](19-pruefprotokoll.md)), Überraschungen in [18](18-lernlog-geraet.md) und als Regel in die Tests | Gerät 13.09.2026: erledigt – `mem_peak` von `bw_pump` 12 516 + 5 348 B (Parse `bw_main`) < 25 000; Rückbau aus `zrb1..5` geprüft (`verifyState`); `effW` nach Fenster 1 in `lrn`; offen: Fenster 2–4, Zustände mittel feucht/nass, erstes echtes 20:00-Fenster; 144 Tests (13.09.2026) |
 
-### Etappe 11 – Doku-Neufassung (seit 13.09.2026)
+### Etappe 11 – Doku-Neufassung (13.–16.09.2026, abgeschlossen)
 
 Die alte Doku (README mit 494 Zeilen, Kurzanleitung, siebenteiliges Handbuch, `docs/PLAN.md`, `LEARNING.md`, Prüfprotokoll, `lib_notes.md` und sechs Konzeptdateien) wird zu einem zweisprachigen Handbuch mit 21 Kapiteln in sechs Teilen (A–F) umgebaut; jedes Kapitel hat ein Archify-Diagramm in beiden Sprachen. Das Grundgerüst entstand am 13.09.2026; den Fortschritt zeigt die Kapitelübersicht im [Handbuch](README.md) („im Aufbau“).
 
@@ -177,7 +177,8 @@ Die alte Doku (README mit 494 Zeilen, Kurzanleitung, siebenteiliges Handbuch, `d
 | Jede Zahl aus Code oder datiertem Protokoll; Fakt-Marker (`fact:*`, `def:*`, `zr:*`, `hwt:*`, `hwp:*`) gegen `DEF`, `ZR3/ZR4`, `build.js`, `shelly-mock.js` | Befundliste der alten Doku (Sachfehler, Widersprüche, Lücken) wird kapitelweise geschlossen | `check-docs.js` meldet abweichende Marker als Fehler; veraltete Ausdrücke aus `tools/docs/verboten.json` |
 | Diagramm-Pipeline: `tools/docs/build-diagramme.mjs` (validate → deliver → SVG → Quittung), Quelle Deutsch plus Wörterbuch EN | `docs/diagramme/src`, `de`, `en`, `receipts` | Quittung mit 0 Fehlern/0 Warnungen je Fassung |
 | Tests `docs.test.js` (Doku-Prüfung) und `dist.test.js` (`dist/` aktuell) | `npm test` | <!-- fact:tests -->146<!-- /fact --> Tests (13.09.2026) |
-| Alte Dateien | bleiben, bis alle Kapitel stehen; danach kurze Verweise (Regel „stub“ in `check-docs.js`: ≤ 8 Zeilen, Link auf `docs/de` bzw. `docs/en`) | `check-docs.js` |
+| Alte Dateien | am 16.09.2026 entfernt (altes Handbuch, `hardware/*.md`, sechs Konzeptdateien, SEO-Datei); an den alten Pfaden stehen kurze Verweise mit Weiterleitung auf GitHub Pages (Regel „stub“ in `check-docs.js`: ≤ 8 Zeilen, Link auf `docs/de` bzw. `docs/en`) | `check-docs.js`; Pages: alle 126 Kapitel- und Diagrammseiten HTTP 200, Weiterleitungen geprüft |
+| Abschluss | 21 Kapitel je als eigener Commit (Autor, Prüfer, Korrektur, Integrator), dann Landingpage `README.md`/`README.en.md`, `CLAUDE.md`/`AGENTS.md` nachgezogen | `npm test` grün, `npm run docs:check` 0 Fehler, `npm run docs:diagramme --check` 42 Fassungen aktuell |
 
 ## Entscheidungen
 

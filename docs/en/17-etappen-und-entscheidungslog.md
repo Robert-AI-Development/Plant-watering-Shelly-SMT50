@@ -48,7 +48,7 @@ Every number in the log needs a source: defaults from `DEF` in `bw_install.js` o
 | 8 | 13 Sep 2026 | hardware test | `bw_hwtest.js`, `bw_hwpump.js` v0.1.0, `hwtest.js` v0.1.0 | 89 tests (13 Sep); device 13 Sep |
 | 9 | 13 Sep 2026 | fast-forward, cycle from `cfg3`, device docs | `bw_zeitraffer.js` v0.1.0, `bw_main`/`bw_install` v0.1.2, `build.js` v0.1.1, `verify-scripts.js` | 102 tests (13 Sep); device 13 Sep |
 | 10 | 13 Sep 2026 | control loop in the watering window, `cfg4`, weekly dry phase, calibration run | `bw_pump`/`bw_main`/`bw_zeitraffer` v0.2.0, `bw_install` v0.1.3, `hwtest.js` v0.1.2, `kal.js` | 144 tests (13 Sep); device 13 Sep: window 1 |
-| 11 | since 13 Sep 2026 | docs rewrite: handbook DE/EN, diagrams, docs check | `docs/de`, `docs/en`, `tools/check-docs.js`, `tools/docs/` | <!-- fact:tests -->146<!-- /fact --> tests (13 Sep) |
+| 11 | 13–16 Sep 2026 | docs rewrite: handbook DE/EN, diagrams, docs check, landing page, stubs | `docs/de`, `docs/en`, `tools/check-docs.js`, `tools/docs/` | <!-- fact:tests -->146<!-- /fact --> tests (13 Sep) |
 
 Stages 0–5 were built in one session without the device and checked against the mock; the column "Verification" of the tables below names the check on the device that the project lead performs. All test counts are the state of `npm test` on the day named.
 
@@ -167,7 +167,7 @@ Design, formulas and edge cases: decisions 38–63 and the addenda of 13 Sep 202
 | docs: README (control loop, dry day, `cfg4` table, `job.why`, `st` fields, watering by hand, update with hand values, faults `noeff`/`sink`, safety 8 min/190 s/`maxDay × tMax`, fast-forward 3/6, limits), CLAUDE.md, AGENTS.md, handbook, `lib_notes.md`, test protocol, quick guide | all files updated (13 Sep 2026); since stage 11 in this handbook | acceptance: an uninvolved person understands window, portion and dry day from the docs; `[TODO am Gerät]` spots stay open until the device run |
 | device run (never in the 25 min around 08:00/20:00/midnight): delete test scripts with `fs_free` before/after, upload `bw_pump`, `bw_main`, `bw_install`, `bw_zeitraffer`, `verify-scripts`, hand values `cfg2 {pctOk 50, pctHi 60, pctDry 28, effMax 30}` and `cfg3 {tMax 180, tMin 25}`, `hwtest.js normal` → `verifyState`, fast-forward schedule, `normal`, `kal`, first real window | test protocol stage 10 ([19](19-pruefprotokoll.md)), surprises in [18](18-lernlog-geraet.md) and as rules in the tests | device 13 Sep 2026: done – `mem_peak` of `bw_pump` 12 516 + 5 348 B (parse of `bw_main`) < 25 000; restore from `zrb1..5` checked (`verifyState`); `effW` in `lrn` after window 1; open: windows 2–4, states medium moist/wet, first real 20:00 window; 144 tests (13 Sep 2026) |
 
-### Stage 11 – Docs rewrite (since 13 Sep 2026)
+### Stage 11 – Docs rewrite (13–16 Sep 2026, completed)
 
 The old documentation (README with 494 lines, quick guide, seven-part handbook, `docs/PLAN.md`, `LEARNING.md`, test protocol, `lib_notes.md` and six concept files) is being rebuilt into a bilingual handbook with 21 chapters in six parts (A–F); every chapter has an Archify diagram in both languages. The skeleton was created on 13 Sep 2026; the chapter overview in the [Handbook](README.md) shows the progress ("in progress").
 
@@ -177,7 +177,8 @@ The old documentation (README with 494 lines, quick guide, seven-part handbook, 
 | every number from code or a dated protocol; fact markers (`fact:*`, `def:*`, `zr:*`, `hwt:*`, `hwp:*`) against `DEF`, `ZR3/ZR4`, `build.js`, `shelly-mock.js` | the findings list of the old docs (factual errors, contradictions, gaps) is closed chapter by chapter | `check-docs.js` reports deviating markers as errors; outdated phrases from `tools/docs/verboten.json` |
 | diagram pipeline: `tools/docs/build-diagramme.mjs` (validate → deliver → SVG → receipt), German source plus EN dictionary | `docs/diagramme/src`, `de`, `en`, `receipts` | receipt with 0 errors/0 warnings per version |
 | tests `docs.test.js` (docs check) and `dist.test.js` (`dist/` up to date) | `npm test` | <!-- fact:tests -->146<!-- /fact --> tests (13 Sep 2026) |
-| old files | stay until all chapters are done; then short pointers (rule "stub" in `check-docs.js`: ≤ 8 lines, link to `docs/de` or `docs/en`) | `check-docs.js` |
+| old files | removed on 16 Sep 2026 (old handbook, `hardware/*.md`, six concept files, SEO file); the old paths keep short pointers with a redirect on GitHub Pages (rule "stub" in `check-docs.js`: ≤ 8 lines, link to `docs/de` or `docs/en`) | `check-docs.js`; Pages: all 126 chapter and diagram pages HTTP 200, redirects verified |
+| wrap-up | 21 chapters, each its own commit (author, reviewer, fixer, integrator), then landing pages `README.md`/`README.en.md`, `CLAUDE.md`/`AGENTS.md` updated | `npm test` green, `npm run docs:check` 0 errors, `npm run docs:diagramme --check` 42 versions current |
 
 ## Decisions
 
