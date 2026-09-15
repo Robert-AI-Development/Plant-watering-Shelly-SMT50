@@ -56,7 +56,7 @@ Diagrams: every chapter shows a static image and links the interactive version (
 
 | No. | Chapter | For whom | Outcome | Diagram |
 | --- | --- | --- | --- | --- |
-| 14 | [Debugging and testing](14-debuggen-und-testen.md) *(in progress)* | Developers, agents | Mock, tests, build, upload and console; complete tool reference | – |
+| 14 | [Debugging and testing](14-debuggen-und-testen.md) | Developers, agents | Mock, tests, build, upload and console; complete tool reference | [interactive](https://robert-ai-development.github.io/Plant-watering-Shelly-SMT50/diagramme/en/14-debuggen-und-testen.html) |
 | 15 | [Extending the controller with Claude Code](15-ausbau-mit-claude-code.md) *(in progress)* | Anyone extending it | Plan, interview, acceptance criteria, debug environment, coding, verification, commit | – |
 
 ### Part F – Development

@@ -1,0 +1,27 @@
+{
+ "schemaVersion": 1,
+ "diagramm": "14-debuggen-und-testen",
+ "sprache": "de",
+ "typ": "dataflow",
+ "archify": "2.16.0",
+ "quelle": {
+  "spec": "298ec8a69cdc5e2091da0d1157abf6b3b7323c841aaee4b50cb44e1764111078",
+  "dict": "63ddbf1f6181a18da1253988f6c6b6dc6d9dbb679286c324b3f37d1eac95af4a",
+  "pfad": "docs/diagramme/src/14-debuggen-und-testen.dataflow.json"
+ },
+ "html": {
+  "sha256": "09bf63bcccd3b1913f6b38df6333ccbc3f660dacce809bfe1b5b3b93b6f4d4b3",
+  "bytes": 717491
+ },
+ "svg": {
+  "sha256": "87570127508861616624d31bd5ca468292469b1d4a869d8c1715a8e9fe28461a",
+  "bytes": 60163
+ },
+ "validierung": {
+  "profile": "showcase",
+  "errors": 0,
+  "warnings": 0,
+  "checksPassed": 9,
+  "checkCount": 9
+ }
+}

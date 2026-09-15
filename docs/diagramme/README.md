@@ -17,5 +17,6 @@ Interaktive Diagramme der Kapitel (Archify): Zoom, Suche, Fokus, Beziehungs-Trac
 | 11 | [Hardware-Check (bw_hwtest, bw_hwpump)](de/11-hardware-check.html) · [Kapitel](../de/11-hardware-check.md) | [Hardware check (bw_hwtest, bw_hwpump)](en/11-hardware-check.html) · [chapter](../en/11-hardware-check.md) | workflow |
 | 12 | [Erstinbetriebnahme: Kalibrierung, Zielband, Zeitraffer, erstes Fenster](de/12-erstinbetriebnahme.html) · [Kapitel](../de/12-erstinbetriebnahme.md) | [First commissioning: calibration, target band, fast-forward, first window](en/12-erstinbetriebnahme.html) · [chapter](../en/12-erstinbetriebnahme.md) | workflow |
 | 13 | [Betrieb und Wartung](de/13-betrieb-und-wartung.html) · [Kapitel](../de/13-betrieb-und-wartung.md) | [Operation and maintenance](en/13-betrieb-und-wartung.html) · [chapter](../en/13-betrieb-und-wartung.md) | lifecycle |
+| 14 | [Debuggen und Testen](de/14-debuggen-und-testen.html) · [Kapitel](../de/14-debuggen-und-testen.md) | [Debugging and testing](en/14-debuggen-und-testen.html) · [chapter](../en/14-debuggen-und-testen.md) | dataflow |
 
 Quellen: `docs/diagramme/src/` (JSON-Spezifikation + Wörterbuch), Build: `npm run docs:diagramme`.

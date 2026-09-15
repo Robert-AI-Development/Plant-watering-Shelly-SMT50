@@ -49,7 +49,7 @@
     { "nr": "13", "slug": "betrieb-und-wartung", "teil": "D", "typ": "lifecycle", "status": "fertig",
       "de": { "titel": "Betrieb und Wartung", "wer": "Betreiber im Alltag", "ergebnis": "Ablesen, Codes deuten, Störung beheben, aktualisieren, warten, verreisen" },
       "en": { "titel": "Operation and maintenance", "wer": "Day-to-day operators", "ergebnis": "Read the console, decode states, fix faults, update, maintain, travel" } },
-    { "nr": "14", "slug": "debuggen-und-testen", "teil": "E", "typ": "dataflow", "status": "aufbau",
+    { "nr": "14", "slug": "debuggen-und-testen", "teil": "E", "typ": "dataflow", "status": "fertig",
       "de": { "titel": "Debuggen und Testen", "wer": "Entwickler, Agenten", "ergebnis": "Mock, Tests, Build, Upload und Konsole; vollständige Werkzeug-Referenz" },
       "en": { "titel": "Debugging and testing", "wer": "Developers, agents", "ergebnis": "Mock, tests, build, upload and console; complete tool reference" } },
     { "nr": "15", "slug": "ausbau-mit-claude-code", "teil": "E", "typ": "workflow", "status": "aufbau",

@@ -1,0 +1,279 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "Vom Quelltext zum Gerät und zurück",
+    "quality_profile": "showcase",
+    "visual_preset": "blueprint",
+    "viewBox": [
+      1070,
+      640
+    ],
+    "views": [
+      {
+        "id": "ohne_geraet",
+        "label": "Ohne Gerät",
+        "focus": [
+          "scripts",
+          "syntax",
+          "mock",
+          "tests"
+        ],
+        "note": "syntax.test.js erzwingt die mJS-Regeln statisch, der Mock führt die Scripts unverändert aus, npm test prüft beides."
+      },
+      {
+        "id": "aufs_geraet",
+        "label": "Aufs Gerät",
+        "focus": [
+          "scripts",
+          "build",
+          "put",
+          "shelly",
+          "verify"
+        ],
+        "note": "build.js schreibt dist/, put-script.js lädt in Stücken hoch, verify-scripts.js vergleicht den Code am Gerät byteidentisch."
+      },
+      {
+        "id": "zusehen",
+        "label": "Am Gerät zusehen",
+        "focus": [
+          "shelly",
+          "ws",
+          "console"
+        ],
+        "note": "print-Zeilen der Scripts kommen über den Debug-Websocket; console.js zeigt sie roh, hwtest.js watch gefiltert."
+      }
+    ],
+    "legend": {
+      "mode": "auto",
+      "entries": {
+        "emphasis": {
+          "label": "Hauptweg"
+        },
+        "security": {
+          "label": "Prüfung"
+        },
+        "dashed": {
+          "label": "Vergleichswert"
+        },
+        "database": {
+          "label": "Quelle"
+        }
+      }
+    }
+  },
+  "stages": [
+    {
+      "label": "Quelle"
+    },
+    {
+      "label": "Prüfen ohne Gerät"
+    },
+    {
+      "label": "Bauen"
+    },
+    {
+      "label": "Gerät"
+    },
+    {
+      "label": "Beobachten"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "scripts",
+      "type": "database",
+      "label": "scripts/*.js",
+      "sublabel": "sechs Scripts",
+      "stage": 0,
+      "row": 0,
+      "tag": "lesbar"
+    },
+    {
+      "id": "syntax",
+      "type": "security",
+      "label": "syntax.test.js",
+      "sublabel": "mJS-Regeln, Hoisting",
+      "stage": 1,
+      "row": 1,
+      "tag": "statisch"
+    },
+    {
+      "id": "tests",
+      "type": "backend",
+      "label": "npm test",
+      "sublabel": "146 Tests",
+      "stage": 1,
+      "row": 2,
+      "tag": "node --test"
+    },
+    {
+      "id": "mock",
+      "type": "backend",
+      "label": "shelly-mock.js",
+      "sublabel": "potModel, hwdemo",
+      "stage": 1,
+      "row": 3,
+      "tag": "virtuelle Uhr"
+    },
+    {
+      "id": "build",
+      "type": "backend",
+      "label": "build.js",
+      "sublabel": "dist/, //!-Doku",
+      "stage": 2,
+      "row": 0,
+      "tag": "kompakt"
+    },
+    {
+      "id": "put",
+      "type": "backend",
+      "label": "put-script.js",
+      "sublabel": "PutCode in Stücken",
+      "stage": 3,
+      "row": 0,
+      "tag": "Upload"
+    },
+    {
+      "id": "shelly",
+      "type": "external",
+      "label": "Shelly Plus Uni",
+      "sublabel": "Script-Engine mJS",
+      "stage": 3,
+      "row": 1,
+      "tag": "FW 2.0.0"
+    },
+    {
+      "id": "verify",
+      "type": "security",
+      "label": "verify-scripts.js",
+      "sublabel": "Vergleich mit dist/",
+      "stage": 3,
+      "row": 2,
+      "tag": "Prüfung 2"
+    },
+    {
+      "id": "ws",
+      "type": "messagebus",
+      "label": "Debug-Websocket",
+      "sublabel": "/debug/log",
+      "stage": 4,
+      "row": 0,
+      "tag": "print-Zeilen"
+    },
+    {
+      "id": "console",
+      "type": "frontend",
+      "label": "console.js / watch",
+      "sublabel": "roh / gefiltert",
+      "stage": 4,
+      "row": 1,
+      "tag": "Konsole"
+    }
+  ],
+  "flows": [
+    {
+      "id": "f_regeln",
+      "from": "scripts",
+      "to": "syntax",
+      "label": "Regeln",
+      "variant": "security",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "f_unveraendert",
+      "from": "scripts",
+      "to": "mock",
+      "label": "unverändert",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "left",
+      "via": [
+        [
+          100,
+          499
+        ]
+      ]
+    },
+    {
+      "id": "f_syntax_tests",
+      "from": "syntax",
+      "to": "tests",
+      "label": "je Script",
+      "variant": "security",
+      "labelDy": 24
+    },
+    {
+      "id": "f_mock_tests",
+      "from": "mock",
+      "to": "tests",
+      "label": "Verhalten",
+      "variant": "emphasis"
+    },
+    {
+      "id": "f_quelle_build",
+      "from": "scripts",
+      "to": "build",
+      "label": "Quelle",
+      "variant": "emphasis",
+      "route": "straight"
+    },
+    {
+      "id": "f_dist_put",
+      "from": "build",
+      "to": "put",
+      "label": "dist/*.js",
+      "variant": "emphasis",
+      "route": "straight"
+    },
+    {
+      "id": "f_dist_verify",
+      "from": "build",
+      "to": "verify",
+      "label": "Soll",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "left",
+      "via": [
+        [
+          530,
+          385
+        ]
+      ]
+    },
+    {
+      "id": "f_putcode",
+      "from": "put",
+      "to": "shelly",
+      "label": "Script.PutCode",
+      "variant": "emphasis",
+      "labelDy": 24
+    },
+    {
+      "id": "f_getcode",
+      "from": "shelly",
+      "to": "verify",
+      "label": "Script.GetCode",
+      "variant": "security",
+      "labelDy": 24
+    },
+    {
+      "id": "f_print",
+      "from": "shelly",
+      "to": "ws",
+      "label": "print()",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "f_zeilen",
+      "from": "ws",
+      "to": "console",
+      "label": "Zeilen",
+      "variant": "emphasis",
+      "labelDy": 24
+    }
+  ]
+}
