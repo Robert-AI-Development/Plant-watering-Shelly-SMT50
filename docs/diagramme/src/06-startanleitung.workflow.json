@@ -1,0 +1,327 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Startanleitung: Wegwahl und gemeinsame Schritte",
+    "quality_profile": "showcase",
+    "visual_preset": "blueprint",
+    "views": [
+      {
+        "id": "wegwahl",
+        "label": "Wegwahl",
+        "focus": [
+          "start",
+          "geraet",
+          "q_node",
+          "q_vps",
+          "q_ki",
+          "weg_hand",
+          "weg_lokal",
+          "weg_vps",
+          "weg_ki"
+        ],
+        "note": "Drei Fragen führen zu einem der vier Installationswege 07 bis 10; alle vier münden in dieselben gemeinsamen Schritte."
+      },
+      {
+        "id": "gemeinsam",
+        "label": "Gemeinsame Schritte",
+        "focus": [
+          "upload",
+          "band",
+          "installer",
+          "erstes"
+        ],
+        "note": "Bauen, hochladen, byteidentisch prüfen, cfg1 und cfg2 eintragen, Installer im sicheren Moment, erstes Fenster mitlesen."
+      },
+      {
+        "id": "danach",
+        "label": "Nach der Installation",
+        "focus": [
+          "erstes",
+          "hw",
+          "kal"
+        ],
+        "note": "Der Hardware-Check misst vDry, vWet und prüft die Pumpe; die Erstinbetriebnahme liefert Zielband und Zeitraffer."
+      }
+    ]
+  },
+  "lanes": [
+    {
+      "id": "vorbereiten",
+      "label": "Vorbereiten"
+    },
+    {
+      "id": "wahl",
+      "label": "Weg wählen"
+    },
+    {
+      "id": "wege",
+      "label": "Installationswege 07 bis 10"
+    },
+    {
+      "id": "gemeinsam",
+      "label": "Gemeinsam"
+    },
+    {
+      "id": "danach",
+      "label": "Danach"
+    }
+  ],
+  "mainPath": [
+    "start",
+    "geraet",
+    "q_node",
+    "weg_hand",
+    "upload",
+    "band",
+    "installer",
+    "erstes"
+  ],
+  "nodes": [
+    {
+      "id": "start",
+      "lane": "vorbereiten",
+      "col": 0,
+      "type": "external",
+      "label": "Hardware fertig",
+      "sublabel": "Shelly im WLAN, NTP",
+      "width": 140
+    },
+    {
+      "id": "geraet",
+      "lane": "vorbereiten",
+      "col": 1,
+      "type": "frontend",
+      "label": "Gerät vorbereiten",
+      "sublabel": "Peripherie, IN2, Scripts",
+      "width": 140
+    },
+    {
+      "id": "q_node",
+      "lane": "wahl",
+      "col": 1,
+      "type": "security",
+      "label": "Node ≥ 22 vorhanden?",
+      "sublabel": "PC, Raspberry oder VPS",
+      "width": 140
+    },
+    {
+      "id": "q_vps",
+      "lane": "wahl",
+      "col": 2,
+      "type": "security",
+      "label": "Eigener Server?",
+      "sublabel": "SSH-Rückwärtstunnel",
+      "width": 140
+    },
+    {
+      "id": "q_ki",
+      "lane": "wahl",
+      "col": 3,
+      "type": "security",
+      "label": "KI soll führen?",
+      "sublabel": "Claude Code",
+      "width": 140
+    },
+    {
+      "id": "weg_hand",
+      "lane": "wege",
+      "col": 1,
+      "type": "frontend",
+      "label": "07 per Hand",
+      "sublabel": "Web-UI, Copy & Paste",
+      "width": 140
+    },
+    {
+      "id": "weg_vps",
+      "lane": "wege",
+      "col": 2,
+      "type": "cloud",
+      "label": "09 VPS",
+      "sublabel": "Tunnel 127.0.0.1:8010",
+      "width": 140
+    },
+    {
+      "id": "weg_ki",
+      "lane": "wege",
+      "col": 3,
+      "type": "backend",
+      "label": "10 Claude Code",
+      "sublabel": "Interview am Terminal",
+      "width": 140
+    },
+    {
+      "id": "weg_lokal",
+      "lane": "wege",
+      "col": 4,
+      "type": "backend",
+      "label": "08 lokal",
+      "sublabel": "Werkzeuge gegen die IP",
+      "width": 140
+    },
+    {
+      "id": "upload",
+      "lane": "gemeinsam",
+      "col": 1,
+      "type": "backend",
+      "label": "Bauen, laden, prüfen",
+      "sublabel": "build, put, verify",
+      "width": 140
+    },
+    {
+      "id": "band",
+      "lane": "gemeinsam",
+      "col": 2,
+      "type": "database",
+      "label": "cfg1, cfg2 eintragen",
+      "sublabel": "Kalibrierung, Zielband",
+      "width": 140
+    },
+    {
+      "id": "installer",
+      "lane": "gemeinsam",
+      "col": 3,
+      "type": "backend",
+      "label": "Installer starten",
+      "sublabel": "normal 60, Zeitplan",
+      "width": 140
+    },
+    {
+      "id": "erstes",
+      "lane": "gemeinsam",
+      "col": 4,
+      "type": "messagebus",
+      "label": "Erstes Fenster",
+      "sublabel": "console.js mitlesen",
+      "width": 140
+    },
+    {
+      "id": "hw",
+      "lane": "danach",
+      "col": 4,
+      "type": "security",
+      "label": "11 Hardware-Check",
+      "sublabel": "bw_hwtest, bw_hwpump",
+      "width": 140
+    },
+    {
+      "id": "kal",
+      "lane": "danach",
+      "col": 5,
+      "type": "backend",
+      "label": "12 Inbetriebnahme",
+      "sublabel": "Zeitraffer, Zielband",
+      "width": 140
+    }
+  ],
+  "edges": [
+    {
+      "id": "e_start",
+      "from": "start",
+      "to": "geraet"
+    },
+    {
+      "id": "e_geraet_q",
+      "from": "geraet",
+      "to": "q_node",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e_node_nein",
+      "from": "q_node",
+      "to": "weg_hand",
+      "label": "nein",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e_node_ja",
+      "from": "q_node",
+      "to": "q_vps",
+      "label": "ja",
+      "role": "branch"
+    },
+    {
+      "id": "e_vps_ja",
+      "from": "q_vps",
+      "to": "weg_vps",
+      "label": "ja",
+      "role": "branch"
+    },
+    {
+      "id": "e_vps_nein",
+      "from": "q_vps",
+      "to": "q_ki",
+      "label": "nein",
+      "role": "branch"
+    },
+    {
+      "id": "e_ki_ja",
+      "from": "q_ki",
+      "to": "weg_ki",
+      "label": "ja",
+      "role": "branch"
+    },
+    {
+      "id": "e_ki_nein",
+      "from": "q_ki",
+      "to": "weg_lokal",
+      "label": "nein",
+      "role": "branch"
+    },
+    {
+      "id": "e_hand_upload",
+      "from": "weg_hand",
+      "to": "upload",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e_vps_upload",
+      "from": "weg_vps",
+      "to": "upload",
+      "variant": "dashed"
+    },
+    {
+      "id": "e_ki_upload",
+      "from": "weg_ki",
+      "to": "upload",
+      "variant": "dashed"
+    },
+    {
+      "id": "e_lokal_upload",
+      "from": "weg_lokal",
+      "to": "upload",
+      "variant": "dashed"
+    },
+    {
+      "id": "e_upload_band",
+      "from": "upload",
+      "to": "band",
+      "label": "byteidentisch",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e_band_installer",
+      "from": "band",
+      "to": "installer",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e_installer_erstes",
+      "from": "installer",
+      "to": "erstes",
+      "label": "Zeitplan geprüft",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e_erstes_hw",
+      "from": "erstes",
+      "to": "hw",
+      "role": "branch"
+    },
+    {
+      "id": "e_hw_kal",
+      "from": "hw",
+      "to": "kal"
+    }
+  ]
+}

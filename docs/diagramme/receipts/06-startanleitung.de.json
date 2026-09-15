@@ -1,0 +1,27 @@
+{
+ "schemaVersion": 1,
+ "diagramm": "06-startanleitung",
+ "sprache": "de",
+ "typ": "workflow",
+ "archify": "2.16.0",
+ "quelle": {
+  "spec": "788c0e73a3b4206a9a160370665655c035f67c646278b12118c6d02b861315d4",
+  "dict": "ceba440acaacbfa7ba63b1db4fa3f0903c8e81dbd02db85979330d978414919f",
+  "pfad": "docs/diagramme/src/06-startanleitung.workflow.json"
+ },
+ "html": {
+  "sha256": "5531beea166f828119c0ad4f25b13ced49c730da83f7f96a733a62b06a4f28fa",
+  "bytes": 724177
+ },
+ "svg": {
+  "sha256": "75dfb21f43ad491cf8f356861812295a443d41f510ad854af58a91a8658ee64c",
+  "bytes": 65897
+ },
+ "validierung": {
+  "profile": "showcase",
+  "errors": 0,
+  "warnings": 0,
+  "checksPassed": 9,
+  "checkCount": 9
+ }
+}

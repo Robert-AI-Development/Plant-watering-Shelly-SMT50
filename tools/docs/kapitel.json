@@ -25,7 +25,7 @@
     { "nr": "05", "slug": "verkabelung-und-aufbau", "teil": "B", "typ": "architecture", "status": "fertig",
       "de": { "titel": "Verkabelung und Hardware-Aufbau", "wer": "Bastler mit Lötkolben", "ergebnis": "Web-UI zeigt Spannung, Temperatur und Eingangswechsel" },
       "en": { "titel": "Wiring and hardware build", "wer": "Makers with a soldering iron", "ergebnis": "The web UI shows voltage, temperature and input changes" } },
-    { "nr": "06", "slug": "startanleitung", "teil": "C", "typ": "workflow", "status": "aufbau",
+    { "nr": "06", "slug": "startanleitung", "teil": "C", "typ": "workflow", "status": "fertig",
       "de": { "titel": "Schritt-für-Schritt-Startanleitung", "wer": "Alle", "ergebnis": "Vom verdrahteten Gerät zum ersten Gießfenster, Wegwahl zu den Installationsarten" },
       "en": { "titel": "Step-by-step start guide", "wer": "Everyone", "ergebnis": "From the wired device to the first watering window, choosing an installation route" } },
     { "nr": "07", "slug": "installation-per-hand", "teil": "C", "typ": "workflow", "status": "aufbau",
