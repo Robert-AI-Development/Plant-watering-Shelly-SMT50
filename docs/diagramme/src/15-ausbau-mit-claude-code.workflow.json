@@ -1,0 +1,68 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Erweiterung mit Claude Code",
+    "animation": "trace",
+    "quality_profile": "showcase",
+    "visual_preset": "blueprint",
+    "views": [
+      {
+        "id": "planen",
+        "label": "Vom Plan zum Kriterium",
+        "focus": ["idee", "plan", "interview", "kriterien"],
+        "note": "Der Mensch bringt die Idee, Claude plant im Plan-Modus, stellt eine Frage je Nachricht und legt die Prüfkriterien vor dem ersten Code fest."
+      },
+      {
+        "id": "bauen",
+        "label": "Bauen und prüfen",
+        "focus": ["debugenv", "coding", "pruefung", "rot", "geraet", "ueberraschung"],
+        "note": "Mock zuerst, dann Code nach den harten Regeln; npm test, build und docs:check müssen grün sein, bevor das Gerät den Code sieht."
+      },
+      {
+        "id": "freigabe",
+        "label": "Doku und Freigabe",
+        "focus": ["doku", "freigabe", "commit"],
+        "note": "Entscheidung nach 17, Gerätefund nach 18, RPC nach 20; Commit und Push erst nach ausdrücklicher Zustimmung des Menschen."
+      }
+    ]
+  },
+  "lanes": [
+    { "id": "mensch", "label": "Mensch" },
+    { "id": "claude", "label": "Claude Code" },
+    { "id": "repo", "label": "Repo: Mock, Tests, Doku" },
+    { "id": "shelly", "label": "Gerät (Tunnel)" },
+    { "id": "rueck", "label": "Rückschläge", "variant": "exception" }
+  ],
+  "nodes": [
+    { "id": "idee", "lane": "mensch", "col": 0, "type": "frontend", "label": "Idee", "sublabel": "Feld, Regel, Werkzeug", "width": 132 },
+    { "id": "interview", "lane": "mensch", "col": 1, "type": "frontend", "label": "Interview", "sublabel": "eine Frage je Nachricht", "width": 132 },
+    { "id": "freigabe", "lane": "mensch", "col": 5, "type": "security", "label": "Freigabe", "sublabel": "durch den Menschen", "width": 132 },
+    { "id": "plan", "lane": "claude", "col": 0, "type": "backend", "label": "Plan", "sublabel": "Plan-Modus, Umfang", "width": 132 },
+    { "id": "kriterien", "lane": "claude", "col": 2, "type": "security", "label": "Prüfkriterien", "sublabel": "Test, KVS, Größe, Doku", "width": 132 },
+    { "id": "coding", "lane": "claude", "col": 3, "type": "backend", "label": "Coding", "sublabel": "var, //!, cfg-Feld", "width": 132 },
+    { "id": "doku", "lane": "claude", "col": 4, "type": "database", "label": "Doku", "sublabel": "03, 13, 17, 18, 20", "width": 132 },
+    { "id": "commit", "lane": "claude", "col": 5, "type": "backend", "label": "Commit + Push", "sublabel": "Branch, PR", "width": 132 },
+    { "id": "debugenv", "lane": "repo", "col": 2, "type": "backend", "label": "Debug-Umgebung", "sublabel": "Mock, Tunnel, DEBUG", "width": 132 },
+    { "id": "pruefung", "lane": "repo", "col": 4, "type": "security", "label": "Prüfung", "sublabel": "test, build, docs:check", "width": 132 },
+    { "id": "geraet", "lane": "shelly", "col": 5, "type": "external", "label": "Gerätelauf", "sublabel": "put, verify, Protokoll", "width": 132 },
+    { "id": "rot", "lane": "rueck", "col": 4, "type": "security", "label": "Test rot", "sublabel": "im Mock nachstellen", "width": 132 },
+    { "id": "ueberraschung", "lane": "rueck", "col": 5, "type": "security", "label": "Gerät überrascht", "sublabel": "Lernlog + Test", "width": 132 }
+  ],
+  "edges": [
+    { "id": "e_idee_plan", "from": "idee", "to": "plan", "label": "Aufgabe", "variant": "emphasis" },
+    { "id": "e_plan_interview", "from": "plan", "to": "interview", "label": "eine Frage", "variant": "emphasis" },
+    { "id": "e_interview_kriterien", "from": "interview", "to": "kriterien", "label": "Antworten", "variant": "emphasis" },
+    { "id": "e_kriterien_debugenv", "from": "kriterien", "to": "debugenv", "variant": "emphasis" },
+    { "id": "e_debugenv_coding", "from": "debugenv", "to": "coding", "label": "Mock läuft", "variant": "emphasis" },
+    { "id": "e_coding_pruefung", "from": "coding", "to": "pruefung", "label": "npm test", "variant": "emphasis" },
+    { "id": "e_pruefung_geraet", "from": "pruefung", "to": "geraet", "label": "grün: Upload", "variant": "emphasis" },
+    { "id": "e_geraet_doku", "from": "geraet", "to": "doku", "label": "Protokoll", "variant": "emphasis" },
+    { "id": "e_doku_freigabe", "from": "doku", "to": "freigabe", "label": "Vorschlag", "variant": "emphasis" },
+    { "id": "e_freigabe_commit", "from": "freigabe", "to": "commit", "label": "ja", "variant": "security" },
+    { "id": "e_pruefung_rot", "from": "pruefung", "to": "rot", "label": "rot", "variant": "security", "role": "error" },
+    { "id": "e_geraet_ueberraschung", "from": "geraet", "to": "ueberraschung", "label": "Fehler", "variant": "security", "role": "error" },
+    { "id": "e_ueberraschung_rot", "from": "ueberraschung", "to": "rot", "label": "Test", "variant": "security", "role": "error" },
+    { "id": "e_rot_debugenv", "from": "rot", "to": "debugenv", "label": "nachstellen", "variant": "dashed", "role": "return", "fromSide": "bottom" }
+  ]
+}

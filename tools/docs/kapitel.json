@@ -52,7 +52,7 @@
     { "nr": "14", "slug": "debuggen-und-testen", "teil": "E", "typ": "dataflow", "status": "fertig",
       "de": { "titel": "Debuggen und Testen", "wer": "Entwickler, Agenten", "ergebnis": "Mock, Tests, Build, Upload und Konsole; vollständige Werkzeug-Referenz" },
       "en": { "titel": "Debugging and testing", "wer": "Developers, agents", "ergebnis": "Mock, tests, build, upload and console; complete tool reference" } },
-    { "nr": "15", "slug": "ausbau-mit-claude-code", "teil": "E", "typ": "workflow", "status": "aufbau",
+    { "nr": "15", "slug": "ausbau-mit-claude-code", "teil": "E", "typ": "workflow", "status": "fertig",
       "de": { "titel": "Ausbau der Steuerung mit Claude Code", "wer": "Wer erweitern will", "ergebnis": "Plan, Interview, Prüfkriterien, Debug-Umgebung, Coding, Prüfung, Commit" },
       "en": { "titel": "Extending the controller with Claude Code", "wer": "Anyone extending it", "ergebnis": "Plan, interview, acceptance criteria, debug environment, coding, verification, commit" } },
     { "nr": "16", "slug": "konzept-und-entscheidungen", "teil": "F", "typ": "architecture", "status": "aufbau",

@@ -1,0 +1,27 @@
+{
+ "schemaVersion": 1,
+ "diagramm": "15-ausbau-mit-claude-code",
+ "sprache": "de",
+ "typ": "workflow",
+ "archify": "2.16.0",
+ "quelle": {
+  "spec": "789028bf74c41612a83bea960164f56a6ce515cc830294c7e208a2bdb08974fc",
+  "dict": "1b978a29d583cb50b825819bff6e0bfebb03192810fff98fd71b76de12c10ed9",
+  "pfad": "docs/diagramme/src/15-ausbau-mit-claude-code.workflow.json"
+ },
+ "html": {
+  "sha256": "c87e728e382446c44d5cf0edb5ac4cd080ad4c1559a36136cf422f5c0d26ab46",
+  "bytes": 723055
+ },
+ "svg": {
+  "sha256": "6de139a1a75c94f122429ce91106e7976688a382db197de3340f45b224893304",
+  "bytes": 65190
+ },
+ "validierung": {
+  "profile": "showcase",
+  "errors": 0,
+  "warnings": 0,
+  "checksPassed": 9,
+  "checkCount": 9
+ }
+}

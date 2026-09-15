@@ -18,5 +18,6 @@ Interaktive Diagramme der Kapitel (Archify): Zoom, Suche, Fokus, Beziehungs-Trac
 | 12 | [Erstinbetriebnahme: Kalibrierung, Zielband, Zeitraffer, erstes Fenster](de/12-erstinbetriebnahme.html) · [Kapitel](../de/12-erstinbetriebnahme.md) | [First commissioning: calibration, target band, fast-forward, first window](en/12-erstinbetriebnahme.html) · [chapter](../en/12-erstinbetriebnahme.md) | workflow |
 | 13 | [Betrieb und Wartung](de/13-betrieb-und-wartung.html) · [Kapitel](../de/13-betrieb-und-wartung.md) | [Operation and maintenance](en/13-betrieb-und-wartung.html) · [chapter](../en/13-betrieb-und-wartung.md) | lifecycle |
 | 14 | [Debuggen und Testen](de/14-debuggen-und-testen.html) · [Kapitel](../de/14-debuggen-und-testen.md) | [Debugging and testing](en/14-debuggen-und-testen.html) · [chapter](../en/14-debuggen-und-testen.md) | dataflow |
+| 15 | [Ausbau der Steuerung mit Claude Code](de/15-ausbau-mit-claude-code.html) · [Kapitel](../de/15-ausbau-mit-claude-code.md) | [Extending the controller with Claude Code](en/15-ausbau-mit-claude-code.html) · [chapter](../en/15-ausbau-mit-claude-code.md) | workflow |
 
 Quellen: `docs/diagramme/src/` (JSON-Spezifikation + Wörterbuch), Build: `npm run docs:diagramme`.
