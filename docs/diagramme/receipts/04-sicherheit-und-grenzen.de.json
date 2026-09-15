@@ -1,0 +1,27 @@
+{
+ "schemaVersion": 1,
+ "diagramm": "04-sicherheit-und-grenzen",
+ "sprache": "de",
+ "typ": "sequence",
+ "archify": "2.16.0",
+ "quelle": {
+  "spec": "2b3eb6ee94f5a4358bab1fde489c4f3ba16baaaf9d399a67170f9d7975579c0d",
+  "dict": "35c65a98a50735543101824d20673df8d260b05e31500f4277899e6999b35077",
+  "pfad": "docs/diagramme/src/04-sicherheit-und-grenzen.sequence.json"
+ },
+ "html": {
+  "sha256": "191c194d13665d800138287628c355ca0e94604052050517d60300f71b0a79c5",
+  "bytes": 714602
+ },
+ "svg": {
+  "sha256": "97325fefc97e521559a9d5c83eb64f4a693ef6e248ef830d29f6e727761d33db",
+  "bytes": 57693
+ },
+ "validierung": {
+  "profile": "showcase",
+  "errors": 0,
+  "warnings": 0,
+  "checksPassed": 9,
+  "checkCount": 9
+ }
+}

@@ -19,7 +19,7 @@
     { "nr": "03", "slug": "konfiguration", "teil": "A", "typ": "dataflow", "status": "aufbau",
       "de": { "titel": "Konfigurations-Zusammenspiel (Parameter-Referenz)", "wer": "Alle, die ein Feld ändern", "ergebnis": "Jedes Feld: wer liest es, was bewirkt es, wann muss der Installer neu laufen" },
       "en": { "titel": "How the configuration fits together (parameter reference)", "wer": "Anyone changing a field", "ergebnis": "Every field: who reads it, what it does, when the installer must run again" } },
-    { "nr": "04", "slug": "sicherheit-und-grenzen", "teil": "A", "typ": "sequence", "status": "aufbau",
+    { "nr": "04", "slug": "sicherheit-und-grenzen", "teil": "A", "typ": "sequence", "status": "fertig",
       "de": { "titel": "Sicherheit und Grenzen", "wer": "Alle vor dem Aufbau", "ergebnis": "Warum die Pumpe nie durchläuft und wo Shelly und SMT50 an Grenzen stoßen" },
       "en": { "titel": "Safety and limits", "wer": "Everyone before building", "ergebnis": "Why the pump never runs away and where the Shelly and the SMT50 hit their limits" } },
     { "nr": "05", "slug": "verkabelung-und-aufbau", "teil": "B", "typ": "architecture", "status": "aufbau",

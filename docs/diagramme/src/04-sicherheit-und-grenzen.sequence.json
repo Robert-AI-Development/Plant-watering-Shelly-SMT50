@@ -1,0 +1,241 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Eine Portion und ihre drei Abschaltungen",
+    "quality_profile": "showcase",
+    "visual_preset": "blueprint",
+    "column_fit": "spread",
+    "viewBox": [
+      1080,
+      820
+    ],
+    "views": [
+      {
+        "id": "portion",
+        "label": "Normale Portion",
+        "focus": [
+          "bw_pump",
+          "kvs",
+          "switch",
+          "pumpe"
+        ],
+        "note": "Claim im KVS, dann Switch.Set mit toggle_after: das Gerät schaltet nach höchstens tPmax s selbst ab; auto_off und Zeitplan sind Reserve."
+      },
+      {
+        "id": "absturz",
+        "label": "Script stirbt mitten im Fenster",
+        "focus": [
+          "switch",
+          "pumpe",
+          "zeitplan",
+          "bw_main",
+          "kvs"
+        ],
+        "note": "Ohne Script schalten toggle_after, auto_off 190 s und der Zeitplan um 08:08 ab; bw_main sieht st.why=laeuft und hält die Pause."
+      },
+      {
+        "id": "leer",
+        "label": "Behälter leer während der Portion",
+        "focus": [
+          "bw_pump",
+          "kvs",
+          "switch",
+          "pumpe"
+        ],
+        "note": "bw_pump prüft den Schwimmer alle tChk s: LEER → Switch.Set off, Ergebnis abbruch, Störung wasser, bis der Behälter voll ist."
+      }
+    ]
+  },
+  "participants": [
+    {
+      "id": "bw_main",
+      "type": "backend",
+      "label": "bw_main",
+      "sublabel": "Takt alle 15 min"
+    },
+    {
+      "id": "kvs",
+      "type": "database",
+      "label": "KVS",
+      "sublabel": "st, job, err"
+    },
+    {
+      "id": "bw_pump",
+      "type": "backend",
+      "label": "bw_pump",
+      "sublabel": "Regler im Fenster"
+    },
+    {
+      "id": "switch",
+      "type": "security",
+      "label": "switch:0",
+      "sublabel": "OUT1, auto_off 190 s"
+    },
+    {
+      "id": "pumpe",
+      "type": "external",
+      "label": "Relais + Pumpe",
+      "sublabel": "am Kontakt"
+    },
+    {
+      "id": "zeitplan",
+      "type": "messagebus",
+      "label": "Zeitplan",
+      "sublabel": "Sicherheits-Aus"
+    }
+  ],
+  "segments": [
+    {
+      "from": 172,
+      "to": 442,
+      "label": "Normale Portion: drei Abschaltungen"
+    },
+    {
+      "from": 462,
+      "to": 592,
+      "label": "Script stirbt mitten im Fenster"
+    },
+    {
+      "from": 612,
+      "to": 742,
+      "label": "Behälter leer während der Portion"
+    }
+  ],
+  "messages": [
+    {
+      "id": "claim",
+      "from": "bw_pump",
+      "to": "kvs",
+      "y": 196,
+      "label": "KVS.Set st: Claim laeuft",
+      "variant": "security"
+    },
+    {
+      "id": "set_on",
+      "from": "bw_pump",
+      "to": "switch",
+      "y": 240,
+      "label": "Switch.Set on, toggle_after ≤ tPmax",
+      "variant": "emphasis"
+    },
+    {
+      "id": "relais_ein",
+      "from": "switch",
+      "to": "pumpe",
+      "y": 284,
+      "label": "Relais EIN",
+      "variant": "emphasis"
+    },
+    {
+      "id": "aus1",
+      "from": "switch",
+      "to": "pumpe",
+      "y": 328,
+      "label": "1 toggle_after: AUS",
+      "variant": "default"
+    },
+    {
+      "id": "aus2",
+      "from": "switch",
+      "to": "pumpe",
+      "y": 372,
+      "label": "2 auto_off 190 s: AUS",
+      "variant": "dashed"
+    },
+    {
+      "id": "aus3",
+      "from": "zeitplan",
+      "to": "switch",
+      "y": 416,
+      "label": "3 um 08:08: Switch.Set off",
+      "variant": "dashed"
+    },
+    {
+      "id": "takt_lesen",
+      "from": "bw_main",
+      "to": "kvs",
+      "y": 486,
+      "label": "nächster Takt: st lesen",
+      "variant": "default"
+    },
+    {
+      "id": "laeuft",
+      "from": "kvs",
+      "to": "bw_main",
+      "y": 526,
+      "label": "st.why=laeuft",
+      "variant": "return"
+    },
+    {
+      "id": "pause",
+      "from": "bw_main",
+      "to": "kvs",
+      "y": 566,
+      "label": "why=pause, kein Lernwert",
+      "variant": "default"
+    },
+    {
+      "id": "leer_aus",
+      "from": "bw_pump",
+      "to": "switch",
+      "y": 636,
+      "label": "Schwimmer LEER: Switch.Set off",
+      "variant": "security"
+    },
+    {
+      "id": "relais_aus",
+      "from": "switch",
+      "to": "pumpe",
+      "y": 676,
+      "label": "Relais AUS (abbruch)",
+      "variant": "default"
+    },
+    {
+      "id": "err_wasser",
+      "from": "bw_pump",
+      "to": "kvs",
+      "y": 716,
+      "label": "err=wasser, st.why=abbruch",
+      "variant": "security"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "bw_pump",
+      "from": 190,
+      "to": 248,
+      "type": "backend"
+    },
+    {
+      "participant": "switch",
+      "from": 236,
+      "to": 424,
+      "type": "security"
+    },
+    {
+      "participant": "pumpe",
+      "from": 280,
+      "to": 380,
+      "type": "external"
+    },
+    {
+      "participant": "bw_main",
+      "from": 480,
+      "to": 574,
+      "type": "backend"
+    },
+    {
+      "participant": "bw_pump",
+      "from": 630,
+      "to": 724,
+      "type": "backend"
+    },
+    {
+      "participant": "pumpe",
+      "from": 640,
+      "to": 680,
+      "type": "external"
+    }
+  ]
+}
