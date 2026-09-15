@@ -67,7 +67,7 @@ Diagrams: every chapter shows a static image and links the interactive version (
 | 17 | [Stage and decision log](17-etappen-und-entscheidungslog.md) | Agents, developers | What was decided when and why; numbers 1–63 stay stable; open items | [interactive](https://robert-ai-development.github.io/Plant-watering-Shelly-SMT50/diagramme/en/17-etappen-und-entscheidungslog.html) |
 | 18 | [Lessons from the device](18-lernlog-geraet.md) | Anyone hit by a surprise | Every device finding with symptom, cause, fix and the rule in the tests | [interactive](https://robert-ai-development.github.io/Plant-watering-Shelly-SMT50/diagramme/en/18-lernlog-geraet.html) |
 | 19 | [Device test protocol](19-pruefprotokoll.md) *(in progress)* | Anyone needing measurements | What was measured on the real setup; template for the next run | – |
-| 20 | [RPC and engine reference](20-rpc-referenz.md) *(in progress)* | Anyone adding an RPC | Every RPC in use with parameters, response and docs link; engine facts with measurement date | – |
+| 20 | [RPC and engine reference](20-rpc-referenz.md) | Anyone adding an RPC | Every RPC in use with parameters, response and docs link; engine facts with measurement date | [interactive](https://robert-ai-development.github.io/Plant-watering-Shelly-SMT50/diagramme/en/20-rpc-referenz.html) |
 | 21 | [SEO and keywords](21-seo-keywords.md) *(in progress)* | Anyone making the project findable | Keyword clusters, placement, GitHub topics | – |
 
 ## Conventions

@@ -1,0 +1,267 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "bw_pump im Fenster: jede RPC in Reihenfolge",
+    "quality_profile": "showcase",
+    "visual_preset": "blueprint",
+    "column_fit": "spread",
+    "viewBox": [
+      1080,
+      1060
+    ],
+    "views": [
+      {
+        "id": "lesen",
+        "label": "Lesen: Script.Start, KVS.Get ×9",
+        "focus": [
+          "engine",
+          "bw_pump",
+          "kvs",
+          "sensoren"
+        ],
+        "note": "Zeitplan startet bw_pump bei Sekunde 30; neun KVS.Get statt GetMany, damit keine fremden Einträge im Heap liegen; Uhr synchron."
+      },
+      {
+        "id": "portion",
+        "label": "Portion: Claim, Switch.Set, Messen",
+        "focus": [
+          "bw_pump",
+          "kvs",
+          "sensoren",
+          "switch"
+        ],
+        "note": "Geregeltes Fenster: vor Portion 1 der Claim st.why=laeuft, Switch.Set on mit toggle_after; je tChk Schwimmer und Ausgang, nach tSoak messen."
+      },
+      {
+        "id": "schreiben",
+        "label": "Schreiben und Ende",
+        "focus": [
+          "bw_pump",
+          "kvs",
+          "engine"
+        ],
+        "note": "Fünf Einträge neu lesen (bw_main kann geschrieben haben), nur Geändertes mit KVS.Set schreiben, Script.Stop auf die eigene ID."
+      }
+    ]
+  },
+  "participants": [
+    {
+      "id": "engine",
+      "type": "messagebus",
+      "label": "Script-Engine",
+      "sublabel": "Zeitplan 30 0 8,20"
+    },
+    {
+      "id": "bw_pump",
+      "type": "backend",
+      "label": "bw_pump",
+      "sublabel": "ein offener RPC"
+    },
+    {
+      "id": "kvs",
+      "type": "database",
+      "label": "KVS",
+      "sublabel": "JSON-Strings"
+    },
+    {
+      "id": "sensoren",
+      "type": "external",
+      "label": "Komponenten",
+      "sublabel": "sys, voltmeter, input"
+    },
+    {
+      "id": "switch",
+      "type": "security",
+      "label": "switch:0",
+      "sublabel": "OUT1, auto_off 190 s"
+    }
+  ],
+  "segments": [
+    {
+      "from": 172,
+      "to": 348,
+      "label": "Lesen (Schritte 1–3): ein RPC nach dem anderen"
+    },
+    {
+      "from": 368,
+      "to": 776,
+      "label": "Portion (Schritt 4): Tick-Automat, wiederholt bis pctOk, nPort, tMax oder Frist"
+    },
+    {
+      "from": 796,
+      "to": 972,
+      "label": "Schreiben und Ende (Schritte 5–8)"
+    }
+  ],
+  "messages": [
+    {
+      "id": "start",
+      "from": "engine",
+      "to": "bw_pump",
+      "y": 196,
+      "label": "Script.Start (Sekunde 30)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "get9",
+      "from": "bw_pump",
+      "to": "kvs",
+      "y": 240,
+      "label": "KVS.Get ×9: cfg1 … err",
+      "variant": "default"
+    },
+    {
+      "id": "get9_ret",
+      "from": "kvs",
+      "to": "bw_pump",
+      "y": 284,
+      "label": "value (JSON-String); −105 → null",
+      "variant": "return"
+    },
+    {
+      "id": "sys",
+      "from": "bw_pump",
+      "to": "sensoren",
+      "y": 328,
+      "label": "getComponentStatus sys: Uhr, ram_free",
+      "variant": "dashed"
+    },
+    {
+      "id": "m0",
+      "from": "bw_pump",
+      "to": "sensoren",
+      "y": 392,
+      "label": "m0: voltmeter ×nSample, input ×nLvl",
+      "variant": "dashed"
+    },
+    {
+      "id": "claim",
+      "from": "bw_pump",
+      "to": "kvs",
+      "y": 436,
+      "label": "KVS.Set st: Claim laeuft",
+      "variant": "security"
+    },
+    {
+      "id": "claim_ret",
+      "from": "kvs",
+      "to": "bw_pump",
+      "y": 480,
+      "label": "etag, rev (Fehler → why=kvs)",
+      "variant": "return"
+    },
+    {
+      "id": "set_on",
+      "from": "bw_pump",
+      "to": "switch",
+      "y": 524,
+      "label": "Switch.Set on, toggle_after sec",
+      "variant": "emphasis"
+    },
+    {
+      "id": "was_on",
+      "from": "switch",
+      "to": "bw_pump",
+      "y": 568,
+      "label": "was_on (true → extern)",
+      "variant": "return"
+    },
+    {
+      "id": "chk_sw",
+      "from": "bw_pump",
+      "to": "switch",
+      "y": 612,
+      "label": "je tChk: switch.output",
+      "variant": "dashed"
+    },
+    {
+      "id": "chk_in",
+      "from": "bw_pump",
+      "to": "sensoren",
+      "y": 656,
+      "label": "je tChk: input, voltmeter (tRise)",
+      "variant": "dashed"
+    },
+    {
+      "id": "set_off",
+      "from": "bw_pump",
+      "to": "switch",
+      "y": 700,
+      "label": "Switch.Set off (Portionsende)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "stab",
+      "from": "bw_pump",
+      "to": "sensoren",
+      "y": 744,
+      "label": "nach tSoak: voltmeter je tStep bis stabil",
+      "variant": "dashed"
+    },
+    {
+      "id": "reread",
+      "from": "bw_pump",
+      "to": "kvs",
+      "y": 820,
+      "label": "KVS.Get ×5: st day job err lrn",
+      "variant": "default"
+    },
+    {
+      "id": "write",
+      "from": "bw_pump",
+      "to": "kvs",
+      "y": 864,
+      "label": "KVS.Set nur Geändertes (w)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "write_ret",
+      "from": "kvs",
+      "to": "bw_pump",
+      "y": 908,
+      "label": "etag, rev",
+      "variant": "return"
+    },
+    {
+      "id": "stop",
+      "from": "bw_pump",
+      "to": "engine",
+      "y": 952,
+      "label": "Script.Stop (eigene ID)",
+      "variant": "emphasis"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "bw_pump",
+      "from": 190,
+      "to": 960,
+      "type": "backend"
+    },
+    {
+      "participant": "kvs",
+      "from": 234,
+      "to": 292,
+      "type": "database"
+    },
+    {
+      "participant": "kvs",
+      "from": 430,
+      "to": 488,
+      "type": "database"
+    },
+    {
+      "participant": "switch",
+      "from": 518,
+      "to": 708,
+      "type": "security"
+    },
+    {
+      "participant": "kvs",
+      "from": 814,
+      "to": 916,
+      "type": "database"
+    }
+  ]
+}

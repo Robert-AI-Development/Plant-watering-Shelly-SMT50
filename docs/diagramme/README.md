@@ -22,5 +22,6 @@ Interaktive Diagramme der Kapitel (Archify): Zoom, Suche, Fokus, Beziehungs-Trac
 | 16 | [Konzept und Entscheidungen (Stand 0.2.0)](de/16-konzept-und-entscheidungen.html) · [Kapitel](../de/16-konzept-und-entscheidungen.md) | [Concept and decisions (as of 0.2.0)](en/16-konzept-und-entscheidungen.html) · [chapter](../en/16-konzept-und-entscheidungen.md) | architecture |
 | 17 | [Etappen- und Entscheidungslog](de/17-etappen-und-entscheidungslog.html) · [Kapitel](../de/17-etappen-und-entscheidungslog.md) | [Stage and decision log](en/17-etappen-und-entscheidungslog.html) · [chapter](../en/17-etappen-und-entscheidungslog.md) | lifecycle |
 | 18 | [Lernlog vom Gerät](de/18-lernlog-geraet.html) · [Kapitel](../de/18-lernlog-geraet.md) | [Lessons from the device](en/18-lernlog-geraet.html) · [chapter](../en/18-lernlog-geraet.md) | dataflow |
+| 20 | [RPC- und Engine-Referenz](de/20-rpc-referenz.html) · [Kapitel](../de/20-rpc-referenz.md) | [RPC and engine reference](en/20-rpc-referenz.html) · [chapter](../en/20-rpc-referenz.md) | sequence |
 
 Quellen: `docs/diagramme/src/` (JSON-Spezifikation + Wörterbuch), Build: `npm run docs:diagramme`.

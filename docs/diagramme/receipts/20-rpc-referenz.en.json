@@ -1,0 +1,27 @@
+{
+ "schemaVersion": 1,
+ "diagramm": "20-rpc-referenz",
+ "sprache": "en",
+ "typ": "sequence",
+ "archify": "2.16.0",
+ "quelle": {
+  "spec": "021693e30b579787831e86bc5870c8462613d26935d07cc57b9252d05bcb4580",
+  "dict": "fb0c4c329f1a5653e8686fc557763e5bb8c21a50adf421dea9ed7fdb91d50c12",
+  "pfad": "docs/diagramme/src/20-rpc-referenz.sequence.json"
+ },
+ "html": {
+  "sha256": "23d814067a5cc4ee61d9a1f3b989911025cc77f70f4c7440069fddf0defcfa44",
+  "bytes": 716889
+ },
+ "svg": {
+  "sha256": "29bcac3dc64182f2f53647a8eb5744ab09f8a754d085fd616d5f51879dd8a989",
+  "bytes": 59979
+ },
+ "validierung": {
+  "profile": "showcase",
+  "errors": 0,
+  "warnings": 0,
+  "checksPassed": 9,
+  "checkCount": 9
+ }
+}

@@ -67,7 +67,7 @@
     { "nr": "19", "slug": "pruefprotokoll", "teil": "F", "typ": "sequence", "status": "aufbau",
       "de": { "titel": "Prüfprotokoll am Gerät", "wer": "Wer Messwerte braucht", "ergebnis": "Was am echten Aufbau gemessen wurde; Vorlage für den nächsten Lauf" },
       "en": { "titel": "Device test protocol", "wer": "Anyone needing measurements", "ergebnis": "What was measured on the real setup; template for the next run" } },
-    { "nr": "20", "slug": "rpc-referenz", "teil": "F", "typ": "sequence", "status": "aufbau",
+    { "nr": "20", "slug": "rpc-referenz", "teil": "F", "typ": "sequence", "status": "fertig",
       "de": { "titel": "RPC- und Engine-Referenz", "wer": "Wer einen RPC einbaut", "ergebnis": "Jede genutzte RPC mit Parametern, Antwort und Doku-Link; Engine-Fakten mit Messdatum" },
       "en": { "titel": "RPC and engine reference", "wer": "Anyone adding an RPC", "ergebnis": "Every RPC in use with parameters, response and docs link; engine facts with measurement date" } },
     { "nr": "21", "slug": "seo-keywords", "teil": "F", "typ": "dataflow", "status": "aufbau",
