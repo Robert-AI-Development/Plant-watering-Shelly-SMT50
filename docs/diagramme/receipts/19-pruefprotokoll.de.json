@@ -1,0 +1,27 @@
+{
+ "schemaVersion": 1,
+ "diagramm": "19-pruefprotokoll",
+ "sprache": "de",
+ "typ": "sequence",
+ "archify": "2.16.0",
+ "quelle": {
+  "spec": "685d7fad7124049b54274a6cea7a262ed7f26ea43c76110cb0abd39ec2427910",
+  "dict": "fc3b4a2e805306fc4ac9256634af9bb3757288ae1ed7683229d2d762f2ad7f77",
+  "pfad": "docs/diagramme/src/19-pruefprotokoll.sequence.json"
+ },
+ "html": {
+  "sha256": "b1f5f02de4b0cdb8c53d19faec2a741b43ba98606a656e8246ac7c40ef6e67ad",
+  "bytes": 720850
+ },
+ "svg": {
+  "sha256": "df0d146f719891c833e24f374b96b6cc566a686679654489e52f9c9df4eadee4",
+  "bytes": 63730
+ },
+ "validierung": {
+  "profile": "showcase",
+  "errors": 0,
+  "warnings": 0,
+  "checksPassed": 9,
+  "checkCount": 9
+ }
+}

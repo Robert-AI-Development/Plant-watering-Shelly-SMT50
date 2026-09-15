@@ -64,7 +64,7 @@
     { "nr": "18", "slug": "lernlog-geraet", "teil": "F", "typ": "dataflow", "status": "fertig",
       "de": { "titel": "Lernlog vom Gerät", "wer": "Wer eine Überraschung einordnet", "ergebnis": "Jeder Gerätefund mit Symptom, Ursache, Fix und Regel im Test" },
       "en": { "titel": "Lessons from the device", "wer": "Anyone hit by a surprise", "ergebnis": "Every device finding with symptom, cause, fix and the rule in the tests" } },
-    { "nr": "19", "slug": "pruefprotokoll", "teil": "F", "typ": "sequence", "status": "aufbau",
+    { "nr": "19", "slug": "pruefprotokoll", "teil": "F", "typ": "sequence", "status": "fertig",
       "de": { "titel": "Prüfprotokoll am Gerät", "wer": "Wer Messwerte braucht", "ergebnis": "Was am echten Aufbau gemessen wurde; Vorlage für den nächsten Lauf" },
       "en": { "titel": "Device test protocol", "wer": "Anyone needing measurements", "ergebnis": "What was measured on the real setup; template for the next run" } },
     { "nr": "20", "slug": "rpc-referenz", "teil": "F", "typ": "sequence", "status": "fertig",
