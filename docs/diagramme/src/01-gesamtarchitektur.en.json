@@ -47,5 +47,8 @@
   "HTTP-RPC, Websocket": "HTTP RPC, websocket",
   "Zeitplan und Startwerte": "schedule and defaults",
   "08:00:30, 20:00:30": "08:00:30, 20:00:30",
-  "08:00, 20:00": "08:00, 20:00"
+  "08:00, 20:00": "08:00, 20:00",
+  "Aus +8 min": "off +8 min",
+  "m0, Schwimmer": "m0, float switch",
+  "baut Zeitplan": "builds schedule"
 }

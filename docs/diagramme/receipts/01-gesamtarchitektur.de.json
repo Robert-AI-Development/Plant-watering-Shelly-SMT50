@@ -5,17 +5,17 @@
  "typ": "architecture",
  "archify": "2.16.0",
  "quelle": {
-  "spec": "b8e7fe8233dee14e780ab145306f37cfc8b97d7cff652d029a53e13f46d9b32d",
-  "dict": "447c52648eaadd4baac8b268f8968213a470f8d0a20a65800af44afb2ccdc926",
+  "spec": "83dd27e9cab277931858e91382b7f0b48d70ccc51b9371c448dd84fe7e67271f",
+  "dict": "2ca3f2577fa7cc511690c605b56f5a6bfad386196fdb3487147b69dc6aebcc4d",
   "pfad": "docs/diagramme/src/01-gesamtarchitektur.architecture.json"
  },
  "html": {
-  "sha256": "67634904997f9107bf0f3d46ecc6b44da716f2b7d93ab7d2e1c4cf0ba580b77d",
-  "bytes": 716085
+  "sha256": "70f94d02dec31ccfea15038b502708150cf782663f4c63a2a9172b486cb83040",
+  "bytes": 717545
  },
  "svg": {
-  "sha256": "af2eb186a56e849b17656d971a8d4abbcff5a7abc25170466db5aefe62eacd5e",
-  "bytes": 58047
+  "sha256": "05c38fb0de4acfaec2fc915c458a185291cf8f5965c3232ebf6cc4e38d545a05",
+  "bytes": 59452
  },
  "validierung": {
   "profile": "showcase",

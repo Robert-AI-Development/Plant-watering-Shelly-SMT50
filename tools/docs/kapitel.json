@@ -10,7 +10,7 @@
     { "id": "F", "de": "Entwicklung", "en": "Development" }
   ],
   "kapitel": [
-    { "nr": "01", "slug": "gesamtarchitektur", "teil": "A", "typ": "architecture", "status": "aufbau",
+    { "nr": "01", "slug": "gesamtarchitektur", "teil": "A", "typ": "architecture", "status": "fertig",
       "de": { "titel": "Gesamtarchitektur", "wer": "Einsteiger, Maker", "ergebnis": "Bauteile, sechs Scripts, Zeitplan und KVS in fünf Minuten verstehen" },
       "en": { "titel": "Overall architecture", "wer": "Beginners, makers", "ergebnis": "Understand parts, six scripts, schedule and KVS in five minutes" } },
     { "nr": "02", "slug": "flussdiagramm", "teil": "A", "typ": "workflow", "status": "fertig",

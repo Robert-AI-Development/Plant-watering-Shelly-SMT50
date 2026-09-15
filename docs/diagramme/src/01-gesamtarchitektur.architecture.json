@@ -22,6 +22,7 @@
         "focus": [
           "zeitplan",
           "kvs",
+          "sensoren",
           "bw_pump",
           "switch",
           "pumpe"
@@ -56,38 +57,14 @@
       "type": "cloud",
       "label": "NTP",
       "sublabel": "Uhrzeit aus dem Internet",
-      "pos": [30, 40],
-      "size": [160, 64]
-    },
-    {
-      "id": "zeitplan",
-      "type": "messagebus",
-      "label": "Zeitplan",
-      "sublabel": "Schedule, Taktgeber",
-      "pos": [280, 40],
-      "size": [160, 64]
-    },
-    {
-      "id": "bw_pump",
-      "type": "backend",
-      "label": "bw_pump",
-      "sublabel": "Regler im Fenster",
       "pos": [530, 40],
       "size": [160, 64]
     },
     {
-      "id": "switch",
-      "type": "security",
-      "label": "switch:0 (OUT1)",
-      "sublabel": "auto_off, Zeitplan-Aus",
-      "pos": [780, 40],
-      "size": [160, 64]
-    },
-    {
-      "id": "pumpe",
-      "type": "external",
-      "label": "Relais und Pumpe",
-      "sublabel": "Kontakt ≤ 30 V / 300 mA",
+      "id": "werkzeuge",
+      "type": "frontend",
+      "label": "tools/ und Web-UI",
+      "sublabel": "HTTP-RPC, Websocket",
       "pos": [1030, 40],
       "size": [160, 64]
     },
@@ -108,19 +85,11 @@
       "size": [160, 64]
     },
     {
-      "id": "kvs",
-      "type": "database",
-      "label": "KVS",
-      "sublabel": "cfg lrn st job day err",
+      "id": "zeitplan",
+      "type": "messagebus",
+      "label": "Zeitplan",
+      "sublabel": "Schedule, Taktgeber",
       "pos": [530, 190],
-      "size": [160, 64]
-    },
-    {
-      "id": "werkzeuge",
-      "type": "frontend",
-      "label": "tools/ und Web-UI",
-      "sublabel": "HTTP-RPC, Websocket",
-      "pos": [30, 340],
       "size": [160, 64]
     },
     {
@@ -128,7 +97,39 @@
       "type": "backend",
       "label": "bw_install",
       "sublabel": "Zeitplan und Startwerte",
+      "pos": [1030, 190],
+      "size": [160, 64]
+    },
+    {
+      "id": "kvs",
+      "type": "database",
+      "label": "KVS",
+      "sublabel": "cfg lrn st job day err",
+      "pos": [280, 340],
+      "size": [160, 64]
+    },
+    {
+      "id": "bw_pump",
+      "type": "backend",
+      "label": "bw_pump",
+      "sublabel": "Regler im Fenster",
       "pos": [530, 340],
+      "size": [160, 64]
+    },
+    {
+      "id": "switch",
+      "type": "security",
+      "label": "switch:0 (OUT1)",
+      "sublabel": "auto_off, Zeitplan-Aus",
+      "pos": [780, 340],
+      "size": [160, 64]
+    },
+    {
+      "id": "pumpe",
+      "type": "external",
+      "label": "Relais und Pumpe",
+      "sublabel": "Kontakt ≤ 30 V / 300 mA",
+      "pos": [780, 490],
       "size": [160, 64]
     }
   ],
@@ -151,20 +152,30 @@
       "id": "ntp_zeitplan",
       "from": "ntp",
       "to": "zeitplan",
-      "label": "Uhrzeit"
+      "label": "Uhrzeit",
+      "labelDy": 24
     },
     {
       "id": "takt",
       "from": "zeitplan",
       "to": "bw_main",
-      "label": "alle 15 min",
-      "labelDy": 24
+      "label": "alle 15 min"
     },
     {
       "id": "fenster",
       "from": "zeitplan",
       "to": "bw_pump",
-      "label": "08:00, 20:00"
+      "label": "08:00, 20:00",
+      "labelDy": 24
+    },
+    {
+      "id": "aus",
+      "from": "zeitplan",
+      "to": "switch",
+      "label": "Aus +8 min",
+      "variant": "dashed",
+      "fromSide": "right",
+      "toSide": "top"
     },
     {
       "id": "pump_switch",
@@ -177,7 +188,8 @@
       "id": "switch_pumpe",
       "from": "switch",
       "to": "pumpe",
-      "label": "Relaisspule"
+      "label": "Relaisspule",
+      "labelDy": 24
     },
     {
       "id": "messen",
@@ -186,10 +198,21 @@
       "label": "misst"
     },
     {
+      "id": "m0",
+      "from": "sensoren",
+      "to": "bw_pump",
+      "label": "m0, Schwimmer",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "bottom",
+      "via": [[110, 450], [610, 450]]
+    },
+    {
       "id": "main_kvs",
       "from": "bw_main",
       "to": "kvs",
-      "label": "job, st"
+      "label": "job, st",
+      "labelDy": 24
     },
     {
       "id": "kvs_pump",
@@ -198,17 +221,18 @@
       "label": "9 Schlüssel"
     },
     {
-      "id": "install_kvs",
+      "id": "install_zeitplan",
       "from": "bw_install",
-      "to": "kvs",
-      "label": "Startwerte"
+      "to": "zeitplan",
+      "label": "baut Zeitplan"
     },
     {
       "id": "tools_install",
       "from": "werkzeuge",
       "to": "bw_install",
       "label": "Script.Start",
-      "variant": "dashed"
+      "variant": "dashed",
+      "labelDy": 24
     }
   ]
 }

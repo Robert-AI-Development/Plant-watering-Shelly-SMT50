@@ -23,7 +23,7 @@ Diagramme: jedes Kapitel zeigt ein statisches Bild und verlinkt die interaktive 
 
 | Nr | Kapitel | Für wen | Ergebnis | Diagramm |
 | --- | --- | --- | --- | --- |
-| 01 | [Gesamtarchitektur](01-gesamtarchitektur.md) *(im Aufbau)* | Einsteiger, Maker | Bauteile, sechs Scripts, Zeitplan und KVS in fünf Minuten verstehen | – |
+| 01 | [Gesamtarchitektur](01-gesamtarchitektur.md) | Einsteiger, Maker | Bauteile, sechs Scripts, Zeitplan und KVS in fünf Minuten verstehen | [interaktiv](https://robert-ai-development.github.io/Plant-watering-Shelly-SMT50/diagramme/de/01-gesamtarchitektur.html) |
 | 02 | [Flussdiagramm: Takt, Auftrag, Fenster, Kontrolle, Pause](02-flussdiagramm.md) | Betreiber, Maker | Wissen, was das Gerät an einem Tag tut und warum es gerade nicht gießt | [interaktiv](https://robert-ai-development.github.io/Plant-watering-Shelly-SMT50/diagramme/de/02-flussdiagramm.html) |
 | 03 | [Konfigurations-Zusammenspiel (Parameter-Referenz)](03-konfiguration.md) *(im Aufbau)* | Alle, die ein Feld ändern | Jedes Feld: wer liest es, was bewirkt es, wann muss der Installer neu laufen | – |
 | 04 | [Sicherheit und Grenzen](04-sicherheit-und-grenzen.md) | Alle vor dem Aufbau | Warum die Pumpe nie durchläuft und wo Shelly und SMT50 an Grenzen stoßen | [interaktiv](https://robert-ai-development.github.io/Plant-watering-Shelly-SMT50/diagramme/de/04-sicherheit-und-grenzen.html) |
