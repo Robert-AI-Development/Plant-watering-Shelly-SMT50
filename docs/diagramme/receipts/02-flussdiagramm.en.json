@@ -1,0 +1,27 @@
+{
+ "schemaVersion": 1,
+ "diagramm": "02-flussdiagramm",
+ "sprache": "en",
+ "typ": "workflow",
+ "archify": "2.16.0",
+ "quelle": {
+  "spec": "348c82419d6c9ac465df682ca731b1711fcd956b6072cc9e582eb3a54e93671a",
+  "dict": "e014634ca021500ea46430cb12e93eebecb776ae0788f646fe9fc7bbfbbfb5b7",
+  "pfad": "docs/diagramme/src/02-flussdiagramm.workflow.json"
+ },
+ "html": {
+  "sha256": "0dafe4d2f0204d7ce951a548b5d61b78aee11f223fe4734dde2eb053f0be08ff",
+  "bytes": 722568
+ },
+ "svg": {
+  "sha256": "3013a0b4c4264ec978504b2d142b29d247450726512b2e4548fbe91d0f6249b9",
+  "bytes": 64659
+ },
+ "validierung": {
+  "profile": "showcase",
+  "errors": 0,
+  "warnings": 0,
+  "checksPassed": 9,
+  "checkCount": 9
+ }
+}

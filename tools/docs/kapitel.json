@@ -13,7 +13,7 @@
     { "nr": "01", "slug": "gesamtarchitektur", "teil": "A", "typ": "architecture", "status": "aufbau",
       "de": { "titel": "Gesamtarchitektur", "wer": "Einsteiger, Maker", "ergebnis": "Bauteile, sechs Scripts, Zeitplan und KVS in fünf Minuten verstehen" },
       "en": { "titel": "Overall architecture", "wer": "Beginners, makers", "ergebnis": "Understand parts, six scripts, schedule and KVS in five minutes" } },
-    { "nr": "02", "slug": "flussdiagramm", "teil": "A", "typ": "workflow", "status": "aufbau",
+    { "nr": "02", "slug": "flussdiagramm", "teil": "A", "typ": "workflow", "status": "fertig",
       "de": { "titel": "Flussdiagramm: Takt, Auftrag, Fenster, Kontrolle, Pause", "wer": "Betreiber, Maker", "ergebnis": "Wissen, was das Gerät an einem Tag tut und warum es gerade nicht gießt" },
       "en": { "titel": "Flow: cycle, job, window, check, pause", "wer": "Operators, makers", "ergebnis": "Know what the device does in a day and why it is not watering right now" } },
     { "nr": "03", "slug": "konfiguration", "teil": "A", "typ": "dataflow", "status": "aufbau",

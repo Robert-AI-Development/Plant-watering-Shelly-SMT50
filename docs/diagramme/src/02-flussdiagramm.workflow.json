@@ -1,0 +1,74 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Vom Takt zur Gabe: Ablauf eines Tages",
+    "animation": "trace",
+    "quality_profile": "showcase",
+    "visual_preset": "blueprint",
+    "views": [
+      {
+        "id": "takt",
+        "label": "Ein Takt",
+        "focus": ["takt", "freigabe", "auftrag", "stoerung", "trocken"],
+        "note": "bw_main misst alle 15 min, prüft die Freigabekette und schreibt den Auftrag job – oder den Grund dagegen in job.why."
+      },
+      {
+        "id": "fenster",
+        "label": "Das Gießfenster",
+        "focus": ["auftrag", "fenster", "m0", "portion", "urteil", "ergebnis", "feucht"],
+        "note": "bw_pump misst frisch, gießt Portionen mit Einsickern und Nachmessen bis pctOk und lernt effW und sf im Fenster."
+      },
+      {
+        "id": "bremsen",
+        "label": "Bremsen: Kontrolle, Pause, Trockenphase",
+        "focus": ["ergebnis", "kontrolle", "pause", "trocken", "takt"],
+        "note": "Kontrolle soak min später (zuviel, sink), Pause 24/12/48 h, Trockenphase ab dryDay oder über pctHi bis unter pctDry."
+      },
+      {
+        "id": "stoerungen",
+        "label": "Störungen",
+        "focus": ["stoerung", "feucht", "freigabe", "m0"],
+        "note": "cfg, uhr, sensor, wasser und noeff blockieren; feucht, nass und limit blockieren nicht (limit steht nur als Hinweis in err)."
+      }
+    ]
+  },
+  "lanes": [
+    { "id": "main", "label": "bw_main (Takt)" },
+    { "id": "bremsen", "label": "Bremsen und Störungen", "variant": "exception" },
+    { "id": "kvs", "label": "KVS" },
+    { "id": "pump", "label": "bw_pump (Fenster)" }
+  ],
+  "nodes": [
+    { "id": "takt", "lane": "main", "col": 0, "type": "messagebus", "label": "Takt alle 15 min", "sublabel": "messen: pct, tC, lvl", "width": 132 },
+    { "id": "freigabe", "lane": "main", "col": 1, "type": "security", "label": "Freigabe?", "sublabel": "Band, Pause, Wasser, err", "width": 132 },
+    { "id": "kontrolle", "lane": "main", "col": 4, "type": "backend", "label": "Kontrolle", "sublabel": "soak min nach Fenster", "width": 132 },
+    { "id": "pause", "lane": "main", "col": 5, "type": "backend", "label": "Pause", "sublabel": "24 / 12 / 48 h", "width": 132 },
+    { "id": "stoerung", "lane": "bremsen", "col": 0, "type": "security", "label": "Störung err", "sublabel": "cfg uhr sensor wasser", "width": 132 },
+    { "id": "trocken", "lane": "bremsen", "col": 2, "type": "backend", "label": "Trockenphase", "sublabel": "dryDay, Takt > pctHi", "width": 132 },
+    { "id": "auftrag", "lane": "kvs", "col": 1, "type": "database", "label": "job", "sublabel": "ok=true, sec, why", "width": 132 },
+    { "id": "feucht", "lane": "kvs", "col": 2, "type": "backend", "label": "keine Gabe", "sublabel": "feucht · nass", "width": 132 },
+    { "id": "ergebnis", "lane": "kvs", "col": 4, "type": "database", "label": "st · day · job · lrn", "sublabel": "effW, sf gelernt", "width": 132 },
+    { "id": "fenster", "lane": "pump", "col": 1, "type": "messagebus", "label": "Fenster", "sublabel": "08:00:30 / 20:00:30", "width": 132 },
+    { "id": "m0", "lane": "pump", "col": 2, "type": "security", "label": "m0 ≥ pctOk?", "sublabel": "Frischmessung", "width": 132 },
+    { "id": "portion", "lane": "pump", "col": 3, "type": "backend", "label": "Portion", "sublabel": "tSoak, messen bis stabil", "width": 132 },
+    { "id": "urteil", "lane": "pump", "col": 4, "type": "security", "label": "Urteil", "sublabel": "ok · over · Grenze?", "width": 132 }
+  ],
+  "edges": [
+    { "id": "e_takt_freigabe", "from": "takt", "to": "freigabe", "variant": "emphasis" },
+    { "id": "e_freigabe_auftrag", "from": "freigabe", "to": "auftrag", "label": "ja: why=ok", "variant": "emphasis" },
+    { "id": "e_auftrag_fenster", "from": "auftrag", "to": "fenster", "label": "Auftrag lesen", "variant": "emphasis" },
+    { "id": "e_fenster_m0", "from": "fenster", "to": "m0", "variant": "emphasis" },
+    { "id": "e_m0_portion", "from": "m0", "to": "portion", "label": "< pctOk", "variant": "emphasis" },
+    { "id": "e_portion_urteil", "from": "portion", "to": "urteil", "variant": "emphasis" },
+    { "id": "e_urteil_portion", "from": "urteil", "to": "portion", "label": "< pctOk: nächste", "variant": "dashed", "role": "branch" },
+    { "id": "e_urteil_ergebnis", "from": "urteil", "to": "ergebnis", "label": "ok · over · max", "variant": "emphasis" },
+    { "id": "e_ergebnis_kontrolle", "from": "ergebnis", "to": "kontrolle", "label": "soak min später", "variant": "emphasis" },
+    { "id": "e_kontrolle_pause", "from": "kontrolle", "to": "pause", "label": "sperre", "variant": "emphasis" },
+    { "id": "e_pause_takt", "from": "pause", "to": "takt", "label": "nächster Takt", "variant": "dashed", "role": "return" },
+    { "id": "e_freigabe_pause", "from": "freigabe", "to": "pause", "label": "why=pause", "variant": "dashed", "role": "branch" },
+    { "id": "e_freigabe_trocken", "from": "freigabe", "to": "trocken", "label": "why=trocken", "variant": "security", "role": "error" },
+    { "id": "e_freigabe_stoerung", "from": "freigabe", "to": "stoerung", "label": "nein: err", "variant": "security", "role": "error" },
+    { "id": "e_m0_feucht", "from": "m0", "to": "feucht", "label": "≥ pctOk", "variant": "security", "role": "error" }
+  ]
+}
