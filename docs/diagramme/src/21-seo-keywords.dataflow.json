@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "Suchintention → Keyword → Platzierung",
+    "quality_profile": "showcase",
+    "visual_preset": "blueprint",
+    "viewBox": [880, 720],
+    "views": [
+      {
+        "id": "cluster",
+        "label": "Zielgruppen und Cluster",
+        "focus": ["shelly", "diy", "ki", "urlaub", "dev", "produkt", "eigenschaft", "kitrend", "nutzen", "technik"],
+        "note": "Fünf Suchintentionen führen zu fünf Keyword-Clustern: jede Gruppe sucht mit eigenen Wörtern nach demselben Projekt."
+      },
+      {
+        "id": "platzierung",
+        "label": "Texte und Orte",
+        "focus": ["titel", "slogan", "beschreibung", "liste", "readme", "kap01", "pkg", "topics", "pages"],
+        "note": "Aus den Clustern entstehen vier Texte; sie stehen im README, in Kapitel 01, in package.json, auf der Pages-Startseite und im GitHub-About."
+      },
+      {
+        "id": "github",
+        "label": "GitHub von Hand",
+        "focus": ["beschreibung", "liste", "pkg", "topics"],
+        "note": "About-Text und Topics lassen sich nicht per git setzen: About-Text (185 Zeichen) und die 20 Topics aus Kapitel 21 im Web-UI eintragen."
+      }
+    ]
+  },
+  "stages": [
+    { "label": "Zielgruppe" },
+    { "label": "Cluster" },
+    { "label": "Text" },
+    { "label": "Ort" }
+  ],
+  "nodes": [
+    { "id": "shelly", "type": "external", "label": "Shelly-Nutzer", "sublabel": "sucht eine Lösung", "stage": 0, "row": 0 },
+    { "id": "diy", "type": "external", "label": "DIY Smart Home", "sublabel": "Selbstbauer", "stage": 0, "row": 1 },
+    { "id": "ki", "type": "external", "label": "KI-Coding zuhause", "sublabel": "Trend, Neugier", "stage": 0, "row": 2 },
+    { "id": "urlaub", "type": "external", "label": "Pflanzen im Urlaub", "sublabel": "starkes Kaufmotiv", "stage": 0, "row": 3 },
+    { "id": "dev", "type": "external", "label": "Script-Entwickler", "sublabel": "Shelly Gen2, mJS", "stage": 0, "row": 4 },
+
+    { "id": "produkt", "type": "backend", "label": "Produkt/Kern", "sublabel": "Shelly Plus Uni, SMT50", "stage": 1, "row": 0 },
+    { "id": "eigenschaft", "type": "backend", "label": "Eigenschaft", "sublabel": "selbstlernend, lokal", "stage": 1, "row": 1 },
+    { "id": "kitrend", "type": "backend", "label": "KI-Trend", "sublabel": "Claude Code", "stage": 1, "row": 2 },
+    { "id": "nutzen", "type": "backend", "label": "Nutzen Urlaub", "sublabel": "gießen bei Abwesenheit", "stage": 1, "row": 3 },
+    { "id": "technik", "type": "backend", "label": "Technik", "sublabel": "Script, KVS, Schedule", "stage": 1, "row": 4 },
+
+    { "id": "titel", "type": "frontend", "label": "Titel", "sublabel": "H1 mit Kernbegriffen", "stage": 2, "row": 0 },
+    { "id": "slogan", "type": "frontend", "label": "Slogan", "sublabel": "Gieß smart …", "stage": 2, "row": 1 },
+    { "id": "beschreibung", "type": "frontend", "label": "Beschreibung", "sublabel": "zwei Sätze, Kernbegriffe", "stage": 2, "row": 2 },
+    { "id": "liste", "type": "frontend", "label": "Keyword-Liste", "sublabel": "20 Begriffe", "stage": 2, "row": 4 },
+
+    { "id": "readme", "type": "database", "label": "README", "sublabel": "Titel, Leitsatz", "stage": 3, "row": 0 },
+    { "id": "kap01", "type": "database", "label": "Kapitel 01", "sublabel": "Auf einen Blick", "stage": 3, "row": 1 },
+    { "id": "pkg", "type": "database", "label": "package.json", "sublabel": "description, keywords", "stage": 3, "row": 3 },
+    { "id": "pages", "type": "database", "label": "Pages-Startseite", "sublabel": "_config.yml title/desc", "stage": 3, "row": 2 },
+    { "id": "topics", "type": "cloud", "label": "GitHub About", "sublabel": "Topics, Website", "stage": 3, "row": 4 }
+  ],
+  "flows": [
+    { "from": "shelly", "to": "produkt", "label": "Lösung suchen", "variant": "emphasis", "route": "straight" },
+    { "from": "diy", "to": "eigenschaft", "label": "Abgrenzung", "route": "straight" },
+    { "from": "ki", "to": "kitrend", "label": "Neugier", "route": "straight" },
+    { "from": "urlaub", "to": "nutzen", "label": "Kaufmotiv", "variant": "emphasis", "route": "straight" },
+    { "from": "dev", "to": "technik", "label": "Entwickler", "route": "straight" },
+
+    { "from": "produkt", "to": "titel", "label": "Kernbegriffe", "variant": "emphasis", "route": "straight" },
+    { "from": "eigenschaft", "to": "titel", "label": "ohne Cloud" },
+    { "from": "kitrend", "to": "slogan", "label": "mit KI" },
+    { "from": "nutzen", "to": "beschreibung", "label": "ideal im Urlaub", "variant": "emphasis" },
+    { "from": "technik", "to": "liste", "label": "shelly-script", "route": "straight" },
+
+    { "from": "titel", "to": "readme", "label": "H1", "variant": "emphasis", "route": "straight" },
+    { "from": "slogan", "to": "readme", "label": "Leitsatz" },
+    { "from": "beschreibung", "to": "kap01", "label": "Positionierung", "route": "vertical-channel", "channelX": 675 },
+    { "from": "beschreibung", "to": "pages", "label": "Meta-Tags", "route": "straight", "labelDy": -8 },
+    { "from": "beschreibung", "to": "pkg", "label": "description", "variant": "emphasis" },
+    { "from": "beschreibung", "to": "topics", "label": "About-Text", "route": "vertical-channel", "channelX": 600 },
+    { "from": "liste", "to": "topics", "label": "Topics", "route": "straight" },
+    { "from": "pkg", "to": "topics", "label": "abgleichen", "variant": "dashed", "route": "straight", "fromSide": "bottom", "toSide": "top", "labelDy": 24 }
+  ]
+}

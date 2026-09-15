@@ -24,5 +24,6 @@ Interaktive Diagramme der Kapitel (Archify): Zoom, Suche, Fokus, Beziehungs-Trac
 | 18 | [Lernlog vom Gerät](de/18-lernlog-geraet.html) · [Kapitel](../de/18-lernlog-geraet.md) | [Lessons from the device](en/18-lernlog-geraet.html) · [chapter](../en/18-lernlog-geraet.md) | dataflow |
 | 19 | [Prüfprotokoll am Gerät](de/19-pruefprotokoll.html) · [Kapitel](../de/19-pruefprotokoll.md) | [Device test protocol](en/19-pruefprotokoll.html) · [chapter](../en/19-pruefprotokoll.md) | sequence |
 | 20 | [RPC- und Engine-Referenz](de/20-rpc-referenz.html) · [Kapitel](../de/20-rpc-referenz.md) | [RPC and engine reference](en/20-rpc-referenz.html) · [chapter](../en/20-rpc-referenz.md) | sequence |
+| 21 | [SEO und Keywords](de/21-seo-keywords.html) · [Kapitel](../de/21-seo-keywords.md) | [SEO and keywords](en/21-seo-keywords.html) · [chapter](../en/21-seo-keywords.md) | dataflow |
 
 Quellen: `docs/diagramme/src/` (JSON-Spezifikation + Wörterbuch), Build: `npm run docs:diagramme`.

@@ -68,7 +68,7 @@ Diagrams: every chapter shows a static image and links the interactive version (
 | 18 | [Lessons from the device](18-lernlog-geraet.md) | Anyone hit by a surprise | Every device finding with symptom, cause, fix and the rule in the tests | [interactive](https://robert-ai-development.github.io/Plant-watering-Shelly-SMT50/diagramme/en/18-lernlog-geraet.html) |
 | 19 | [Device test protocol](19-pruefprotokoll.md) | Anyone needing measurements | What was measured on the real setup; template for the next run | [interactive](https://robert-ai-development.github.io/Plant-watering-Shelly-SMT50/diagramme/en/19-pruefprotokoll.html) |
 | 20 | [RPC and engine reference](20-rpc-referenz.md) | Anyone adding an RPC | Every RPC in use with parameters, response and docs link; engine facts with measurement date | [interactive](https://robert-ai-development.github.io/Plant-watering-Shelly-SMT50/diagramme/en/20-rpc-referenz.html) |
-| 21 | [SEO and keywords](21-seo-keywords.md) *(in progress)* | Anyone making the project findable | Keyword clusters, placement, GitHub topics | – |
+| 21 | [SEO and keywords](21-seo-keywords.md) | Anyone making the project findable | Keyword clusters, placement, GitHub topics | [interactive](https://robert-ai-development.github.io/Plant-watering-Shelly-SMT50/diagramme/en/21-seo-keywords.html) |
 
 ## Conventions
 

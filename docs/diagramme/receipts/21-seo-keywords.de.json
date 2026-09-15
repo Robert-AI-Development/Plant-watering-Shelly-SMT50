@@ -1,0 +1,27 @@
+{
+ "schemaVersion": 1,
+ "diagramm": "21-seo-keywords",
+ "sprache": "de",
+ "typ": "dataflow",
+ "archify": "2.16.0",
+ "quelle": {
+  "spec": "0dd5186cdd8592a17df7669e6f51460cb700b923632ee9dc74310513d18c9d02",
+  "dict": "b8326e051981be5f6546b4daac26a550ba060a012f99489f42d5a2f27c1f733b",
+  "pfad": "docs/diagramme/src/21-seo-keywords.dataflow.json"
+ },
+ "html": {
+  "sha256": "719c6c094049162c52bdf7c0a83bfcc7f54daa591d53faaf83a39bdf77f185fd",
+  "bytes": 729594
+ },
+ "svg": {
+  "sha256": "751e0a5c0adf7adc97486bac7a0b4a033ce02f60ce131b6b03f77dc6b72bd03f",
+  "bytes": 71309
+ },
+ "validierung": {
+  "profile": "showcase",
+  "errors": 0,
+  "warnings": 0,
+  "checksPassed": 9,
+  "checkCount": 9
+ }
+}

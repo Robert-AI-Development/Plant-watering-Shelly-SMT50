@@ -70,7 +70,7 @@
     { "nr": "20", "slug": "rpc-referenz", "teil": "F", "typ": "sequence", "status": "fertig",
       "de": { "titel": "RPC- und Engine-Referenz", "wer": "Wer einen RPC einbaut", "ergebnis": "Jede genutzte RPC mit Parametern, Antwort und Doku-Link; Engine-Fakten mit Messdatum" },
       "en": { "titel": "RPC and engine reference", "wer": "Anyone adding an RPC", "ergebnis": "Every RPC in use with parameters, response and docs link; engine facts with measurement date" } },
-    { "nr": "21", "slug": "seo-keywords", "teil": "F", "typ": "dataflow", "status": "aufbau",
+    { "nr": "21", "slug": "seo-keywords", "teil": "F", "typ": "dataflow", "status": "fertig",
       "de": { "titel": "SEO und Keywords", "wer": "Wer das Projekt auffindbar macht", "ergebnis": "Keyword-Cluster, Platzierung, GitHub-Topics" },
       "en": { "titel": "SEO and keywords", "wer": "Anyone making the project findable", "ergebnis": "Keyword clusters, placement, GitHub topics" } }
   ]
