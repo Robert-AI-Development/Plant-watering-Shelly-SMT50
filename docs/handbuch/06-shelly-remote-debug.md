@@ -1,5 +1,5 @@
 ---
-redirect_to: /Plant-watering-Shelly-SMT50/de/14-debuggen-und-testen.html
+redirect_to: /de/14-debuggen-und-testen.html
 ---
 # Umgezogen · Moved
 

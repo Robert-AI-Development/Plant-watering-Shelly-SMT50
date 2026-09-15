@@ -1,5 +1,5 @@
 ---
-redirect_to: /Plant-watering-Shelly-SMT50/de/17-etappen-und-entscheidungslog.html
+redirect_to: /de/17-etappen-und-entscheidungslog.html
 ---
 # Programmierplan (PLAN.md)
 

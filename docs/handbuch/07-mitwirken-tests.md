@@ -1,5 +1,5 @@
 ---
-redirect_to: /Plant-watering-Shelly-SMT50/de/15-ausbau-mit-claude-code.html
+redirect_to: /de/15-ausbau-mit-claude-code.html
 ---
 # Umgezogen · Moved
 

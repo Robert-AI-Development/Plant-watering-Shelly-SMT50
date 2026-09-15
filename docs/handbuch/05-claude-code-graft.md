@@ -1,5 +1,5 @@
 ---
-redirect_to: /Plant-watering-Shelly-SMT50/de/10-installation-claude-code.html
+redirect_to: /de/10-installation-claude-code.html
 ---
 # Umgezogen · Moved
 

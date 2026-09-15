@@ -1,5 +1,5 @@
 ---
-redirect_to: /Plant-watering-Shelly-SMT50/de/05-verkabelung-und-aufbau.html
+redirect_to: /de/05-verkabelung-und-aufbau.html
 ---
 # Umgezogen · Moved
 

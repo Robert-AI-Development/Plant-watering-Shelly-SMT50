@@ -1,5 +1,5 @@
 ---
-redirect_to: /Plant-watering-Shelly-SMT50/de/06-startanleitung.html
+redirect_to: /de/06-startanleitung.html
 ---
 # Kurzanleitung
 

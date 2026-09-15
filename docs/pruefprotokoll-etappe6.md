@@ -1,5 +1,5 @@
 ---
-redirect_to: /Plant-watering-Shelly-SMT50/de/19-pruefprotokoll.html
+redirect_to: /de/19-pruefprotokoll.html
 ---
 # Prüfprotokoll
 

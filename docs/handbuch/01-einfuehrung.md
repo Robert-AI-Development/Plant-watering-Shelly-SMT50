@@ -1,5 +1,5 @@
 ---
-redirect_to: /Plant-watering-Shelly-SMT50/de/01-gesamtarchitektur.html
+redirect_to: /de/01-gesamtarchitektur.html
 ---
 # Umgezogen · Moved
 

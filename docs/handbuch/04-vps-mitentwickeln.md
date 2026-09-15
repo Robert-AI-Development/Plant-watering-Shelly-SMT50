@@ -1,5 +1,5 @@
 ---
-redirect_to: /Plant-watering-Shelly-SMT50/de/09-installation-vps.html
+redirect_to: /de/09-installation-vps.html
 ---
 # Umgezogen · Moved
 
