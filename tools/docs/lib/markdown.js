@@ -39,8 +39,12 @@ function parse(text) {
     let m;
     const imgRe = /!\[([^\]]*)\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g;
     while ((m = imgRe.exec(noCode))) doc.images.push({ line: n + 1, alt: m[1], src: m[2] });
+    // verlinktes Bild [![alt](bild)](ziel): das äußere Ziel ist ein Link (Diagrammblock der Kapitelvorlage)
+    const imgLinkRe = /\[!\[([^\]]*)\]\([^)]*\)\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g;
+    while ((m = imgLinkRe.exec(noCode))) doc.links.push({ line: n + 1, text: m[1], target: m[2] });
+    const noImgLink = noCode.replace(imgLinkRe, (s) => ' '.repeat(s.length));
     const linkRe = /(^|[^!])\[([^\]]*)\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g;
-    while ((m = linkRe.exec(noCode))) doc.links.push({ line: n + 1, text: m[2], target: m[3] });
+    while ((m = linkRe.exec(noImgLink))) doc.links.push({ line: n + 1, text: m[2], target: m[3] });
     const spanRe = /`([^`]+)`/g;
     while ((m = spanRe.exec(l))) doc.codeSpans.push({ line: n + 1, text: m[1] });
     const mRe = /<!--\s*(fact|def|zr|hwt|hwp):([\w.]+)\s*-->(.*?)<!--\s*\/\1\s*-->/g;

@@ -1,28 +1,144 @@
 {
-  "geltung": ["docs/de", "docs/en", "docs/index.md", "docs/diagramme/README.md"],
+  "geltung": [
+    "docs/de",
+    "docs/en",
+    "docs/index.md",
+    "docs/diagramme/README.md",
+    "README.md",
+    "README.en.md",
+    "CLAUDE.md",
+    "AGENTS.md"
+  ],
   "eintraege": [
-    { "muster": "0 5 8,20", "hinweis": "Sicherheits-Aus ist seit 0.2.0 `0 8 8,20 * * *` (SAFE_MIN 8)", "ausser": ["17-", "19-"] },
-    { "muster": "IDs 1/2/3", "hinweis": "Installer sucht per Name; IDs vergibt das Gerät" },
-    { "muster": "lrn\\.eff\\b", "regex": true, "hinweis": "Lernwert heißt seit 0.2.0 `lrn.effW`", "ausser": ["13-", "17-", "18-"] },
-    { "muster": "why=tmin", "hinweis": "`tmin` gibt es seit 0.2.0 nicht mehr (Klemme auf tMin)", "ausser": ["17-"] },
-    { "muster": "15\\.000 Byte", "regex": true, "hinweis": "Größengrenze ist 16 000 B, bw_pump 18 000 B", "ausser": ["18-"] },
-    { "muster": "tMax 15\\b", "regex": true, "hinweis": "Zeitraffer-Profil: tMax 40", "ausser": ["17-", "19-"] },
-    { "muster": "auto_off 25\\b", "regex": true, "hinweis": "Zeitraffer auto_off ist 50 s (tMax 40 + 10)", "ausser": ["17-", "19-"] },
-    { "muster": "Takt 1 min", "hinweis": "Zeitraffer ist Takt 3 min / Fenster 6 min", "ausser": ["17-", "19-"] },
-    { "muster": "ungerade Minute", "hinweis": "sicherer Moment: Sekunde 8–30, nicht in den Minuten 0–2 des 6er-Zyklus" },
-    { "muster": "letzten? 90 s", "regex": true, "hinweis": "Zeitwache: erste 90 s und letzte 90 + pumpSec s des Takts" },
-    { "muster": "MAX_CALL_DEPTH = 8", "hinweis": "Mock-Grenze ist 10 (Gerät: 12 ok, 14 Absturz)" },
-    { "muster": "~30 KB frei", "hinweis": "gemessen: 12 288 → 49 152 B (≈ 36 KB)" },
-    { "muster": "Schlauch im Eimer", "hinweis": "Zeitraffer 0.1.3 lief mit Schlauch an der Pflanze (Prüfprotokoll)", "ausser": ["19-"] },
-    { "muster": "[Dd]rei kleine Scripts|three small scripts", "regex": true, "hinweis": "sechs Scripts: drei Betriebs-, zwei Hardware-Test-, ein Zeitraffer-Script" },
-    { "muster": "enable:false", "hinweis": "niemand setzt enable für die Test-Scripts; sie starten nur von Hand" },
-    { "muster": "Zeitplan #1", "hinweis": "Schedule-IDs vergibt das Gerät" },
-    { "muster": "npm install", "hinweis": "keine Abhängigkeiten – npm install ist überflüssig" },
-    { "muster": "docs/handbuch/", "hinweis": "Handbuch liegt in docs/de und docs/en" },
-    { "muster": "docs/kurzanleitung\\.md", "regex": true, "hinweis": "Kurzanleitung ging in Kapitel 06 auf" },
-    { "muster": "über pctLo", "hinweis": "`feucht` gilt ab `≥ pctLo` (mit Auftrag `≥ pctLo + hyst`)" },
-    { "muster": "8–9 Schreibvorgänge", "hinweis": "0.2.0: 15–22 KVS-Schreibvorgänge je Gießtag, Budget ≤ 24" },
-    { "muster": "kein_auftrag`? \\| pump \\|(?! nur Konsole)", "regex": true, "hinweis": "`kein_auftrag` steht nie in job.why, nur in der Konsolenzeile ergebnis=" },
-    { "muster": "Kapitel 7 ", "hinweis": "Kapitelnummern sind zweistellig (07, 15 …); Deploy-Key/PAT steht in 09" }
+    {
+      "muster": "0 5 8,20",
+      "hinweis": "Sicherheits-Aus ist seit 0.2.0 `0 8 8,20 * * *` (SAFE_MIN 8)",
+      "ausser": [
+        "17-",
+        "19-"
+      ]
+    },
+    {
+      "muster": "IDs 1/2/3",
+      "hinweis": "Installer sucht per Name; IDs vergibt das Gerät"
+    },
+    {
+      "muster": "lrn\\.eff\\b",
+      "regex": true,
+      "hinweis": "Lernwert heißt seit 0.2.0 `lrn.effW`",
+      "ausser": [
+        "13-",
+        "17-",
+        "18-"
+      ]
+    },
+    {
+      "muster": "why=tmin",
+      "hinweis": "`tmin` gibt es seit 0.2.0 nicht mehr (Klemme auf tMin)",
+      "ausser": [
+        "17-"
+      ]
+    },
+    {
+      "muster": "15\\.000 Byte",
+      "regex": true,
+      "hinweis": "Größengrenze ist 16 000 B, bw_pump 18 000 B",
+      "ausser": [
+        "18-"
+      ]
+    },
+    {
+      "muster": "tMax 15\\b",
+      "regex": true,
+      "hinweis": "Zeitraffer-Profil: tMax 40",
+      "ausser": [
+        "17-",
+        "19-"
+      ]
+    },
+    {
+      "muster": "auto_off 25\\b",
+      "regex": true,
+      "hinweis": "Zeitraffer auto_off ist 50 s (tMax 40 + 10)",
+      "ausser": [
+        "17-",
+        "19-"
+      ]
+    },
+    {
+      "muster": "Takt 1 min",
+      "hinweis": "Zeitraffer ist Takt 3 min / Fenster 6 min",
+      "ausser": [
+        "17-",
+        "19-"
+      ]
+    },
+    {
+      "muster": "ungerade Minute",
+      "hinweis": "sicherer Moment: Sekunde 8–30, nicht in den Minuten 0–2 des 6er-Zyklus"
+    },
+    {
+      "muster": "letzten? 90 s",
+      "regex": true,
+      "hinweis": "Zeitwache: erste 90 s und letzte 90 + pumpSec s des Takts"
+    },
+    {
+      "muster": "MAX_CALL_DEPTH = 8",
+      "hinweis": "Mock-Grenze ist 10 (Gerät: 12 ok, 14 Absturz)"
+    },
+    {
+      "muster": "~30 KB frei",
+      "hinweis": "gemessen: 12 288 → 49 152 B (≈ 36 KB)"
+    },
+    {
+      "muster": "Schlauch im Eimer",
+      "hinweis": "Zeitraffer 0.1.3 lief mit Schlauch an der Pflanze (Prüfprotokoll)",
+      "ausser": [
+        "19-"
+      ]
+    },
+    {
+      "muster": "[Dd]rei kleine Scripts|three small scripts",
+      "regex": true,
+      "hinweis": "sechs Scripts: drei Betriebs-, zwei Hardware-Test-, ein Zeitraffer-Script"
+    },
+    {
+      "muster": "enable:false",
+      "hinweis": "niemand setzt enable für die Test-Scripts; sie starten nur von Hand"
+    },
+    {
+      "muster": "Zeitplan #1",
+      "hinweis": "Schedule-IDs vergibt das Gerät"
+    },
+    {
+      "muster": "npm install",
+      "hinweis": "keine Abhängigkeiten – npm install ist überflüssig"
+    },
+    {
+      "muster": "docs/handbuch/",
+      "hinweis": "Handbuch liegt in docs/de und docs/en"
+    },
+    {
+      "muster": "docs/kurzanleitung\\.md",
+      "regex": true,
+      "hinweis": "Kurzanleitung ging in Kapitel 06 auf"
+    },
+    {
+      "muster": "über pctLo",
+      "hinweis": "`feucht` gilt ab `≥ pctLo` (mit Auftrag `≥ pctLo + hyst`)"
+    },
+    {
+      "muster": "8–9 Schreibvorgänge",
+      "hinweis": "0.2.0: 15–22 KVS-Schreibvorgänge je Gießtag, Budget ≤ 24"
+    },
+    {
+      "muster": "kein_auftrag`? \\| pump \\|(?! nur Konsole)",
+      "regex": true,
+      "hinweis": "`kein_auftrag` steht nie in job.why, nur in der Konsolenzeile ergebnis="
+    },
+    {
+      "muster": "Kapitel 7 ",
+      "hinweis": "Kapitelnummern sind zweistellig (07, 15 …); Deploy-Key/PAT steht in 09"
+    }
   ]
 }

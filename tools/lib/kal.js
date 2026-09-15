@@ -167,7 +167,7 @@ function report(rec) {
   }
   if (p.wet) out.push('Zustand nass (Referenz ohne Gabe): ' + p.wet.pct + ' % (' + p.wet.V + ' V) aus ' + p.wet.n + ' Proben – im Echtbetrieb startet hier die Trockenphase, Gießen erst wieder unter pctDry ' + b.pctDry + ' %');
   else out.push('Zustand nass: nicht aufgezeichnet (Sensor zum Schluss ins nasse Substrat oder Wasserglas)');
-  if (p.clsDiff !== null) out.push('Unterschied trocken/mittel: ' + p.clsDiff + ' %' + (p.clsDiff > 50 ? ' – über 50 %: Klassenlernen (effD/effN) wäre eine eigene Etappe (docs/PLAN.md Entscheidung 13)' : ' – ein Lernwert effW reicht (Entscheidung 13)'));
+  if (p.clsDiff !== null) out.push('Unterschied trocken/mittel: ' + p.clsDiff + ' %' + (p.clsDiff > 50 ? ' – über 50 %: Klassenlernen (effD/effN) wäre eine eigene Etappe (Entscheidungslog Nr. 57, docs/de/17-etappen-und-entscheidungslog.md)' : ' – ein Lernwert effW reicht (Entscheidung 57)'));
   out.push('Vorschlag: lrn.effW ' + (p.effW === null ? '- (kein reguläres Fenster)' : p.effW + ' (Mittel aus ' + p.nWin + ' Fenster' + (p.nWin > 1 ? 'n' : '') + (p.real ? ', Skala % je Sekunde nach tRise aus den Konsolenzeilen' : ', PROFILSKALA aus st.effW – ohne Konsolenzeilen nicht auf den Normalbetrieb übertragbar') + ')')
     + ' · cfg4.tDead2 ' + (p.tDead2 === null ? '- (keine zweite Portion)' : p.tDead2 + ' s (Median tRise der Folgeportionen)') + ' · cfg3.tDead ' + (p.tDead === null ? '-' : p.tDead + ' s (tRise der Erstportion' + (p.real ? '' : ', Raster 5 s') + '; gilt für DIESEN Schlauch – im Endaufbau per mess nachmessen)'));
   out.push('Schreiben (nur im Normalbetrieb, mischt effW mit dem vorhandenen Wert α 0,5): node tools/hwtest.js <ip> kal write [datei]');

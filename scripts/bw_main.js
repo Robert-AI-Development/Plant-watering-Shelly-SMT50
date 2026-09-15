@@ -12,7 +12,7 @@
 // Rührt die Pumpe nie an. Alles Wissen liegt im KVS (cfg1..3, lrn, st, job, day, err), nichts im RAM.
 // Schritte:  1 KVS lesen   2 Pflichtfelder, Bandprüfung   3 Uhrzeit   4 Messen (Timer)   5 Tageswechsel (Trockentag)
 //            6 Nässe/Kontrolle/Trockenphase/Pause/Auftrag   7 KVS schreiben (nur Änderungen)   8 Konsole, Script.Stop
-// Regeln: docs/konzept-v2.md, docs/umsetzungsplan-v1.md/-v2.md, Entscheidungen in docs/PLAN.md.
+// Regeln: docs/de/16-konzept-und-entscheidungen.md (Konzept), docs/de/03-konfiguration.md (Felder), Entscheidungen in docs/de/17-etappen-und-entscheidungslog.md.
 // Immer nur ein offener RPC-Aufruf, ein Timer, alle Callbacks benannt (Gerätegrenzen laut Doku).
 // v0.2.0: Lernen (effW, noeff) liegt bei bw_pump im Fenster; hier nur noch die Kontrolle (zuviel → sf, sink), Wochen-Trockenphase,
 // Bandprüfung, Nachholfenster (pauseHot nach why max/zeit) und die Dosis mit effW – Klemme tMin..tMax statt why tmin.

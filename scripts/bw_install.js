@@ -48,7 +48,7 @@ var CRETRY_MAX = 3;            // Schedule.Create scheitert am Gerät sporadisch
 var CRETRY_MS = 400;           // Pause vor dem erneuten Versuch (gibt der Firmware Zeit). Installer-intern, kein Verhaltensparameter
 var cRetry = 0;
 
-// Startwerte laut Katalog docs/umsetzungsplan-v2.md, ergänzt um die Entscheidungen in docs/PLAN.md (Etappe 10: cfg4, pctOk, dryDay, effW/sf 0.7).
+// Startwerte: Parameter-Referenz docs/de/03-konfiguration.md (Marker def:… prüfen diese Werte), Entscheidungen in docs/de/17-etappen-und-entscheidungslog.md (Etappe 10: cfg4, pctOk, dryDay, effW/sf 0.7).
 // null = noch offen, wird nach den zwei Messungen an der Pflanze von Hand eingetragen.
 var DEF = {
   cfg1: { vDry: 0.20, vWet: 3.13, vErrLo: 0.10, vErrHi: 3.35, nSample: 5, msSample: 500, lvlEmpty: 1, nLvl: 3, idV: 100, idT: 100, idLvl: 1, idSw: 0 },

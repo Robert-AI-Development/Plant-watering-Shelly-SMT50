@@ -1,6 +1,6 @@
 // tools/hwtest.js v0.1.2 – Hardware-Test, Zeitraffer, Messlauf und Kalibrierlauf vom VPS aus steuern: Vorprüfung, Eingang aktivieren, hwt setzen, starten, mitlesen, Kommandos, Bericht, Rückbau, Aufräumen, Not-Aus
 //
-// Aufruf: node tools/hwtest.js <ip> <kommando> [args]   (ip z. B. 127.0.0.1:8010 über den SSH-Tunnel, Handbuch Kapitel 6)
+// Aufruf: node tools/hwtest.js <ip> <kommando> [args]   (ip z. B. 127.0.0.1:8010 über den SSH-Tunnel, Handbuch Kapitel 09)
 //   preflight [hw]         Uhrzeit, Sekunden bis zum 15-min-Takt, Abstand zu winA/winB/Mitternacht, Scripts (running), Input 1, Switch 0,
 //                          KVS (err/job/day/hwt/hwb*), Debug-Websocket; legt bw_zeitraffer (mit „hw" auch bw_hwtest/bw_hwpump) per Script.Create an
 //                          und nennt die Upload-Befehle. Die Hardware-Test-Scripts kosten Flash (LEARNING.md) – nur anlegen, wenn sie gebraucht werden
@@ -13,7 +13,8 @@
 //                          von bw_main/bw_pump); startet Durchgang B von bw_hwpump, sobald bw_pump fertig ist; Ende, wenn kein Test-Script
 //                          mehr läuft (im Zeitraffer: rein zeitgesteuert), sonst nach sek (Standard 120, max 300, im Zeitraffer 1800)
 //   zeitraffer [sek]       Praxistest im Zeitraffer: Vorprüfung (Zielband, Wasserstand, Ausgang, Scripts, hwb*), sicherer Moment (Sekunde 8–30,
-//                          ungerade Minute, nichts läuft), Script.Start bw_zeitraffer, mitlesen, danach Zeitplan/cfg3/auto_off prüfen, Fahrplan zeigen
+//                          im Zeitraffer nicht in den Minuten 0–2 des 6er-Zyklus, im Normalbetrieb nicht in den 9 min nach winA/winB, kein Betriebs-Script
+//                          läuft), Script.Start bw_zeitraffer, mitlesen, danach Zeitplan/cfg3/cfg4/auto_off prüfen, Fahrplan zeigen
 //   normal [sek]           Zurück zum Normalbetrieb: sicherer Moment, Script.Start bw_install, mitlesen, danach Sicherung weg / Zeitplan normal prüfen
 //                          (auch für ein Script-Update: der Installer ergänzt neue cfg-Felder)
 //   mess [sek] [n] [beob]  Messlauf am Aufbau (Regelkreis-Planung): n Pulse Switch.Set on toggle_after sek (≤ 10 s), Sensor alle 2 s über beob s (Standard 90, max 300) je Puls;
@@ -62,7 +63,7 @@ async function rpc(method, params) {
       await new Promise((res) => setTimeout(res, 1000));   // Tunnel/Netz: kurz warten, nochmal
     }
   }
-  throw new Error(method + ': ' + last.message + ' – Tunnel 127.0.0.1:8010 offen? (Handbuch 6)');
+  throw new Error(method + ': ' + last.message + ' – Tunnel 127.0.0.1:8010 offen? (Handbuch Kapitel 09)');
 }
 function parseKvs(v) { if (typeof v !== 'string') return v; try { return JSON.parse(v); } catch (e) { return null; } }
 async function kvsGet(key) { try { const r = await rpc('KVS.Get', { key: key }); return parseKvs(r.value); } catch (e) { if (e.code === -105) return undefined; throw e; } }
