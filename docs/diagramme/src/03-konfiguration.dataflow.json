@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "Wer liest und schreibt welche KVS-Einträge",
+    "quality_profile": "showcase",
+    "visual_preset": "blueprint",
+    "viewBox": [1080, 780],
+    "views": [
+      {
+        "id": "einstellungen",
+        "label": "Einstellungen cfg1–cfg4",
+        "focus": ["installer", "cfg1", "cfg2", "cfg34", "bw_main", "bw_pump"],
+        "note": "Der Installer legt fehlende Einträge und Felder an und überschreibt nie. bw_main liest cfg1–cfg3 je Takt, bw_pump alle vier im Fenster."
+      },
+      {
+        "id": "auftrag",
+        "label": "Auftrag und Ergebnis",
+        "focus": ["bw_main", "job", "bw_pump", "st"],
+        "note": "bw_main schreibt den Auftrag job; bw_pump liest ihn im Fenster, setzt den Claim in st und trägt Ergebnis, Tageszähler und Störung ein."
+      },
+      {
+        "id": "lernen",
+        "label": "Lernen",
+        "focus": ["bw_pump", "lrn", "bw_main"],
+        "note": "bw_pump lernt effW und sf am Fensterende; bw_main führt tMaxD, tMean und rate nach und senkt sf, wenn die Kontrolle zuviel meldet."
+      },
+      {
+        "id": "werkzeuge",
+        "label": "Werkzeuge schreiben Kalibrierung",
+        "focus": ["hwtest", "mensch", "kal", "cfg1", "cfg2", "cfg34", "lrn"],
+        "note": "Zielband von Hand; bw_hwtest misst vDry, vWet und lvlEmpty; kal write trägt effW, tDead, tMin und tDead2 aus dem Kalibrierlauf ein."
+      }
+    ]
+  },
+  "stages": [
+    {"label": "Werkzeuge"},
+    {"label": "Konfiguration"},
+    {"label": "Takt"},
+    {"label": "Fenster"},
+    {"label": "Zustand"}
+  ],
+  "nodes": [
+    {"id": "installer", "type": "backend", "label": "bw_install", "sublabel": "DEF: legt an, ergänzt", "stage": 0, "row": 2},
+    {"id": "kal", "type": "frontend", "label": "kal write", "sublabel": "tDead, tMin, tDead2", "stage": 0, "row": 4},
+    {"id": "hwtest", "type": "frontend", "label": "bw_hwtest", "sublabel": "misst am Aufbau", "stage": 1, "row": 0},
+    {"id": "cfg1", "type": "database", "label": "cfg1 Sensor", "sublabel": "Kalibrierung, IDs", "stage": 1, "row": 1},
+    {"id": "mensch", "type": "frontend", "label": "Web-UI, KVS.Set", "sublabel": "Zielband von Hand", "stage": 1, "row": 2},
+    {"id": "cfg2", "type": "database", "label": "cfg2 Zielband", "sublabel": "pctLo … pctHi, Lernen", "stage": 1, "row": 3},
+    {"id": "cfg34", "type": "database", "label": "cfg3 · cfg4", "sublabel": "Zeiten, Fenster-Regler", "stage": 1, "row": 4},
+    {"id": "bw_main", "type": "backend", "label": "bw_main", "sublabel": "Takt: liest cfg1–cfg3", "stage": 2, "row": 3},
+    {"id": "job", "type": "database", "label": "job Übergabe", "sublabel": "ok, sec, pct, why, ts", "stage": 2, "row": 4},
+    {"id": "bw_pump", "type": "backend", "label": "bw_pump", "sublabel": "Fenster: liest cfg1–cfg4", "stage": 3, "row": 4},
+    {"id": "st", "type": "database", "label": "st · day · err", "sublabel": "Zustand, Zähler, Störung", "stage": 4, "row": 3},
+    {"id": "lrn", "type": "database", "label": "lrn Lernwerte", "sublabel": "effW, sf, tMaxD, rate", "stage": 4, "row": 4}
+  ],
+  "flows": [
+    {"id": "inst_cfg1", "from": "installer", "to": "cfg1", "label": "Startwerte", "labelAt": [207.5, 328]},
+    {"id": "inst_cfg2", "from": "installer", "to": "cfg2", "label": "Startwerte", "labelAt": [207.5, 442]},
+    {"id": "inst_cfg34", "from": "installer", "to": "cfg34", "label": "Startwerte", "fromSide": "bottom", "toSide": "top", "via": [[100, 556], [315, 556]]},
+    {"id": "hw_cfg1", "from": "hwtest", "to": "cfg1", "label": "vDry, vWet, lvlEmpty", "labelAt": [315, 200]},
+    {"id": "mensch_cfg2", "from": "mensch", "to": "cfg2", "label": "Zielband", "variant": "emphasis", "labelAt": [315, 428]},
+    {"id": "kal_cfg34", "from": "kal", "to": "cfg34", "label": "tDead, tMin"},
+    {"id": "kal_lrn", "from": "kal", "to": "lrn", "label": "effW", "route": "bottom-channel", "channelY": 692, "variant": "dashed", "labelDx": 300},
+    {"id": "cfg1_main", "from": "cfg1", "to": "bw_main", "label": "Sensor", "labelAt": [422.5, 385]},
+    {"id": "cfg2_main", "from": "cfg2", "to": "bw_main", "label": "Band", "labelDx": -28},
+    {"id": "cfg34_main", "from": "cfg34", "to": "bw_main", "label": "Zeiten", "labelAt": [422.5, 556]},
+    {"id": "cfg34_pump", "from": "cfg34", "to": "bw_pump", "label": "je Fenster", "route": "bottom-channel", "channelY": 667},
+    {"id": "main_job", "from": "bw_main", "to": "job", "label": "Auftrag", "variant": "emphasis", "labelAt": [530, 542]},
+    {"id": "job_pump", "from": "job", "to": "bw_pump", "label": "verbraucht", "variant": "emphasis"},
+    {"id": "pump_st", "from": "bw_pump", "to": "st", "label": "Claim, Ergebnis", "variant": "emphasis", "fromSide": "top", "toSide": "bottom", "via": [[745, 556], [960, 556]]},
+    {"id": "pump_lrn", "from": "bw_pump", "to": "lrn", "label": "effW, sf"},
+    {"id": "main_st", "from": "bw_main", "to": "st", "label": "Kontrolle, Tag, Störung"},
+    {"id": "main_lrn", "from": "bw_main", "to": "lrn", "label": "tMaxD, rate", "variant": "dashed", "fromSide": "top", "toSide": "right", "via": [[530, 442], [1062, 442], [1062, 613]]}
+  ]
+}

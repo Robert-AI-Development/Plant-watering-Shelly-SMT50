@@ -16,7 +16,7 @@
     { "nr": "02", "slug": "flussdiagramm", "teil": "A", "typ": "workflow", "status": "fertig",
       "de": { "titel": "Flussdiagramm: Takt, Auftrag, Fenster, Kontrolle, Pause", "wer": "Betreiber, Maker", "ergebnis": "Wissen, was das Gerät an einem Tag tut und warum es gerade nicht gießt" },
       "en": { "titel": "Flow: cycle, job, window, check, pause", "wer": "Operators, makers", "ergebnis": "Know what the device does in a day and why it is not watering right now" } },
-    { "nr": "03", "slug": "konfiguration", "teil": "A", "typ": "dataflow", "status": "aufbau",
+    { "nr": "03", "slug": "konfiguration", "teil": "A", "typ": "dataflow", "status": "fertig",
       "de": { "titel": "Konfigurations-Zusammenspiel (Parameter-Referenz)", "wer": "Alle, die ein Feld ändern", "ergebnis": "Jedes Feld: wer liest es, was bewirkt es, wann muss der Installer neu laufen" },
       "en": { "titel": "How the configuration fits together (parameter reference)", "wer": "Anyone changing a field", "ergebnis": "Every field: who reads it, what it does, when the installer must run again" } },
     { "nr": "04", "slug": "sicherheit-und-grenzen", "teil": "A", "typ": "sequence", "status": "fertig",

@@ -25,7 +25,7 @@ Diagrams: every chapter shows a static image and links the interactive version (
 | --- | --- | --- | --- | --- |
 | 01 | [Overall architecture](01-gesamtarchitektur.md) | Beginners, makers | Understand parts, six scripts, schedule and KVS in five minutes | [interactive](https://robert-ai-development.github.io/Plant-watering-Shelly-SMT50/diagramme/en/01-gesamtarchitektur.html) |
 | 02 | [Flow: cycle, job, window, check, pause](02-flussdiagramm.md) | Operators, makers | Know what the device does in a day and why it is not watering right now | [interactive](https://robert-ai-development.github.io/Plant-watering-Shelly-SMT50/diagramme/en/02-flussdiagramm.html) |
-| 03 | [How the configuration fits together (parameter reference)](03-konfiguration.md) *(in progress)* | Anyone changing a field | Every field: who reads it, what it does, when the installer must run again | – |
+| 03 | [How the configuration fits together (parameter reference)](03-konfiguration.md) | Anyone changing a field | Every field: who reads it, what it does, when the installer must run again | [interactive](https://robert-ai-development.github.io/Plant-watering-Shelly-SMT50/diagramme/en/03-konfiguration.html) |
 | 04 | [Safety and limits](04-sicherheit-und-grenzen.md) | Everyone before building | Why the pump never runs away and where the Shelly and the SMT50 hit their limits | [interactive](https://robert-ai-development.github.io/Plant-watering-Shelly-SMT50/diagramme/en/04-sicherheit-und-grenzen.html) |
 
 ### Part B – Build

@@ -1,0 +1,27 @@
+{
+ "schemaVersion": 1,
+ "diagramm": "03-konfiguration",
+ "sprache": "en",
+ "typ": "dataflow",
+ "archify": "2.16.0",
+ "quelle": {
+  "spec": "f769d674bdafb8b6e2b476f083ddf831cc7d926e1fbf6d2d8aca5144278e07a5",
+  "dict": "03dc0ab4d519d45d90e0489d23c4d3b86ec0c010bf4f9b97d1d4964e8da775a1",
+  "pfad": "docs/diagramme/src/03-konfiguration.dataflow.json"
+ },
+ "html": {
+  "sha256": "6182f2b81254206068741322f70ceb2be25c76a1cf3c97247bf5dd859e671a28",
+  "bytes": 722694
+ },
+ "svg": {
+  "sha256": "e3e2790132e53fe42481ceca02dc2a1e28b712dbb37a56019c9db0a129e518c9",
+  "bytes": 64920
+ },
+ "validierung": {
+  "profile": "showcase",
+  "errors": 0,
+  "warnings": 0,
+  "checksPassed": 9,
+  "checkCount": 9
+ }
+}
