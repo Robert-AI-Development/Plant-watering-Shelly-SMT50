@@ -49,7 +49,7 @@ Diagrams: every chapter shows a static image and links the interactive version (
 | No. | Chapter | For whom | Outcome | Diagram |
 | --- | --- | --- | --- | --- |
 | 11 | [Hardware check (bw_hwtest, bw_hwpump)](11-hardware-check.md) | After installation | Sensors, float switch and pump verified, cfg1 measured | [interactive](https://robert-ai-development.github.io/Plant-watering-Shelly-SMT50/diagramme/en/11-hardware-check.html) |
-| 12 | [First commissioning: calibration, target band, fast-forward, first window](12-erstinbetriebnahme.md) *(in progress)* | After the hardware check | Values that make the device water correctly; the whole cycle seen once in 45 minutes | – |
+| 12 | [First commissioning: calibration, target band, fast-forward, first window](12-erstinbetriebnahme.md) | After the hardware check | Values that make the device water correctly; the whole cycle seen once in 45 minutes | [interactive](https://robert-ai-development.github.io/Plant-watering-Shelly-SMT50/diagramme/en/12-erstinbetriebnahme.html) |
 | 13 | [Operation and maintenance](13-betrieb-und-wartung.md) *(in progress)* | Day-to-day operators | Read the console, decode states, fix faults, update, maintain, travel | – |
 
 ### Part E – Extend

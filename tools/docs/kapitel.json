@@ -43,7 +43,7 @@
     { "nr": "11", "slug": "hardware-check", "teil": "D", "typ": "workflow", "status": "fertig",
       "de": { "titel": "Hardware-Check (bw_hwtest, bw_hwpump)", "wer": "Nach der Installation", "ergebnis": "Sensoren, Schwimmer und Pumpe geprüft, cfg1 gemessen" },
       "en": { "titel": "Hardware check (bw_hwtest, bw_hwpump)", "wer": "After installation", "ergebnis": "Sensors, float switch and pump verified, cfg1 measured" } },
-    { "nr": "12", "slug": "erstinbetriebnahme", "teil": "D", "typ": "workflow", "status": "aufbau",
+    { "nr": "12", "slug": "erstinbetriebnahme", "teil": "D", "typ": "workflow", "status": "fertig",
       "de": { "titel": "Erstinbetriebnahme: Kalibrierung, Zielband, Zeitraffer, erstes Fenster", "wer": "Nach dem Hardware-Check", "ergebnis": "Werte, mit denen das Gerät richtig gießt; einmal alles in 45 Minuten gesehen" },
       "en": { "titel": "First commissioning: calibration, target band, fast-forward, first window", "wer": "After the hardware check", "ergebnis": "Values that make the device water correctly; the whole cycle seen once in 45 minutes" } },
     { "nr": "13", "slug": "betrieb-und-wartung", "teil": "D", "typ": "lifecycle", "status": "aufbau",

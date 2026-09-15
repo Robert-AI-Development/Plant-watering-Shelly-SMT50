@@ -1,0 +1,27 @@
+{
+ "schemaVersion": 1,
+ "diagramm": "12-erstinbetriebnahme",
+ "sprache": "en",
+ "typ": "workflow",
+ "archify": "2.16.0",
+ "quelle": {
+  "spec": "39574411b96839941fef3fb70798fce4f0ff2eac9eda99c15c8e8257517bcb4f",
+  "dict": "4b06e9b9f5f86d726cc9db8038edbb8b628f19d1b4c718c22c18af0a7b63ba57",
+  "pfad": "docs/diagramme/src/12-erstinbetriebnahme.workflow.json"
+ },
+ "html": {
+  "sha256": "f87900f8defcd822f7c5040f3e2ab2fe7d5932c79879f9837aaa073694bd33da",
+  "bytes": 717475
+ },
+ "svg": {
+  "sha256": "151051f2cd7e722f2e5bbcb6eb5eaa38bc5af77eae684bce556fb3ee66f81668",
+  "bytes": 60000
+ },
+ "validierung": {
+  "profile": "showcase",
+  "errors": 0,
+  "warnings": 0,
+  "checksPassed": 9,
+  "checkCount": 9
+ }
+}

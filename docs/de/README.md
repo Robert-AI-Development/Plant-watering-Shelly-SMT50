@@ -49,7 +49,7 @@ Diagramme: jedes Kapitel zeigt ein statisches Bild und verlinkt die interaktive 
 | Nr | Kapitel | Für wen | Ergebnis | Diagramm |
 | --- | --- | --- | --- | --- |
 | 11 | [Hardware-Check (bw_hwtest, bw_hwpump)](11-hardware-check.md) | Nach der Installation | Sensoren, Schwimmer und Pumpe geprüft, cfg1 gemessen | [interaktiv](https://robert-ai-development.github.io/Plant-watering-Shelly-SMT50/diagramme/de/11-hardware-check.html) |
-| 12 | [Erstinbetriebnahme: Kalibrierung, Zielband, Zeitraffer, erstes Fenster](12-erstinbetriebnahme.md) *(im Aufbau)* | Nach dem Hardware-Check | Werte, mit denen das Gerät richtig gießt; einmal alles in 45 Minuten gesehen | – |
+| 12 | [Erstinbetriebnahme: Kalibrierung, Zielband, Zeitraffer, erstes Fenster](12-erstinbetriebnahme.md) | Nach dem Hardware-Check | Werte, mit denen das Gerät richtig gießt; einmal alles in 45 Minuten gesehen | [interaktiv](https://robert-ai-development.github.io/Plant-watering-Shelly-SMT50/diagramme/de/12-erstinbetriebnahme.html) |
 | 13 | [Betrieb und Wartung](13-betrieb-und-wartung.md) *(im Aufbau)* | Betreiber im Alltag | Ablesen, Codes deuten, Störung beheben, aktualisieren, warten, verreisen | – |
 
 ### Teil E – Erweitern

@@ -1,0 +1,244 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Erstinbetriebnahme: von cfg1 bis zum ersten echten Fenster",
+    "quality_profile": "showcase",
+    "visual_preset": "blueprint",
+    "views": [
+      {
+        "id": "kalibrierung",
+        "label": "Kalibrierung",
+        "focus": [
+          "cfg1",
+          "band",
+          "normal0",
+          "mess"
+        ],
+        "note": "Sensor kalibrieren, Zielband eintragen, Installer ergänzt die Felder; der Messlauf zeigt Totzeit und Gewinn eines 10-s-Pulses."
+      },
+      {
+        "id": "zeitraffer",
+        "label": "Zeitraffer-Fahrplan",
+        "focus": [
+          "zr",
+          "f1",
+          "umstecken",
+          "f2f4",
+          "normal1"
+        ],
+        "note": "Takt 3 min, Fenster alle 6 min: Fenster 1 lernt effW, dann Pause, Hitze, wasser und limit; normal 60 stellt das Original wieder her."
+      },
+      {
+        "id": "lernwerte",
+        "label": "Lernwerte übernehmen",
+        "focus": [
+          "normal1",
+          "kal",
+          "echt"
+        ],
+        "note": "kal zeichnet auf, normal 60 baut zurück, report rechnet effW auf die Skala nach tRise um, write schreibt effW, tDead2, tDead, tMin."
+      }
+    ]
+  },
+  "lanes": [
+    {
+      "id": "rechner",
+      "label": "Rechner (hwtest.js)"
+    },
+    {
+      "id": "geraet",
+      "label": "Gerät"
+    },
+    {
+      "id": "mensch",
+      "label": "Mensch am Topf"
+    }
+  ],
+  "mainPath": [
+    "cfg1",
+    "band",
+    "normal0",
+    "mess",
+    "zr",
+    "f1",
+    "umstecken",
+    "f2f4",
+    "normal1",
+    "kal",
+    "echt"
+  ],
+  "nodes": [
+    {
+      "id": "cfg1",
+      "lane": "mensch",
+      "col": 0,
+      "type": "external",
+      "label": "cfg1 messen",
+      "sublabel": "Sensor in Luft, im Wasser",
+      "width": 132
+    },
+    {
+      "id": "band",
+      "lane": "geraet",
+      "col": 0,
+      "type": "database",
+      "label": "Zielband cfg2",
+      "sublabel": "28 < 40 < 50 ≤ 55 < 60",
+      "width": 132
+    },
+    {
+      "id": "normal0",
+      "lane": "rechner",
+      "col": 1,
+      "type": "frontend",
+      "label": "normal 60",
+      "sublabel": "Installer ergänzt Felder",
+      "width": 132
+    },
+    {
+      "id": "mess",
+      "lane": "rechner",
+      "col": 2,
+      "type": "frontend",
+      "label": "mess 10 1",
+      "sublabel": "Totzeit, Gewinn",
+      "width": 132
+    },
+    {
+      "id": "zr",
+      "lane": "rechner",
+      "col": 3,
+      "type": "frontend",
+      "label": "zeitraffer 60",
+      "sublabel": "Takt 3, Fenster 6 min",
+      "width": 132
+    },
+    {
+      "id": "f1",
+      "lane": "geraet",
+      "col": 3,
+      "type": "messagebus",
+      "label": "Fenster 1",
+      "sublabel": "P1, P2, effW",
+      "width": 132
+    },
+    {
+      "id": "umstecken",
+      "lane": "mensch",
+      "col": 4,
+      "type": "external",
+      "label": "Sensor umstecken",
+      "sublabel": "in trockene Erde",
+      "width": 132
+    },
+    {
+      "id": "f2f4",
+      "lane": "geraet",
+      "col": 4,
+      "type": "messagebus",
+      "label": "Fenster 2–4",
+      "sublabel": "Pause, Hitze, wasser, limit",
+      "width": 132
+    },
+    {
+      "id": "normal1",
+      "lane": "rechner",
+      "col": 4,
+      "type": "frontend",
+      "label": "normal 60",
+      "sublabel": "Rückbau aus zrb1..5",
+      "width": 132
+    },
+    {
+      "id": "kal",
+      "lane": "rechner",
+      "col": 5,
+      "type": "frontend",
+      "label": "kal",
+      "sublabel": "normal → report → write",
+      "width": 132
+    },
+    {
+      "id": "echt",
+      "lane": "geraet",
+      "col": 5,
+      "type": "messagebus",
+      "label": "Echtes Fenster",
+      "sublabel": "08:00:30 / 20:00:30",
+      "width": 132
+    }
+  ],
+  "edges": [
+    {
+      "id": "e_cfg1_band",
+      "from": "cfg1",
+      "to": "band",
+      "label": "vDry, vWet",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e_band_normal0",
+      "from": "band",
+      "to": "normal0",
+      "label": "KVS.Set",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e_normal0_mess",
+      "from": "normal0",
+      "to": "mess",
+      "label": "Zeitplan ok",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e_mess_zr",
+      "from": "mess",
+      "to": "zr",
+      "label": "Startwerte",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e_zr_f1",
+      "from": "zr",
+      "to": "f1",
+      "label": "Minute 6:30",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e_f1_umstecken",
+      "from": "f1",
+      "to": "umstecken",
+      "label": "why=pause",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e_umstecken_f2f4",
+      "from": "umstecken",
+      "to": "f2f4",
+      "label": "pct < pctLo",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e_f2f4_normal1",
+      "from": "f2f4",
+      "to": "normal1",
+      "label": "why=limit",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e_normal1_kal",
+      "from": "normal1",
+      "to": "kal",
+      "label": "zrb weg",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e_kal_echt",
+      "from": "kal",
+      "to": "echt",
+      "label": "effW, tDead",
+      "variant": "emphasis"
+    }
+  ]
+}
