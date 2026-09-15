@@ -61,7 +61,7 @@
     { "nr": "17", "slug": "etappen-und-entscheidungslog", "teil": "F", "typ": "lifecycle", "status": "fertig",
       "de": { "titel": "Etappen- und Entscheidungslog", "wer": "Agenten, Entwickler", "ergebnis": "Was wann warum entschieden wurde; Nummern 1–63 bleiben stabil; offene Punkte" },
       "en": { "titel": "Stage and decision log", "wer": "Agents, developers", "ergebnis": "What was decided when and why; numbers 1–63 stay stable; open items" } },
-    { "nr": "18", "slug": "lernlog-geraet", "teil": "F", "typ": "dataflow", "status": "aufbau",
+    { "nr": "18", "slug": "lernlog-geraet", "teil": "F", "typ": "dataflow", "status": "fertig",
       "de": { "titel": "Lernlog vom Gerät", "wer": "Wer eine Überraschung einordnet", "ergebnis": "Jeder Gerätefund mit Symptom, Ursache, Fix und Regel im Test" },
       "en": { "titel": "Lessons from the device", "wer": "Anyone hit by a surprise", "ergebnis": "Every device finding with symptom, cause, fix and the rule in the tests" } },
     { "nr": "19", "slug": "pruefprotokoll", "teil": "F", "typ": "sequence", "status": "aufbau",

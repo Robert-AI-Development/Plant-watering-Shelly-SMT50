@@ -1,0 +1,27 @@
+{
+ "schemaVersion": 1,
+ "diagramm": "18-lernlog-geraet",
+ "sprache": "de",
+ "typ": "dataflow",
+ "archify": "2.16.0",
+ "quelle": {
+  "spec": "42c3b9a0c8119e4edf3a2a3b13139fac22eafa10302c62e67d3abd7012d91264",
+  "dict": "21a93d0d59a7811a4d5a8478bd48b9a87856b5e78216ce57bb0089b1cb71eea2",
+  "pfad": "docs/diagramme/src/18-lernlog-geraet.dataflow.json"
+ },
+ "html": {
+  "sha256": "e5ce4fd1456a456a20da1184a6fd3ca25c4a0cbc88c2ec99c4ee6af519c03840",
+  "bytes": 714290
+ },
+ "svg": {
+  "sha256": "f7e35126b4f83f1968912c71289eb102e175b9877012d014ad168b7f557a84b9",
+  "bytes": 56936
+ },
+ "validierung": {
+  "profile": "showcase",
+  "errors": 0,
+  "warnings": 0,
+  "checksPassed": 9,
+  "checkCount": 9
+ }
+}

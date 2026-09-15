@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "Der Weg einer Überraschung: vom Symptom zur Regel",
+    "quality_profile": "showcase",
+    "visual_preset": "blueprint",
+    "viewBox": [1068, 660],
+    "legend": {
+      "mode": "auto",
+      "entries": {
+        "emphasis": { "label": "Hauptpfad" },
+        "default": { "label": "Nebenpfad" },
+        "security": { "label": "Regel im Test" },
+        "dashed": { "label": "Eintrag im Lernlog" },
+        "database": { "label": "Ablage: Test, Mock, Doku" }
+      }
+    },
+    "views": [
+      {
+        "id": "diagnose",
+        "label": "Vom Symptom zur Ursache",
+        "focus": ["konsole", "symptom", "probe", "ursache"],
+        "note": "Die Fehlerzeile kommt aus Konsole oder Script.GetStatus; erst die Gegenprobe per curl oder Probe-Script sagt, was wirklich dahintersteckt."
+      },
+      {
+        "id": "fix",
+        "label": "Fix in Script oder Werkzeug",
+        "focus": ["ursache", "fix"],
+        "note": "Engine-Grenze, Editor oder Heap: der Fix ändert das Script, den Installer oder ein Werkzeug – nie nur die Doku."
+      },
+      {
+        "id": "regel",
+        "label": "Wo die Regel landet",
+        "focus": ["ursache", "fix", "syntax", "mock", "claude", "log"],
+        "note": "Statisch prüfbar → syntax.test.js; Verhalten → Nachbildung im Mock; Arbeitsweise → CLAUDE.md; alles zusammen → Eintrag hier."
+      }
+    ]
+  },
+  "stages": [
+    { "label": "Gerät" },
+    { "label": "Diagnose" },
+    { "label": "Ursache" },
+    { "label": "Fix" },
+    { "label": "Absicherung" }
+  ],
+  "nodes": [
+    { "id": "konsole", "type": "external", "label": "Konsole", "sublabel": "Script.GetStatus.errors", "stage": 0, "row": 1, "tag": "Gerät" },
+    { "id": "symptom", "type": "frontend", "label": "Symptom", "sublabel": "Got EOF, out_of_memory", "stage": 1, "row": 0, "tag": "Fehlerzeile" },
+    { "id": "probe", "type": "backend", "label": "Gegenprobe", "sublabel": "curl, engine_probe.js", "stage": 1, "row": 2, "tag": "gegenprüfen" },
+    { "id": "ursache", "type": "backend", "label": "Ursache", "sublabel": "Engine, Editor, Heap", "stage": 2, "row": 1, "tag": "belegt" },
+    { "id": "fix", "type": "backend", "label": "Fix", "sublabel": "Script oder Werkzeug", "stage": 3, "row": 1, "tag": "Version hoch" },
+    { "id": "syntax", "type": "security", "label": "syntax.test.js", "sublabel": "statische Regel", "stage": 4, "row": 0, "tag": "npm test" },
+    { "id": "mock", "type": "database", "label": "Mock", "sublabel": "Nachbildung", "stage": 4, "row": 1, "tag": "shelly-mock.js" },
+    { "id": "log", "type": "database", "label": "Eintrag hier", "sublabel": "Symptom … Vorbeugung", "stage": 4, "row": 2, "tag": "Kapitel 18" },
+    { "id": "claude", "type": "database", "label": "CLAUDE.md", "sublabel": "harte Regel", "stage": 4, "row": 3, "tag": "Arbeitsweise" }
+  ],
+  "flows": [
+    { "from": "konsole", "to": "symptom", "label": "Fehlerzeile", "variant": "emphasis" },
+    { "from": "symptom", "to": "probe", "label": "wörtlich?", "variant": "emphasis", "labelDy": 24 },
+    { "from": "probe", "to": "ursache", "label": "bestätigt", "variant": "emphasis" },
+    { "from": "ursache", "to": "fix", "label": "Änderung", "variant": "emphasis", "route": "straight" },
+    { "from": "fix", "to": "syntax", "label": "statisch prüfbar", "variant": "security", "fromSide": "top", "toSide": "left", "via": [[745, 157]], "labelSegment": 1 },
+    { "from": "fix", "to": "mock", "label": "Verhalten", "variant": "default", "route": "straight" },
+    { "from": "fix", "to": "log", "label": "fünf Absätze", "variant": "dashed", "fromSide": "bottom", "toSide": "left", "via": [[745, 385]], "labelSegment": 1 },
+    { "from": "ursache", "to": "claude", "label": "Arbeitsregel", "variant": "default", "fromSide": "bottom", "toSide": "left", "via": [[530, 499]], "labelSegment": 1 }
+  ]
+}
