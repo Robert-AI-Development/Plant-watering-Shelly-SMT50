@@ -1,0 +1,27 @@
+{
+ "schemaVersion": 1,
+ "diagramm": "08-installation-lokaler-server",
+ "sprache": "de",
+ "typ": "sequence",
+ "archify": "2.16.0",
+ "quelle": {
+  "spec": "f961956c0a5a025a77e5921989c86be52952f1c9114168861c7ce7babca8869a",
+  "dict": "ea128f2463b6a968e398a1bcd98072ed7a587dea3968f4987d8bd19ee4543978",
+  "pfad": "docs/diagramme/src/08-installation-lokaler-server.sequence.json"
+ },
+ "html": {
+  "sha256": "513030919941013c03e5eab64a1bda2de95a93e402f63f22ecf8c57d0743955b",
+  "bytes": 715972
+ },
+ "svg": {
+  "sha256": "d7f3016051cc1a3d30a92e03b07fcaa4f421361706c947ca6eaa9612ba46c2a7",
+  "bytes": 59314
+ },
+ "validierung": {
+  "profile": "showcase",
+  "errors": 0,
+  "warnings": 0,
+  "checksPassed": 9,
+  "checkCount": 9
+ }
+}

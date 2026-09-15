@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Upload und Installer vom PC aus",
+    "quality_profile": "showcase",
+    "visual_preset": "blueprint",
+    "column_fit": "spread",
+    "viewBox": [960, 1160],
+    "views": [
+      {
+        "id": "upload",
+        "label": "Upload und Prüfung",
+        "focus": ["pc", "shelly"],
+        "note": "preflight prüft Uhr, Scripts, Eingang und Websocket; put-script.js lädt in 1024-Zeichen-Stücken und vergleicht den Code byteidentisch."
+      },
+      {
+        "id": "installer",
+        "label": "Installer und Kontrolle",
+        "focus": ["pc", "shelly", "konsole"],
+        "note": "normal wartet den sicheren Moment ab, startet bw_install und prüft danach Zeitplan und auto_off gegen cfg3/cfg4."
+      },
+      {
+        "id": "mitlesen",
+        "label": "Mitlesen",
+        "focus": ["pc", "konsole"],
+        "note": "console.js verbindet sich vor dem Script-Start mit dem Debug-Websocket und zeigt jede Konsolenzeile des Geräts."
+      }
+    ]
+  },
+  "participants": [
+    { "id": "pc", "type": "frontend", "label": "PC im LAN", "sublabel": "tools/, Node ≥ 22" },
+    { "id": "shelly", "type": "backend", "label": "Shelly Plus Uni", "sublabel": "HTTP-RPC, Port 80" },
+    { "id": "konsole", "type": "messagebus", "label": "Debug-Websocket", "sublabel": "ws://<ip>/debug/log" }
+  ],
+  "segments": [
+    { "from": 165, "to": 320, "label": "Vorprüfung" },
+    { "from": 350, "to": 600, "label": "Upload und Prüfung" },
+    { "from": 630, "to": 920, "label": "Installer und Kontrolle" },
+    { "from": 950, "to": 1035, "label": "Mitlesen" }
+  ],
+  "messages": [
+    { "id": "pf_status", "from": "pc", "to": "shelly", "y": 190, "label": "preflight: Sys.GetStatus (Uhr, fs_free)" },
+    { "id": "pf_scripts", "from": "pc", "to": "shelly", "y": 228, "label": "Script.List, Input.GetConfig" },
+    { "id": "pf_config", "from": "pc", "to": "shelly", "y": 266, "label": "Sys.GetConfig (Websocket an?)", "variant": "security" },
+    { "id": "pf_ok", "from": "shelly", "to": "pc", "y": 300, "label": "Vorprüfung ohne Blocker", "variant": "return" },
+    { "id": "ps_stop", "from": "pc", "to": "shelly", "y": 375, "label": "put-script: Script.Stop" },
+    { "id": "ps_put", "from": "pc", "to": "shelly", "y": 415, "label": "Script.PutCode × n (1024 Zeichen)", "variant": "emphasis" },
+    { "id": "ps_get", "from": "pc", "to": "shelly", "y": 455, "label": "Script.GetCode (komplett)" },
+    { "id": "ps_ok", "from": "shelly", "to": "pc", "y": 490, "label": "OK, byteidentisch", "variant": "return" },
+    { "id": "vs_get", "from": "pc", "to": "shelly", "y": 540, "label": "verify-scripts: Script.GetCode je Script" },
+    { "id": "vs_ok", "from": "shelly", "to": "pc", "y": 580, "label": "alle byteidentisch, Versionen gleich", "variant": "return" },
+    { "id": "nm_safe", "from": "pc", "to": "shelly", "y": 655, "label": "normal: sicherer Moment (Sekunde 8–30)" },
+    { "id": "ws_open", "from": "pc", "to": "konsole", "y": 695, "label": "normal: Websocket öffnen", "variant": "dashed" },
+    { "id": "nm_start", "from": "pc", "to": "shelly", "y": 735, "label": "Script.Start bw_install", "variant": "emphasis" },
+    { "id": "nm_lines", "from": "shelly", "to": "konsole", "y": 775, "label": "Installer-Zeilen", "variant": "dashed" },
+    { "id": "nm_done", "from": "konsole", "to": "pc", "y": 815, "label": "Zeitplan #…, fertig", "variant": "return" },
+    { "id": "nm_check", "from": "pc", "to": "shelly", "y": 860, "label": "Schedule.List, Switch.GetConfig" },
+    { "id": "nm_ok", "from": "shelly", "to": "pc", "y": 900, "label": "NORMALBETRIEB", "variant": "return" },
+    { "id": "cs_open", "from": "pc", "to": "konsole", "y": 975, "label": "console.js <ip> 900", "variant": "dashed" },
+    { "id": "cs_line", "from": "konsole", "to": "pc", "y": 1015, "label": "[bw_main 0.2.0] V=… pct=… why=…", "variant": "return" }
+  ],
+  "activations": [
+    { "participant": "pc", "from": 180, "to": 1030, "type": "frontend" },
+    { "participant": "shelly", "from": 185, "to": 305, "type": "backend" },
+    { "participant": "shelly", "from": 370, "to": 585, "type": "backend" },
+    { "participant": "shelly", "from": 650, "to": 905, "type": "backend" },
+    { "participant": "konsole", "from": 690, "to": 820, "type": "messagebus" },
+    { "participant": "konsole", "from": 970, "to": 1020, "type": "messagebus" }
+  ]
+}

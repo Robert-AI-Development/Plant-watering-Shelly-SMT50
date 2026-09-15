@@ -31,7 +31,7 @@
     { "nr": "07", "slug": "installation-per-hand", "teil": "C", "typ": "workflow", "status": "fertig",
       "de": { "titel": "Installation per Hand (Web-UI, Copy & Paste)", "wer": "Ohne Node, ohne Terminal", "ergebnis": "Scripts aus dist/ eingefügt, Byte-Prüfung bestanden, Installer gelaufen" },
       "en": { "titel": "Installation by hand (web UI, copy & paste)", "wer": "No Node, no terminal", "ergebnis": "Scripts pasted from dist/, byte check passed, installer done" } },
-    { "nr": "08", "slug": "installation-lokaler-server", "teil": "C", "typ": "sequence", "status": "aufbau",
+    { "nr": "08", "slug": "installation-lokaler-server", "teil": "C", "typ": "sequence", "status": "fertig",
       "de": { "titel": "Installation mit lokalem Server (PC oder Raspberry im LAN)", "wer": "Node ≥ 22 im selben Netz", "ergebnis": "Upload, Prüfung und Installer mit den Werkzeugen direkt gegen die IP" },
       "en": { "titel": "Installation with a local server (PC or Raspberry Pi on the LAN)", "wer": "Node ≥ 22 on the same network", "ergebnis": "Upload, verification and installer with the tools straight against the IP" } },
     { "nr": "09", "slug": "installation-vps", "teil": "C", "typ": "architecture", "status": "aufbau",
