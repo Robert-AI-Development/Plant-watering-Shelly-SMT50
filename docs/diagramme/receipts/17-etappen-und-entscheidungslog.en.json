@@ -1,0 +1,27 @@
+{
+ "schemaVersion": 1,
+ "diagramm": "17-etappen-und-entscheidungslog",
+ "sprache": "en",
+ "typ": "lifecycle",
+ "archify": "2.16.0",
+ "quelle": {
+  "spec": "aa9ef1213a71eef3f4bf79ebc9cedb21035d62faa6e13666b7d231ccfaa06981",
+  "dict": "f9eb272186bf80fc2ba00d6608f5c40f16e30e090b74118d590dad66eb7a17cc",
+  "pfad": "docs/diagramme/src/17-etappen-und-entscheidungslog.lifecycle.json"
+ },
+ "html": {
+  "sha256": "f2dbc96b7abc089615c317c75e5830bff7615043fe8df8a769a3d8db251d9cc8",
+  "bytes": 713412
+ },
+ "svg": {
+  "sha256": "8683df21be861b1d871280ed7f9f8bbac326540cd34ca04f38b1de2465eb097c",
+  "bytes": 54316
+ },
+ "validierung": {
+  "profile": "showcase",
+  "errors": 0,
+  "warnings": 0,
+  "checksPassed": 9,
+  "checkCount": 9
+ }
+}

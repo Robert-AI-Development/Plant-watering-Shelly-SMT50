@@ -1,0 +1,232 @@
+{
+  "schema_version": 1,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "Etappen 0–11 und was das Gerät dazu sagte",
+    "quality_profile": "showcase",
+    "visual_preset": "blueprint",
+    "viewBox": [
+      980,
+      660
+    ],
+    "views": [
+      {
+        "id": "mock",
+        "label": "Ohne Gerät gebaut",
+        "focus": [
+          "e01",
+          "e25",
+          "e67"
+        ],
+        "note": "Etappen 0–6 und die README entstanden am 12.09.2026 gegen den Node-Mock (53 Tests), bevor das erste Script auf dem Gerät lief."
+      },
+      {
+        "id": "geraet",
+        "label": "Am Gerät gelernt",
+        "focus": [
+          "e67",
+          "g1209",
+          "e89",
+          "g1309",
+          "e10"
+        ],
+        "note": "Zwei Gerätetage: 12.09. Hoisting, Rekursion, Editor (Entscheidungen 13–20); 13.09. shift, Heap, PUMP_SEC, Messlauf (28, 37, 40)."
+      },
+      {
+        "id": "offen",
+        "label": "Offen und weiter",
+        "focus": [
+          "g1309",
+          "offen",
+          "e10",
+          "e11"
+        ],
+        "note": "Fenster 2–4, Zustände mittel/nass und das erste 20:00-Fenster stehen aus; seit 13.09. läuft die Doku-Neufassung (Etappe 11)."
+      }
+    ]
+  },
+  "lanes": [
+    {
+      "id": "main",
+      "label": "Etappen (Mock zuerst)"
+    },
+    {
+      "id": "geraet",
+      "label": "Gerätetests"
+    },
+    {
+      "id": "terminal",
+      "label": "Offen und Etappe 11"
+    }
+  ],
+  "states": [
+    {
+      "id": "e01",
+      "type": "start",
+      "label": "Etappen 0–1",
+      "sublabel": "Mock, Installer",
+      "lane": "main",
+      "col": 0,
+      "step": "01",
+      "tag": "12.09.",
+      "width": 124
+    },
+    {
+      "id": "e25",
+      "type": "active",
+      "label": "Etappen 2–5",
+      "sublabel": "bw_main, bw_pump",
+      "lane": "main",
+      "col": 1,
+      "step": "02",
+      "tag": "53 Tests",
+      "width": 124
+    },
+    {
+      "id": "e67",
+      "type": "active",
+      "label": "Etappen 6–7",
+      "sublabel": "Protokoll, README",
+      "lane": "main",
+      "col": 2,
+      "step": "03",
+      "tag": "v0.1.0",
+      "width": 124
+    },
+    {
+      "id": "e89",
+      "type": "active",
+      "label": "Etappen 8–9",
+      "sublabel": "HW-Test, Zeitraffer",
+      "lane": "main",
+      "col": 3,
+      "step": "04",
+      "tag": "13.09.",
+      "width": 124
+    },
+    {
+      "id": "e10",
+      "type": "success",
+      "label": "Etappe 10",
+      "sublabel": "Regelkreis, kal",
+      "lane": "main",
+      "col": 4,
+      "step": "05",
+      "tag": "v0.2.0",
+      "width": 124
+    },
+    {
+      "id": "g1209",
+      "type": "waiting",
+      "label": "Gerät 12.09.",
+      "sublabel": "Hoisting, Rekursion",
+      "lane": "geraet",
+      "col": 0,
+      "tag": "Editor",
+      "width": 140
+    },
+    {
+      "id": "g1309",
+      "type": "waiting",
+      "label": "Gerät 13.09.",
+      "sublabel": "shift, Heap, PUMP_SEC",
+      "lane": "geraet",
+      "col": 1,
+      "tag": "Messlauf",
+      "width": 140
+    },
+    {
+      "id": "offen",
+      "type": "failure",
+      "label": "Offen",
+      "sublabel": "Fenster 2–4, 20:00",
+      "lane": "terminal",
+      "col": 1,
+      "tag": "TODO am Gerät",
+      "width": 140
+    },
+    {
+      "id": "e11",
+      "type": "neutral",
+      "label": "Etappe 11",
+      "sublabel": "Doku-Neufassung",
+      "lane": "terminal",
+      "col": 2,
+      "tag": "seit 13.09.",
+      "width": 140
+    }
+  ],
+  "transitions": [
+    {
+      "id": "t1",
+      "from": "e67",
+      "to": "g1209",
+      "label": "Upload v0.1.0",
+      "route": "straight",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24
+    },
+    {
+      "id": "t2",
+      "from": "e89",
+      "to": "g1309",
+      "label": "Gerätelauf",
+      "route": "straight",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24
+    },
+    {
+      "id": "t3",
+      "from": "g1309",
+      "to": "offen",
+      "label": "noch nicht gezeigt",
+      "variant": "dashed",
+      "route": "straight",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24
+    },
+    {
+      "id": "t4",
+      "from": "e10",
+      "to": "e11",
+      "label": "Fenster 1 gelaufen",
+      "variant": "emphasis",
+      "route": "straight",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Ohne Gerät gebaut",
+      "items": [
+        "Etappen 0–6 und README am 12.09.2026 gegen den Mock, 53 Tests",
+        "Entscheidungen 1–12 aus dem Interview vom 12.09.",
+        "README und Prüfprotokoll standen vor dem ersten Gerätelauf"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Das Gerät sagte",
+      "items": [
+        "12.09.: kein Hoisting, Stack 12 ok / 14 Absturz, Editor verliert Bytes (13, 14, 19)",
+        "13.09.: shift fehlt, Heap ~25 KB geteilt, bw_pump bei Sekunde 30 (28, 37)",
+        "Messlauf: kurze Pulse füllen nur den Schlauch (40, 55)"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Offen und weiter",
+      "items": [
+        "Fenster 2–4 des Zeitraffers, Zustände mittel und nass, erstes 20:00-Fenster",
+        "tDead und tMin am Endaufbau nachmessen",
+        "Etappe 11: Handbuch DE/EN, 21 Kapitel, 146 Tests"
+      ]
+    }
+  ]
+}

@@ -20,5 +20,6 @@ Interaktive Diagramme der Kapitel (Archify): Zoom, Suche, Fokus, Beziehungs-Trac
 | 14 | [Debuggen und Testen](de/14-debuggen-und-testen.html) · [Kapitel](../de/14-debuggen-und-testen.md) | [Debugging and testing](en/14-debuggen-und-testen.html) · [chapter](../en/14-debuggen-und-testen.md) | dataflow |
 | 15 | [Ausbau der Steuerung mit Claude Code](de/15-ausbau-mit-claude-code.html) · [Kapitel](../de/15-ausbau-mit-claude-code.md) | [Extending the controller with Claude Code](en/15-ausbau-mit-claude-code.html) · [chapter](../en/15-ausbau-mit-claude-code.md) | workflow |
 | 16 | [Konzept und Entscheidungen (Stand 0.2.0)](de/16-konzept-und-entscheidungen.html) · [Kapitel](../de/16-konzept-und-entscheidungen.md) | [Concept and decisions (as of 0.2.0)](en/16-konzept-und-entscheidungen.html) · [chapter](../en/16-konzept-und-entscheidungen.md) | architecture |
+| 17 | [Etappen- und Entscheidungslog](de/17-etappen-und-entscheidungslog.html) · [Kapitel](../de/17-etappen-und-entscheidungslog.md) | [Stage and decision log](en/17-etappen-und-entscheidungslog.html) · [chapter](../en/17-etappen-und-entscheidungslog.md) | lifecycle |
 
 Quellen: `docs/diagramme/src/` (JSON-Spezifikation + Wörterbuch), Build: `npm run docs:diagramme`.

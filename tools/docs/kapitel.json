@@ -58,7 +58,7 @@
     { "nr": "16", "slug": "konzept-und-entscheidungen", "teil": "F", "typ": "architecture", "status": "fertig",
       "de": { "titel": "Konzept und Entscheidungen (Stand 0.2.0)", "wer": "Wer das Warum sucht", "ergebnis": "Bauprinzipien, Regelungskern, verworfene Alternativen, Ausbaustufen" },
       "en": { "titel": "Concept and decisions (as of 0.2.0)", "wer": "Anyone asking why", "ergebnis": "Design principles, control core, rejected alternatives, next stages" } },
-    { "nr": "17", "slug": "etappen-und-entscheidungslog", "teil": "F", "typ": "lifecycle", "status": "aufbau",
+    { "nr": "17", "slug": "etappen-und-entscheidungslog", "teil": "F", "typ": "lifecycle", "status": "fertig",
       "de": { "titel": "Etappen- und Entscheidungslog", "wer": "Agenten, Entwickler", "ergebnis": "Was wann warum entschieden wurde; Nummern 1–63 bleiben stabil; offene Punkte" },
       "en": { "titel": "Stage and decision log", "wer": "Agents, developers", "ergebnis": "What was decided when and why; numbers 1–63 stay stable; open items" } },
     { "nr": "18", "slug": "lernlog-geraet", "teil": "F", "typ": "dataflow", "status": "aufbau",

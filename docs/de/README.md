@@ -64,7 +64,7 @@ Diagramme: jedes Kapitel zeigt ein statisches Bild und verlinkt die interaktive 
 | Nr | Kapitel | Für wen | Ergebnis | Diagramm |
 | --- | --- | --- | --- | --- |
 | 16 | [Konzept und Entscheidungen (Stand 0.2.0)](16-konzept-und-entscheidungen.md) | Wer das Warum sucht | Bauprinzipien, Regelungskern, verworfene Alternativen, Ausbaustufen | [interaktiv](https://robert-ai-development.github.io/Plant-watering-Shelly-SMT50/diagramme/de/16-konzept-und-entscheidungen.html) |
-| 17 | [Etappen- und Entscheidungslog](17-etappen-und-entscheidungslog.md) *(im Aufbau)* | Agenten, Entwickler | Was wann warum entschieden wurde; Nummern 1–63 bleiben stabil; offene Punkte | – |
+| 17 | [Etappen- und Entscheidungslog](17-etappen-und-entscheidungslog.md) | Agenten, Entwickler | Was wann warum entschieden wurde; Nummern 1–63 bleiben stabil; offene Punkte | [interaktiv](https://robert-ai-development.github.io/Plant-watering-Shelly-SMT50/diagramme/de/17-etappen-und-entscheidungslog.html) |
 | 18 | [Lernlog vom Gerät](18-lernlog-geraet.md) *(im Aufbau)* | Wer eine Überraschung einordnet | Jeder Gerätefund mit Symptom, Ursache, Fix und Regel im Test | – |
 | 19 | [Prüfprotokoll am Gerät](19-pruefprotokoll.md) *(im Aufbau)* | Wer Messwerte braucht | Was am echten Aufbau gemessen wurde; Vorlage für den nächsten Lauf | – |
 | 20 | [RPC- und Engine-Referenz](20-rpc-referenz.md) *(im Aufbau)* | Wer einen RPC einbaut | Jede genutzte RPC mit Parametern, Antwort und Doku-Link; Engine-Fakten mit Messdatum | – |
