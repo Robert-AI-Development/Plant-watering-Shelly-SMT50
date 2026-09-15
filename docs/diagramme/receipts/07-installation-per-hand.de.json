@@ -1,0 +1,27 @@
+{
+ "schemaVersion": 1,
+ "diagramm": "07-installation-per-hand",
+ "sprache": "de",
+ "typ": "workflow",
+ "archify": "2.16.0",
+ "quelle": {
+  "spec": "2763c3ac944c2070c190c20b60d06a5ad6b071d25f8659a2318ea5914850a769",
+  "dict": "dcb7760a79960db5dded44285e9ec06241299fcdcc78cf4ae0ee6958d0cb7c8c",
+  "pfad": "docs/diagramme/src/07-installation-per-hand.workflow.json"
+ },
+ "html": {
+  "sha256": "b69348c8cbea5105a38a670e2939e530a46d9669f17536d29ecb5e9831933776",
+  "bytes": 714452
+ },
+ "svg": {
+  "sha256": "430133296fc768c8724775552c40a6606c09581b0d681dbfa8d68c92624f4491",
+  "bytes": 56335
+ },
+ "validierung": {
+  "profile": "showcase",
+  "errors": 0,
+  "warnings": 0,
+  "checksPassed": 9,
+  "checkCount": 9
+ }
+}

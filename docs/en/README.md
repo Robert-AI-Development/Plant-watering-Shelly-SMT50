@@ -39,7 +39,7 @@ Diagrams: every chapter shows a static image and links the interactive version (
 | No. | Chapter | For whom | Outcome | Diagram |
 | --- | --- | --- | --- | --- |
 | 06 | [Step-by-step start guide](06-startanleitung.md) | Everyone | From the wired device to the first watering window, choosing an installation route | [interactive](https://robert-ai-development.github.io/Plant-watering-Shelly-SMT50/diagramme/en/06-startanleitung.html) |
-| 07 | [Installation by hand (web UI, copy & paste)](07-installation-per-hand.md) *(in progress)* | No Node, no terminal | Scripts pasted from dist/, byte check passed, installer done | – |
+| 07 | [Installation by hand (web UI, copy & paste)](07-installation-per-hand.md) | No Node, no terminal | Scripts pasted from dist/, byte check passed, installer done | [interactive](https://robert-ai-development.github.io/Plant-watering-Shelly-SMT50/diagramme/en/07-installation-per-hand.html) |
 | 08 | [Installation with a local server (PC or Raspberry Pi on the LAN)](08-installation-lokaler-server.md) *(in progress)* | Node ≥ 22 on the same network | Upload, verification and installer with the tools straight against the IP | – |
 | 09 | [Installation with a VPS (reverse SSH tunnel)](09-installation-vps.md) *(in progress)* | Working on a server | The Shelly at home reachable via 127.0.0.1:8010, tools and Claude Code on the VPS | – |
 | 10 | [Installation with Claude Code](10-installation-claude-code.md) *(in progress)* | Let the AI lead | Installation as an interview: what Claude does, what the human decides | – |

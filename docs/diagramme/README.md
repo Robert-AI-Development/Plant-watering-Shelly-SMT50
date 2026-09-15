@@ -10,5 +10,6 @@ Interaktive Diagramme der Kapitel (Archify): Zoom, Suche, Fokus, Beziehungs-Trac
 | 04 | [Sicherheit und Grenzen](de/04-sicherheit-und-grenzen.html) · [Kapitel](../de/04-sicherheit-und-grenzen.md) | [Safety and limits](en/04-sicherheit-und-grenzen.html) · [chapter](../en/04-sicherheit-und-grenzen.md) | sequence |
 | 05 | [Verkabelung und Hardware-Aufbau](de/05-verkabelung-und-aufbau.html) · [Kapitel](../de/05-verkabelung-und-aufbau.md) | [Wiring and hardware build](en/05-verkabelung-und-aufbau.html) · [chapter](../en/05-verkabelung-und-aufbau.md) | architecture |
 | 06 | [Schritt-für-Schritt-Startanleitung](de/06-startanleitung.html) · [Kapitel](../de/06-startanleitung.md) | [Step-by-step start guide](en/06-startanleitung.html) · [chapter](../en/06-startanleitung.md) | workflow |
+| 07 | [Installation per Hand (Web-UI, Copy & Paste)](de/07-installation-per-hand.html) · [Kapitel](../de/07-installation-per-hand.md) | [Installation by hand (web UI, copy & paste)](en/07-installation-per-hand.html) · [chapter](../en/07-installation-per-hand.md) | workflow |
 
 Quellen: `docs/diagramme/src/` (JSON-Spezifikation + Wörterbuch), Build: `npm run docs:diagramme`.

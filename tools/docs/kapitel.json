@@ -28,7 +28,7 @@
     { "nr": "06", "slug": "startanleitung", "teil": "C", "typ": "workflow", "status": "fertig",
       "de": { "titel": "Schritt-für-Schritt-Startanleitung", "wer": "Alle", "ergebnis": "Vom verdrahteten Gerät zum ersten Gießfenster, Wegwahl zu den Installationsarten" },
       "en": { "titel": "Step-by-step start guide", "wer": "Everyone", "ergebnis": "From the wired device to the first watering window, choosing an installation route" } },
-    { "nr": "07", "slug": "installation-per-hand", "teil": "C", "typ": "workflow", "status": "aufbau",
+    { "nr": "07", "slug": "installation-per-hand", "teil": "C", "typ": "workflow", "status": "fertig",
       "de": { "titel": "Installation per Hand (Web-UI, Copy & Paste)", "wer": "Ohne Node, ohne Terminal", "ergebnis": "Scripts aus dist/ eingefügt, Byte-Prüfung bestanden, Installer gelaufen" },
       "en": { "titel": "Installation by hand (web UI, copy & paste)", "wer": "No Node, no terminal", "ergebnis": "Scripts pasted from dist/, byte check passed, installer done" } },
     { "nr": "08", "slug": "installation-lokaler-server", "teil": "C", "typ": "sequence", "status": "aufbau",

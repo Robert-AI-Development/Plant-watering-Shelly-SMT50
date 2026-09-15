@@ -1,0 +1,268 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Per Hand: Einfügen, prüfen, starten",
+    "quality_profile": "showcase",
+    "visual_preset": "blueprint",
+    "legend": {
+      "mode": "auto",
+      "entries": {
+        "frontend": {
+          "label": "Web-UI"
+        },
+        "backend": {
+          "label": "Script"
+        },
+        "database": {
+          "label": "Datei / KVS"
+        },
+        "security": {
+          "label": "Prüfung"
+        },
+        "messagebus": {
+          "label": "Zeitplan"
+        }
+      }
+    },
+    "views": [
+      {
+        "id": "einfuegen",
+        "label": "Einfügen und prüfen",
+        "focus": [
+          "dist",
+          "anlegen",
+          "einfuegen",
+          "laenge"
+        ],
+        "note": "Jedes Script aus dist/ in den Editor der Web-UI einfügen, speichern und die Byte-Zahl per Script.GetCode vergleichen."
+      },
+      {
+        "id": "verlust",
+        "label": "Wenn Bytes fehlen",
+        "focus": [
+          "laenge",
+          "nochmal",
+          "einfuegen"
+        ],
+        "note": "Weicht left + 1 von der Dateigröße ab, hat der Editor Text verloren: Inhalt erneut einfügen, speichern, erneut prüfen."
+      },
+      {
+        "id": "installer",
+        "label": "Installer und Zielband",
+        "focus": [
+          "installer",
+          "konsole",
+          "schedules",
+          "kvs",
+          "fertig"
+        ],
+        "note": "bw_install einmal starten, die Konsole lesen, den Zeitplan kontrollieren und danach das Zielband in cfg2 eintragen."
+      }
+    ]
+  },
+  "lanes": [
+    {
+      "id": "rechner",
+      "label": "Rechner / Browser"
+    },
+    {
+      "id": "webui",
+      "label": "Shelly Web-UI"
+    },
+    {
+      "id": "pruefung",
+      "label": "Prüfung / Konsole"
+    }
+  ],
+  "mainPath": [
+    "dist",
+    "anlegen",
+    "einfuegen",
+    "laenge",
+    "installer",
+    "konsole",
+    "schedules",
+    "kvs",
+    "fertig"
+  ],
+  "nodes": [
+    {
+      "id": "dist",
+      "lane": "rechner",
+      "col": 0,
+      "type": "database",
+      "label": "dist/ öffnen",
+      "sublabel": "GitHub, Raw, kopieren",
+      "width": 132
+    },
+    {
+      "id": "anlegen",
+      "lane": "webui",
+      "col": 1,
+      "type": "frontend",
+      "label": "Script anlegen",
+      "sublabel": "Add script, Name exakt",
+      "width": 132
+    },
+    {
+      "id": "einfuegen",
+      "lane": "webui",
+      "col": 2,
+      "type": "frontend",
+      "label": "Code einfügen",
+      "sublabel": "aus dist/, dann Save",
+      "width": 132
+    },
+    {
+      "id": "laenge",
+      "lane": "rechner",
+      "col": 3,
+      "type": "security",
+      "label": "Byte-Prüfung",
+      "sublabel": "left + 1 = Größe?",
+      "tag": "Pflicht",
+      "width": 132
+    },
+    {
+      "id": "nochmal",
+      "lane": "pruefung",
+      "col": 2,
+      "type": "security",
+      "label": "Erneut einfügen",
+      "sublabel": "Text ging verloren",
+      "width": 132
+    },
+    {
+      "id": "installer",
+      "lane": "webui",
+      "col": 4,
+      "type": "backend",
+      "label": "bw_install",
+      "sublabel": "einmal Start",
+      "width": 132
+    },
+    {
+      "id": "konsole",
+      "lane": "pruefung",
+      "col": 4,
+      "type": "frontend",
+      "label": "Konsole lesen",
+      "sublabel": "fertig – bw_main alle 15 min",
+      "width": 132
+    },
+    {
+      "id": "schedules",
+      "lane": "pruefung",
+      "col": 5,
+      "type": "messagebus",
+      "label": "Schedules",
+      "sublabel": "3 Einträge",
+      "width": 132
+    },
+    {
+      "id": "kvs",
+      "lane": "webui",
+      "col": 5,
+      "type": "database",
+      "label": "KVS: cfg2",
+      "sublabel": "Format as JSON",
+      "width": 132
+    },
+    {
+      "id": "fertig",
+      "lane": "rechner",
+      "col": 5,
+      "type": "backend",
+      "label": "Fertig",
+      "sublabel": "weiter mit Kapitel 06",
+      "width": 132
+    }
+  ],
+  "edges": [
+    {
+      "id": "e_dist_anlegen",
+      "from": "dist",
+      "to": "anlegen"
+    },
+    {
+      "id": "e_anlegen_einfuegen",
+      "from": "anlegen",
+      "to": "einfuegen"
+    },
+    {
+      "id": "e_einfuegen_laenge",
+      "from": "einfuegen",
+      "to": "laenge",
+      "label": "GetCode len=1",
+      "fromSide": "top",
+      "toSide": "left"
+    },
+    {
+      "id": "e_laenge_nochmal",
+      "from": "laenge",
+      "to": "nochmal",
+      "label": "weicht ab",
+      "variant": "security",
+      "role": "error",
+      "fromSide": "bottom",
+      "toSide": "right"
+    },
+    {
+      "id": "e_nochmal_einfuegen",
+      "from": "nochmal",
+      "to": "einfuegen",
+      "variant": "dashed",
+      "role": "return"
+    },
+    {
+      "id": "e_laenge_installer",
+      "from": "laenge",
+      "to": "installer",
+      "label": "stimmt",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e_installer_konsole",
+      "from": "installer",
+      "to": "konsole"
+    },
+    {
+      "id": "e_konsole_schedules",
+      "from": "konsole",
+      "to": "schedules"
+    },
+    {
+      "id": "e_schedules_kvs",
+      "from": "schedules",
+      "to": "kvs"
+    },
+    {
+      "id": "e_kvs_fertig",
+      "from": "kvs",
+      "to": "fertig",
+      "label": "Zielband",
+      "variant": "emphasis"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Byte-Prüfung",
+      "items": [
+        "Nur dist/ einfügen, nie scripts/",
+        "left + 1 muss der Dateigröße gleichen",
+        "Abweichung heißt: erneut einfügen"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Nach dem Installer",
+      "items": [
+        "Konsole endet mit fertig",
+        "Drei Zeitplan-Einträge",
+        "Zielband in cfg2, sonst why=cfg"
+      ]
+    }
+  ]
+}
